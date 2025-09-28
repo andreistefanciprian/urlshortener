@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # URL Generation Service - gRPC Server
+  url-gen:
+    build:
+      context: ./url-gen
+      dockerfile: infra/Dockerfile
+    ports:
+      - "50052:50052"
+    environment:
+      - DB_HOST=url-gen-db
+      - DB_PORT=5432
+      - DB_NAME=urls
+      - DB_USER=url_gen_user
+      - DB_PASSWORD=Auth123
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - URL_GEN_PORT=50052
+    depends_on:
+      url-gen-db:
+        condition: service_healthy
+        restart: true
+    networks:
+      - urlshortener
+
+  # PostgreSQL Database - url-gen-db
+  url-gen-db:
+    image: postgres:15-alpine
+    container_name: url-gen-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - urlshortener
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  postgres_data:
+
+networks:
+  urlshortener:
+    driver: bridge

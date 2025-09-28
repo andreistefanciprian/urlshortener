@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/andreistefanciprian/urlshortener/url-generator/proto/pb";
+
+service URLGenerator {
+    rpc GenerateShortURL(LongURLRequest) returns (ShortURLResponse);
+}
+message LongURLRequest {
+    string long_url = 1;
+    google.protobuf.Timestamp expiration = 2; // Optional expiration date
+}
+
+message ShortURLResponse {
+    string short_url = 1;
+}
