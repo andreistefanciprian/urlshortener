@@ -4,7 +4,7 @@
 // 	protoc        v4.23.4
 // source: url-gen/proto/url-gen.proto
 
-package pb
+package proto
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -131,7 +131,7 @@ const file_url_gen_proto_url_gen_proto_rawDesc = "" +
 	"\x10ShortURLResponse\x12\x1b\n" +
 	"\tshort_url\x18\x01 \x01(\tR\bshortUrl2F\n" +
 	"\fURLGenerator\x126\n" +
-	"\x10GenerateShortURL\x12\x0f.LongURLRequest\x1a\x11.ShortURLResponseBDZBgithub.com/andreistefanciprian/urlshortener/url-generator/proto/pbb\x06proto3"
+	"\x10GenerateShortURL\x12\x0f.LongURLRequest\x1a\x11.ShortURLResponseB;Z9github.com/andreistefanciprian/urlshortener/url-gen/protob\x06proto3"
 
 var (
 	file_url_gen_proto_url_gen_proto_rawDescOnce sync.Once
