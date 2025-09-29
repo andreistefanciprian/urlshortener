@@ -100,7 +100,7 @@ func (h *APIHandler) GetLongURL(w http.ResponseWriter, r *http.Request) {
 
 	// Validate required fields
 	if err := validateShortURL(shortUrlCode); err != nil {
-		h.logger.Errorf("Invalid short URL code: %v", err)
+		h.logger.Errorf(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -116,6 +116,15 @@ func (h *APIHandler) GetLongURL(w http.ResponseWriter, r *http.Request) {
 		h.logger.Errorf("gRPC call to GetLongURL failed: %v", err)
 		http.Error(w, "Failed to retrieve long URL", http.StatusInternalServerError)
 		return
+	}
+
+	// Check if response.Expiration is set and if the URL has expired
+	if response.Expiration != nil {
+		if response.Expiration.AsTime().Before(time.Now()) {
+			h.logger.Infof("Short URL %s has expired at %v", shortUrlCode, response.Expiration.AsTime())
+			http.Error(w, "Short URL has expired", http.StatusGone)
+			return
+		}
 	}
 
 	// Redirect with 302 to the original long URL
