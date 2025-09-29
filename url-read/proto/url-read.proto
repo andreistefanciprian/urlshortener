@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/andreistefanciprian/urlshortener/url-read/proto";
+
+service ReadLongURL {
+    rpc GetLongURL(ShortURLRequest) returns (LongURLResponse);
+}
+message ShortURLRequest {
+    string short_code = 1;
+}
+
+message LongURLResponse {
+    string long_url = 1;
+    google.protobuf.Timestamp expiration = 2; // Optional expiration date
+}
