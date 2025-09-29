@@ -38,7 +38,7 @@ func (s *Implementation) GetLongURL(ctx context.Context, request *uread.LongURLR
 	if err != nil {
 		s.logger.WithContext(ctx).WithError(err).WithFields(logrus.Fields{
 			"shortCode": request.ShortUrl,
-		}).Error("Failed to retrieve original URL")
+		}).Errorf("Failed to retrieve original URL: %v", err)
 		return nil, err
 	}
 

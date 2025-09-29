@@ -3,7 +3,6 @@ module github.com/andreistefanciprian/urlshortener/url-read
 go 1.25.1
 
 require (
-	github.com/andreistefanciprian/urlshortener/url-gen v0.0.0-20250929044339-d01c9c4ca109
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/sirupsen/logrus v1.9.3
 	google.golang.org/grpc v1.75.1
