@@ -12,9 +12,8 @@ import (
 )
 
 type ShortURLRepository interface {
-	CreateShortURL(originalURL, shortCode string, expireTime time.Time) error
-	// GetOriginalURL(shortCode string) (string, error)
-	// DeleteShortURL(shortCode string) error
+	CreateShortURL(ctx context.Context, originalURL, shortCode string, expireTime time.Time) error
+	// DeleteShortURL(ctx context.Context, shortCode string) error
 	Close() error
 }
 
@@ -42,9 +41,7 @@ func (r *MyShortURLRepository) Close() error {
 	return nil
 }
 
-func (r *MyShortURLRepository) CreateShortURL(originalURL, shortCode string, expireTime time.Time) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+func (r *MyShortURLRepository) CreateShortURL(ctx context.Context, originalURL, shortCode string, expireTime time.Time) error {
 
 	// SQL query to insert new short link
 	query := `
@@ -64,17 +61,12 @@ func (r *MyShortURLRepository) CreateShortURL(originalURL, shortCode string, exp
 		"shortCode":   shortCode,
 		"originalURL": originalURL,
 		"expiresAt":   expireTime,
-	}).Infof("Successfully created short URL for %s", originalURL)
+	}).Infof("Successfully created short URL")
 
 	return nil
 }
 
-func (r *MyShortURLRepository) GetOriginalURL(shortCode string) (string, error) {
-	// Implementation of retrieving the original URL from the database
-	return "", nil
-}
-
-func (r *MyShortURLRepository) DeleteShortURL(shortCode string) error {
+func (r *MyShortURLRepository) DeleteShortURL(ctx context.Context, shortCode string) error {
 	// Implementation of deleting a short URL from the database
 	return nil
 }

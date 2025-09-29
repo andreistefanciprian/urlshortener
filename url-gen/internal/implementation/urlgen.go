@@ -42,7 +42,7 @@ func (s *Implementation) GenerateShortURL(ctx context.Context, URLRequestPayload
 	}
 
 	// Store the mapping in the database (context will be used by db layer)
-	err = s.repo.CreateShortURL(URLRequestPayload.LongUrl, shortCode, URLRequestPayload.Expiration.AsTime())
+	err = s.repo.CreateShortURL(ctx, URLRequestPayload.LongUrl, shortCode, URLRequestPayload.Expiration.AsTime())
 	if err != nil {
 		s.logger.WithContext(ctx).WithError(err).Error("Failed to create short URL")
 		return nil, err

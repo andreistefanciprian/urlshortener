@@ -71,6 +71,8 @@ func NewAPIHandler(logger *logrus.Logger, urlGenClient ugen.URLGeneratorClient) 
 }
 
 func (h *APIHandler) CreateShortURL(w http.ResponseWriter, r *http.Request) {
+	// Use request context for future enhancements such as logging, timeouts, tracing, etc.
+	ctx := r.Context()
 
 	// Parse request body
 	var req struct {
@@ -102,7 +104,7 @@ func (h *APIHandler) CreateShortURL(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Call gRPC service
-	response, err := h.urlGenClient.GenerateShortURL(r.Context(), grpcReq)
+	response, err := h.urlGenClient.GenerateShortURL(ctx, grpcReq)
 	if err != nil {
 		h.logger.Errorf("gRPC call to GenerateShortURL failed: %v", err)
 		http.Error(w, "Failed to generate short URL", http.StatusInternalServerError)
@@ -124,6 +126,7 @@ func (h *APIHandler) CreateShortURL(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to write response", http.StatusInternalServerError)
 		return
 	}
+	h.logger.Infof("Successfully processed CreateShortURL request for %s", req.LongUrl)
 }
 
 func initLogger() *logrus.Logger {
