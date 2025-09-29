@@ -118,31 +118,24 @@ func (h *APIHandler) GetLongURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Respond with the long URL
-	responseJSON, err := json.Marshal(response)
-	if err != nil {
-		h.logger.Errorf("Failed to marshal gRPC response: %v", err)
-		http.Error(w, "Failed to process response", http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(responseJSON)
-	if err != nil {
-		h.logger.Errorf("Failed to write response: %v", err)
-		http.Error(w, "Failed to write response", http.StatusInternalServerError)
-		return
-	}
-	h.logger.Infof("Successfully processed GetLongURL request for %s", shortUrlCode)
+	// Redirect with 302 to the original long URL
+	w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate")
+	w.Header().Set("Expires", "0")
+	http.Redirect(w, r, response.LongUrl, http.StatusFound)
 }
 
-// const shortUrlCodeLength = 7
+const shortUrlCodeLength = 7
 
 func validateShortURL(shortURL string) error {
 	// Basic validation: check if the short URL is not empty and has a valid format
 	if shortURL == "" {
 		return fmt.Errorf("short URL is empty")
 	}
+
+	if len(shortURL) != shortUrlCodeLength {
+		return fmt.Errorf("invalid short URL length")
+	}
+
 	// Further validation logic can be added here (e.g., regex check)
 	return nil
 }
