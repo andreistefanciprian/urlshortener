@@ -2,12 +2,12 @@ syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/andreistefanciprian/urlshortener/url-generator/proto/pb";
+option go_package = "github.com/andreistefanciprian/urlshortener/url-gen/proto";
 
 service URLGenerator {
-    rpc GenerateShortURL(LongURLRequest) returns (ShortURLResponse);
+    rpc GenerateShortURL(ShortURLRequest) returns (ShortURLResponse);
 }
-message LongURLRequest {
+message ShortURLRequest {
     string long_url = 1;
     google.protobuf.Timestamp expiration = 2; // Optional expiration date
 }

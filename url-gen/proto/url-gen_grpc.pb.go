@@ -4,7 +4,7 @@
 // - protoc             v4.23.4
 // source: url-gen/proto/url-gen.proto
 
-package pb
+package proto
 
 import (
 	context "context"
@@ -26,7 +26,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type URLGeneratorClient interface {
-	GenerateShortURL(ctx context.Context, in *LongURLRequest, opts ...grpc.CallOption) (*ShortURLResponse, error)
+	GenerateShortURL(ctx context.Context, in *ShortURLRequest, opts ...grpc.CallOption) (*ShortURLResponse, error)
 }
 
 type uRLGeneratorClient struct {
@@ -37,7 +37,7 @@ func NewURLGeneratorClient(cc grpc.ClientConnInterface) URLGeneratorClient {
 	return &uRLGeneratorClient{cc}
 }
 
-func (c *uRLGeneratorClient) GenerateShortURL(ctx context.Context, in *LongURLRequest, opts ...grpc.CallOption) (*ShortURLResponse, error) {
+func (c *uRLGeneratorClient) GenerateShortURL(ctx context.Context, in *ShortURLRequest, opts ...grpc.CallOption) (*ShortURLResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ShortURLResponse)
 	err := c.cc.Invoke(ctx, URLGenerator_GenerateShortURL_FullMethodName, in, out, cOpts...)
@@ -51,7 +51,7 @@ func (c *uRLGeneratorClient) GenerateShortURL(ctx context.Context, in *LongURLRe
 // All implementations must embed UnimplementedURLGeneratorServer
 // for forward compatibility.
 type URLGeneratorServer interface {
-	GenerateShortURL(context.Context, *LongURLRequest) (*ShortURLResponse, error)
+	GenerateShortURL(context.Context, *ShortURLRequest) (*ShortURLResponse, error)
 	mustEmbedUnimplementedURLGeneratorServer()
 }
 
@@ -62,7 +62,7 @@ type URLGeneratorServer interface {
 // pointer dereference when methods are called.
 type UnimplementedURLGeneratorServer struct{}
 
-func (UnimplementedURLGeneratorServer) GenerateShortURL(context.Context, *LongURLRequest) (*ShortURLResponse, error) {
+func (UnimplementedURLGeneratorServer) GenerateShortURL(context.Context, *ShortURLRequest) (*ShortURLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateShortURL not implemented")
 }
 func (UnimplementedURLGeneratorServer) mustEmbedUnimplementedURLGeneratorServer() {}
@@ -87,7 +87,7 @@ func RegisterURLGeneratorServer(s grpc.ServiceRegistrar, srv URLGeneratorServer)
 }
 
 func _URLGenerator_GenerateShortURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LongURLRequest)
+	in := new(ShortURLRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func _URLGenerator_GenerateShortURL_Handler(srv interface{}, ctx context.Context
 		FullMethod: URLGenerator_GenerateShortURL_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(URLGeneratorServer).GenerateShortURL(ctx, req.(*LongURLRequest))
+		return srv.(URLGeneratorServer).GenerateShortURL(ctx, req.(*ShortURLRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

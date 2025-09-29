@@ -6,9 +6,9 @@ import (
 	"net"
 	"os"
 
-	"github.com/andreistefanciprian/urlshortener/url-gen/internal/db"
-	urlgen "github.com/andreistefanciprian/urlshortener/url-gen/internal/implementation"
-	proto "github.com/andreistefanciprian/urlshortener/url-gen/proto"
+	"github.com/andreistefanciprian/urlshortener/url-read/internal/db"
+	urlread "github.com/andreistefanciprian/urlshortener/url-read/internal/implementation"
+	proto "github.com/andreistefanciprian/urlshortener/url-read/proto"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
@@ -45,11 +45,11 @@ func main() {
 
 	// Create gRPC server
 	grpcServer := grpc.NewServer()
-	urlGenService := urlgen.NewUrlGenImplementation(logger, repo)
-	proto.RegisterURLGeneratorServer(grpcServer, urlGenService)
+	urlReadService := urlread.NewUrlReadImplementation(logger, repo)
+	proto.RegisterURLReaderServer(grpcServer, urlReadService)
 
 	// Start listening for gRPC requests
-	serverPort := os.Getenv("URL_GEN_PORT")
+	serverPort := os.Getenv("URL_READ_PORT")
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", serverPort))
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)

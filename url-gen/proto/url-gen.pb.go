@@ -4,7 +4,7 @@
 // 	protoc        v4.23.4
 // source: url-gen/proto/url-gen.proto
 
-package pb
+package proto
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -22,7 +22,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type LongURLRequest struct {
+type ShortURLRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	LongUrl       string                 `protobuf:"bytes,1,opt,name=long_url,json=longUrl,proto3" json:"long_url,omitempty"`
 	Expiration    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expiration,proto3" json:"expiration,omitempty"` // Optional expiration date
@@ -30,20 +30,20 @@ type LongURLRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *LongURLRequest) Reset() {
-	*x = LongURLRequest{}
+func (x *ShortURLRequest) Reset() {
+	*x = ShortURLRequest{}
 	mi := &file_url_gen_proto_url_gen_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *LongURLRequest) String() string {
+func (x *ShortURLRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*LongURLRequest) ProtoMessage() {}
+func (*ShortURLRequest) ProtoMessage() {}
 
-func (x *LongURLRequest) ProtoReflect() protoreflect.Message {
+func (x *ShortURLRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_url_gen_proto_url_gen_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -55,19 +55,19 @@ func (x *LongURLRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use LongURLRequest.ProtoReflect.Descriptor instead.
-func (*LongURLRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ShortURLRequest.ProtoReflect.Descriptor instead.
+func (*ShortURLRequest) Descriptor() ([]byte, []int) {
 	return file_url_gen_proto_url_gen_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *LongURLRequest) GetLongUrl() string {
+func (x *ShortURLRequest) GetLongUrl() string {
 	if x != nil {
 		return x.LongUrl
 	}
 	return ""
 }
 
-func (x *LongURLRequest) GetExpiration() *timestamppb.Timestamp {
+func (x *ShortURLRequest) GetExpiration() *timestamppb.Timestamp {
 	if x != nil {
 		return x.Expiration
 	}
@@ -122,16 +122,16 @@ var File_url_gen_proto_url_gen_proto protoreflect.FileDescriptor
 
 const file_url_gen_proto_url_gen_proto_rawDesc = "" +
 	"\n" +
-	"\x1burl-gen/proto/url-gen.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"g\n" +
-	"\x0eLongURLRequest\x12\x19\n" +
+	"\x1burl-gen/proto/url-gen.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"h\n" +
+	"\x0fShortURLRequest\x12\x19\n" +
 	"\blong_url\x18\x01 \x01(\tR\alongUrl\x12:\n" +
 	"\n" +
 	"expiration\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"expiration\"/\n" +
 	"\x10ShortURLResponse\x12\x1b\n" +
-	"\tshort_url\x18\x01 \x01(\tR\bshortUrl2F\n" +
-	"\fURLGenerator\x126\n" +
-	"\x10GenerateShortURL\x12\x0f.LongURLRequest\x1a\x11.ShortURLResponseBDZBgithub.com/andreistefanciprian/urlshortener/url-generator/proto/pbb\x06proto3"
+	"\tshort_url\x18\x01 \x01(\tR\bshortUrl2G\n" +
+	"\fURLGenerator\x127\n" +
+	"\x10GenerateShortURL\x12\x10.ShortURLRequest\x1a\x11.ShortURLResponseB;Z9github.com/andreistefanciprian/urlshortener/url-gen/protob\x06proto3"
 
 var (
 	file_url_gen_proto_url_gen_proto_rawDescOnce sync.Once
@@ -147,13 +147,13 @@ func file_url_gen_proto_url_gen_proto_rawDescGZIP() []byte {
 
 var file_url_gen_proto_url_gen_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_url_gen_proto_url_gen_proto_goTypes = []any{
-	(*LongURLRequest)(nil),        // 0: LongURLRequest
+	(*ShortURLRequest)(nil),       // 0: ShortURLRequest
 	(*ShortURLResponse)(nil),      // 1: ShortURLResponse
 	(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
 }
 var file_url_gen_proto_url_gen_proto_depIdxs = []int32{
-	2, // 0: LongURLRequest.expiration:type_name -> google.protobuf.Timestamp
-	0, // 1: URLGenerator.GenerateShortURL:input_type -> LongURLRequest
+	2, // 0: ShortURLRequest.expiration:type_name -> google.protobuf.Timestamp
+	0, // 1: URLGenerator.GenerateShortURL:input_type -> ShortURLRequest
 	1, // 2: URLGenerator.GenerateShortURL:output_type -> ShortURLResponse
 	2, // [2:3] is the sub-list for method output_type
 	1, // [1:2] is the sub-list for method input_type

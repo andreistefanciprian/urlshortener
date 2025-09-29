@@ -1,10 +1,14 @@
 -- Simple PostgreSQL setup for URL shortener
 
--- Create user if not exists
+-- Create users if not exists
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'url_gen_user') THEN
         CREATE USER url_gen_user WITH PASSWORD 'Auth123';
+    END IF;
+    
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'url_read_user') THEN
+        CREATE USER url_read_user WITH PASSWORD 'Auth123';
     END IF;
 END
 $$;
@@ -14,6 +18,7 @@ SELECT 'CREATE DATABASE urls' WHERE NOT EXISTS (SELECT FROM pg_database WHERE da
 
 -- Grant database privileges
 GRANT ALL PRIVILEGES ON DATABASE urls TO url_gen_user;
+GRANT CONNECT ON DATABASE urls TO url_read_user;
 
 -- Connect to urls database
 \c urls;
@@ -28,4 +33,6 @@ CREATE TABLE IF NOT EXISTS short_links (
 
 -- Grant table privileges
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO url_gen_user;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO url_read_user;
+GRANT USAGE ON SCHEMA public TO url_read_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO url_gen_user;

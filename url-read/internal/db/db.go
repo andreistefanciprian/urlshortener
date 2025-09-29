@@ -12,8 +12,7 @@ import (
 )
 
 type URLRepository interface {
-	CreateShortURL(ctx context.Context, originalURL, shortCode string, expireTime time.Time) error
-	// DeleteShortURL(ctx context.Context, shortCode string) error
+	GetLongURL(ctx context.Context, shortCode string) (*LongURLRecord, error)
 	Close() error
 }
 
@@ -41,34 +40,37 @@ func (r *MyURLRepository) Close() error {
 	return nil
 }
 
-func (r *MyURLRepository) CreateShortURL(ctx context.Context, originalURL, shortCode string, expireTime time.Time) error {
+type LongURLRecord struct {
+	OriginalURL string
+	ExpiresAt   *time.Time
+}
 
-	// SQL query to insert new short link
+func (r *MyURLRepository) GetLongURL(ctx context.Context, shortCode string) (*LongURLRecord, error) {
+	// SQL query to fetch the original URL by short code
 	query := `
-		INSERT INTO short_links (code, original_url, expires_at) 
-		VALUES ($1, $2, $3)`
+		SELECT original_url, expires_at
+		FROM short_links 
+		WHERE code = $1 AND (expires_at IS NULL OR expires_at > NOW())`
 
-	_, err := r.db.Exec(ctx, query, shortCode, originalURL, expireTime)
+	var response LongURLRecord
+	err := r.db.QueryRow(ctx, query, shortCode).Scan(&response.OriginalURL, &response.ExpiresAt)
 	if err != nil {
 		r.logger.WithError(err).WithFields(logrus.Fields{
-			"shortCode":   shortCode,
-			"originalURL": originalURL,
-		}).Error("Failed to create short URL in database")
-		return fmt.Errorf("failed to create short URL: %w", err)
+			"shortCode": shortCode,
+		}).Error("Failed to fetch original URL from database")
+		return nil, fmt.Errorf("failed to fetch original URL: %w", err)
 	}
 
 	r.logger.WithFields(logrus.Fields{
 		"shortCode":   shortCode,
-		"originalURL": originalURL,
-		"expiresAt":   expireTime,
-	}).Infof("Successfully created short URL")
+		"originalURL": response.OriginalURL,
+		"expiresAt":   response.ExpiresAt,
+	}).Infof("Successfully fetched original URL")
 
-	return nil
-}
-
-func (r *MyURLRepository) DeleteShortURL(ctx context.Context, shortCode string) error {
-	// Implementation of deleting a short URL from the database
-	return nil
+	return &LongURLRecord{
+		OriginalURL: response.OriginalURL,
+		ExpiresAt:   response.ExpiresAt,
+	}, nil
 }
 
 // DBConfig holds database configuration parameters

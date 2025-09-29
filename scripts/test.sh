@@ -27,7 +27,7 @@ check_db_table() {
     echo "========================================="
     
     # Connect to the PostgreSQL database and check the short_links table
-    docker run --rm --network host -e PGPASSWORD=Auth123 postgres:15-alpine psql -h localhost -p 5432 -U url_gen_user -d urls -c "SELECT * FROM short_links;"
+    docker run --rm --network host -e PGPASSWORD=Auth123 postgres:15-alpine psql -h localhost -p 5432 -U url_read_user -d urls -c "SELECT * FROM short_links;"
     
     echo "========================================="
     echo "Database check completed"
