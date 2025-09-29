@@ -19,101 +19,101 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ReadLongURL_GetLongURL_FullMethodName = "/ReadLongURL/GetLongURL"
+	URLReader_GetLongURL_FullMethodName = "/URLReader/GetLongURL"
 )
 
-// ReadLongURLClient is the client API for ReadLongURL service.
+// URLReaderClient is the client API for URLReader service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ReadLongURLClient interface {
-	GetLongURL(ctx context.Context, in *ShortURLRequest, opts ...grpc.CallOption) (*LongURLResponse, error)
+type URLReaderClient interface {
+	GetLongURL(ctx context.Context, in *LongURLRequest, opts ...grpc.CallOption) (*LongURLResponse, error)
 }
 
-type readLongURLClient struct {
+type uRLReaderClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewReadLongURLClient(cc grpc.ClientConnInterface) ReadLongURLClient {
-	return &readLongURLClient{cc}
+func NewURLReaderClient(cc grpc.ClientConnInterface) URLReaderClient {
+	return &uRLReaderClient{cc}
 }
 
-func (c *readLongURLClient) GetLongURL(ctx context.Context, in *ShortURLRequest, opts ...grpc.CallOption) (*LongURLResponse, error) {
+func (c *uRLReaderClient) GetLongURL(ctx context.Context, in *LongURLRequest, opts ...grpc.CallOption) (*LongURLResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(LongURLResponse)
-	err := c.cc.Invoke(ctx, ReadLongURL_GetLongURL_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, URLReader_GetLongURL_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ReadLongURLServer is the server API for ReadLongURL service.
-// All implementations must embed UnimplementedReadLongURLServer
+// URLReaderServer is the server API for URLReader service.
+// All implementations must embed UnimplementedURLReaderServer
 // for forward compatibility.
-type ReadLongURLServer interface {
-	GetLongURL(context.Context, *ShortURLRequest) (*LongURLResponse, error)
-	mustEmbedUnimplementedReadLongURLServer()
+type URLReaderServer interface {
+	GetLongURL(context.Context, *LongURLRequest) (*LongURLResponse, error)
+	mustEmbedUnimplementedURLReaderServer()
 }
 
-// UnimplementedReadLongURLServer must be embedded to have
+// UnimplementedURLReaderServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedReadLongURLServer struct{}
+type UnimplementedURLReaderServer struct{}
 
-func (UnimplementedReadLongURLServer) GetLongURL(context.Context, *ShortURLRequest) (*LongURLResponse, error) {
+func (UnimplementedURLReaderServer) GetLongURL(context.Context, *LongURLRequest) (*LongURLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLongURL not implemented")
 }
-func (UnimplementedReadLongURLServer) mustEmbedUnimplementedReadLongURLServer() {}
-func (UnimplementedReadLongURLServer) testEmbeddedByValue()                     {}
+func (UnimplementedURLReaderServer) mustEmbedUnimplementedURLReaderServer() {}
+func (UnimplementedURLReaderServer) testEmbeddedByValue()                   {}
 
-// UnsafeReadLongURLServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ReadLongURLServer will
+// UnsafeURLReaderServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to URLReaderServer will
 // result in compilation errors.
-type UnsafeReadLongURLServer interface {
-	mustEmbedUnimplementedReadLongURLServer()
+type UnsafeURLReaderServer interface {
+	mustEmbedUnimplementedURLReaderServer()
 }
 
-func RegisterReadLongURLServer(s grpc.ServiceRegistrar, srv ReadLongURLServer) {
-	// If the following call pancis, it indicates UnimplementedReadLongURLServer was
+func RegisterURLReaderServer(s grpc.ServiceRegistrar, srv URLReaderServer) {
+	// If the following call pancis, it indicates UnimplementedURLReaderServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&ReadLongURL_ServiceDesc, srv)
+	s.RegisterService(&URLReader_ServiceDesc, srv)
 }
 
-func _ReadLongURL_GetLongURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ShortURLRequest)
+func _URLReader_GetLongURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LongURLRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ReadLongURLServer).GetLongURL(ctx, in)
+		return srv.(URLReaderServer).GetLongURL(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ReadLongURL_GetLongURL_FullMethodName,
+		FullMethod: URLReader_GetLongURL_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ReadLongURLServer).GetLongURL(ctx, req.(*ShortURLRequest))
+		return srv.(URLReaderServer).GetLongURL(ctx, req.(*LongURLRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// ReadLongURL_ServiceDesc is the grpc.ServiceDesc for ReadLongURL service.
+// URLReader_ServiceDesc is the grpc.ServiceDesc for URLReader service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var ReadLongURL_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "ReadLongURL",
-	HandlerType: (*ReadLongURLServer)(nil),
+var URLReader_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "URLReader",
+	HandlerType: (*URLReaderServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetLongURL",
-			Handler:    _ReadLongURL_GetLongURL_Handler,
+			Handler:    _URLReader_GetLongURL_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

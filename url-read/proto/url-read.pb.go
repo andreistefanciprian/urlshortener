@@ -22,27 +22,27 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type ShortURLRequest struct {
+type LongURLRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ShortCode     string                 `protobuf:"bytes,1,opt,name=short_code,json=shortCode,proto3" json:"short_code,omitempty"`
+	ShortUrl      string                 `protobuf:"bytes,1,opt,name=short_url,json=shortUrl,proto3" json:"short_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ShortURLRequest) Reset() {
-	*x = ShortURLRequest{}
+func (x *LongURLRequest) Reset() {
+	*x = LongURLRequest{}
 	mi := &file_url_read_proto_url_read_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ShortURLRequest) String() string {
+func (x *LongURLRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ShortURLRequest) ProtoMessage() {}
+func (*LongURLRequest) ProtoMessage() {}
 
-func (x *ShortURLRequest) ProtoReflect() protoreflect.Message {
+func (x *LongURLRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_url_read_proto_url_read_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -54,14 +54,14 @@ func (x *ShortURLRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ShortURLRequest.ProtoReflect.Descriptor instead.
-func (*ShortURLRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use LongURLRequest.ProtoReflect.Descriptor instead.
+func (*LongURLRequest) Descriptor() ([]byte, []int) {
 	return file_url_read_proto_url_read_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ShortURLRequest) GetShortCode() string {
+func (x *LongURLRequest) GetShortUrl() string {
 	if x != nil {
-		return x.ShortCode
+		return x.ShortUrl
 	}
 	return ""
 }
@@ -122,18 +122,17 @@ var File_url_read_proto_url_read_proto protoreflect.FileDescriptor
 
 const file_url_read_proto_url_read_proto_rawDesc = "" +
 	"\n" +
-	"\x1durl-read/proto/url-read.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"0\n" +
-	"\x0fShortURLRequest\x12\x1d\n" +
-	"\n" +
-	"short_code\x18\x01 \x01(\tR\tshortCode\"h\n" +
+	"\x1durl-read/proto/url-read.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"-\n" +
+	"\x0eLongURLRequest\x12\x1b\n" +
+	"\tshort_url\x18\x01 \x01(\tR\bshortUrl\"h\n" +
 	"\x0fLongURLResponse\x12\x19\n" +
 	"\blong_url\x18\x01 \x01(\tR\alongUrl\x12:\n" +
 	"\n" +
 	"expiration\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"expiration2?\n" +
-	"\vReadLongURL\x120\n" +
+	"expiration2<\n" +
+	"\tURLReader\x12/\n" +
 	"\n" +
-	"GetLongURL\x12\x10.ShortURLRequest\x1a\x10.LongURLResponseB<Z:github.com/andreistefanciprian/urlshortener/url-read/protob\x06proto3"
+	"GetLongURL\x12\x0f.LongURLRequest\x1a\x10.LongURLResponseB<Z:github.com/andreistefanciprian/urlshortener/url-read/protob\x06proto3"
 
 var (
 	file_url_read_proto_url_read_proto_rawDescOnce sync.Once
@@ -149,14 +148,14 @@ func file_url_read_proto_url_read_proto_rawDescGZIP() []byte {
 
 var file_url_read_proto_url_read_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_url_read_proto_url_read_proto_goTypes = []any{
-	(*ShortURLRequest)(nil),       // 0: ShortURLRequest
+	(*LongURLRequest)(nil),        // 0: LongURLRequest
 	(*LongURLResponse)(nil),       // 1: LongURLResponse
 	(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
 }
 var file_url_read_proto_url_read_proto_depIdxs = []int32{
 	2, // 0: LongURLResponse.expiration:type_name -> google.protobuf.Timestamp
-	0, // 1: ReadLongURL.GetLongURL:input_type -> ShortURLRequest
-	1, // 2: ReadLongURL.GetLongURL:output_type -> LongURLResponse
+	0, // 1: URLReader.GetLongURL:input_type -> LongURLRequest
+	1, // 2: URLReader.GetLongURL:output_type -> LongURLResponse
 	2, // [2:3] is the sub-list for method output_type
 	1, // [1:2] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

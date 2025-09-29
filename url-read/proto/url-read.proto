@@ -4,11 +4,12 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/andreistefanciprian/urlshortener/url-read/proto";
 
-service ReadLongURL {
-    rpc GetLongURL(ShortURLRequest) returns (LongURLResponse);
+service URLReader {
+    rpc GetLongURL(LongURLRequest) returns (LongURLResponse);
 }
-message ShortURLRequest {
-    string short_code = 1;
+
+message LongURLRequest {
+    string short_url = 1;
 }
 
 message LongURLResponse {
