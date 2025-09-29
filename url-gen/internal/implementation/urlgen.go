@@ -11,18 +11,18 @@ import (
 
 type Implementation struct {
 	logger *logrus.Logger
-	repo   repo.ShortURLRepository
+	repo   repo.URLRepository
 	ugen.UnimplementedURLGeneratorServer
 }
 
-func NewUrlGenImplementation(logger *logrus.Logger, repository repo.ShortURLRepository) *Implementation {
+func NewUrlGenImplementation(logger *logrus.Logger, repository repo.URLRepository) *Implementation {
 	return &Implementation{
 		logger: logger,
 		repo:   repository,
 	}
 }
 
-func (s *Implementation) GenerateShortURL(ctx context.Context, URLRequestPayload *ugen.LongURLRequest) (*ugen.ShortURLResponse, error) {
+func (s *Implementation) GenerateShortURL(ctx context.Context, URLRequestPayload *ugen.ShortURLRequest) (*ugen.ShortURLResponse, error) {
 	// Use context for logging and timeout handling
 	s.logger.WithContext(ctx).WithFields(logrus.Fields{
 		"longUrl": URLRequestPayload.LongUrl,

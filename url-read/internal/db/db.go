@@ -11,31 +11,31 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type ShortURLRepository interface {
+type URLRepository interface {
 	GetLongURL(ctx context.Context, shortCode string) (*LongURLRecord, error)
 	Close() error
 }
 
-type MyShortURLRepository struct {
+type MyURLRepository struct {
 	logger *logrus.Logger
 	db     *pgxpool.Pool
 }
 
-// NewMyShortURLRepository creates a new repository instance with database connection
-func NewMyShortURLRepository(logger *logrus.Logger) (*MyShortURLRepository, error) {
+// NewMyURLRepository creates a new repository instance with database connection
+func NewMyURLRepository(logger *logrus.Logger) (*MyURLRepository, error) {
 	// Initialize database connection
 	db, err := initDB()
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize database: %w", err)
 	}
 
-	return &MyShortURLRepository{
+	return &MyURLRepository{
 		logger: logger,
 		db:     db,
 	}, nil
 }
 
-func (r *MyShortURLRepository) Close() error {
+func (r *MyURLRepository) Close() error {
 	r.db.Close()
 	return nil
 }
@@ -45,7 +45,7 @@ type LongURLRecord struct {
 	ExpiresAt   *time.Time
 }
 
-func (r *MyShortURLRepository) GetLongURL(ctx context.Context, shortCode string) (*LongURLRecord, error) {
+func (r *MyURLRepository) GetLongURL(ctx context.Context, shortCode string) (*LongURLRecord, error) {
 	// SQL query to fetch the original URL by short code
 	query := `
 		SELECT original_url, expires_at

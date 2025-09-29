@@ -11,37 +11,37 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type ShortURLRepository interface {
+type URLRepository interface {
 	CreateShortURL(ctx context.Context, originalURL, shortCode string, expireTime time.Time) error
 	// DeleteShortURL(ctx context.Context, shortCode string) error
 	Close() error
 }
 
-type MyShortURLRepository struct {
+type MyURLRepository struct {
 	logger *logrus.Logger
 	db     *pgxpool.Pool
 }
 
-// NewMyShortURLRepository creates a new repository instance with database connection
-func NewMyShortURLRepository(logger *logrus.Logger) (*MyShortURLRepository, error) {
+// NewMyURLRepository creates a new repository instance with database connection
+func NewMyURLRepository(logger *logrus.Logger) (*MyURLRepository, error) {
 	// Initialize database connection
 	db, err := initDB()
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize database: %w", err)
 	}
 
-	return &MyShortURLRepository{
+	return &MyURLRepository{
 		logger: logger,
 		db:     db,
 	}, nil
 }
 
-func (r *MyShortURLRepository) Close() error {
+func (r *MyURLRepository) Close() error {
 	r.db.Close()
 	return nil
 }
 
-func (r *MyShortURLRepository) CreateShortURL(ctx context.Context, originalURL, shortCode string, expireTime time.Time) error {
+func (r *MyURLRepository) CreateShortURL(ctx context.Context, originalURL, shortCode string, expireTime time.Time) error {
 
 	// SQL query to insert new short link
 	query := `
@@ -66,7 +66,7 @@ func (r *MyShortURLRepository) CreateShortURL(ctx context.Context, originalURL, 
 	return nil
 }
 
-func (r *MyShortURLRepository) DeleteShortURL(ctx context.Context, shortCode string) error {
+func (r *MyURLRepository) DeleteShortURL(ctx context.Context, shortCode string) error {
 	// Implementation of deleting a short URL from the database
 	return nil
 }
