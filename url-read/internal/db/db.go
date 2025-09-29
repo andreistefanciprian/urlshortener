@@ -2,11 +2,13 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
 )
@@ -55,10 +57,16 @@ func (r *MyURLRepository) GetLongURL(ctx context.Context, shortCode string) (*Lo
 	var response LongURLRecord
 	err := r.db.QueryRow(ctx, query, shortCode).Scan(&response.OriginalURL, &response.ExpiresAt)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			r.logger.WithFields(logrus.Fields{
+				"shortCode": shortCode,
+			}).Info("Short URL not found or expired")
+			return nil, fmt.Errorf("short URL '%s' not found or has expired", shortCode)
+		}
 		r.logger.WithError(err).WithFields(logrus.Fields{
 			"shortCode": shortCode,
 		}).Error("Failed to fetch original URL from database")
-		return nil, fmt.Errorf("failed to fetch original URL: %w", err)
+		return nil, fmt.Errorf("failed to retrieve URL: %w", err)
 	}
 
 	r.logger.WithFields(logrus.Fields{
@@ -101,11 +109,11 @@ func initDB() (*pgxpool.Pool, error) {
 		return nil, fmt.Errorf("failed to parse database config: %w", err)
 	}
 
-	// Set connection pool settings
-	poolConfig.MaxConns = 30
-	poolConfig.MinConns = 5
-	poolConfig.MaxConnLifetime = time.Hour
-	poolConfig.MaxConnIdleTime = time.Minute * 30
+	// Set connection pool settings optimized for read operations
+	poolConfig.MaxConns = 50                      // Higher for read concurrency
+	poolConfig.MinConns = 10                      // Keep more connections warm for reads
+	poolConfig.MaxConnLifetime = time.Hour * 2    // Longer lifetime for read replicas
+	poolConfig.MaxConnIdleTime = time.Minute * 15 // Shorter idle time to free up connections faster
 
 	// Create connection pool
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -130,7 +138,7 @@ func getDBConfigFromEnv() DBConfig {
 	config := DBConfig{
 		Host:     getEnvOrDefault("DB_HOST", "localhost"),
 		Port:     getEnvAsIntOrDefault("DB_PORT", 5432),
-		User:     getEnvOrDefault("DB_USER", "url_gen_user"),
+		User:     getEnvOrDefault("DB_USER", "url_read_user"),
 		Password: getEnvOrDefault("DB_PASSWORD", "Auth123"),
 		DBName:   getEnvOrDefault("DB_NAME", "urls"),
 		SSLMode:  getEnvOrDefault("DB_SSLMODE", "disable"),
