@@ -2,7 +2,7 @@
 
 A distributed URL shortener built with Go microservice architecture (gRPC, Redis, PostgreSQL, Kafka).
 
-This project was built following system design principles from this excellent YouTube video: <a href="https://www.youtube.com/watch?v=iUU4O1sWtJA&t=2815s" target="_blank">System Design Interview: URL Shortener (like bit.ly)</a>
+This project was built following system design principles from this excellent YouTube video: [System Design Interview: URL Shortener (like bit.ly)](https://www.youtube.com/watch?v=iUU4O1sWtJA&t=2815s)
 
 ## Architecture
 
