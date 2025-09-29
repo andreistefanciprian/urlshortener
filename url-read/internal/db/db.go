@@ -60,8 +60,8 @@ func (r *MyURLRepository) GetLongURL(ctx context.Context, shortCode string) (*Lo
 		if errors.Is(err, pgx.ErrNoRows) {
 			r.logger.WithFields(logrus.Fields{
 				"shortCode": shortCode,
-			}).Info("Short URL not found or expired")
-			return nil, fmt.Errorf("short URL '%s' not found or has expired", shortCode)
+			}).Info("Short URL not found")
+			return nil, fmt.Errorf("short URL '%s' not found", shortCode)
 		}
 		r.logger.WithError(err).WithFields(logrus.Fields{
 			"shortCode": shortCode,
