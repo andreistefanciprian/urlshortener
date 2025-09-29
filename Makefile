@@ -4,10 +4,10 @@ proto-url-gen:
 	--go-grpc_out=paths=source_relative:. \
 	./url-gen/proto/url-gen.proto
 
-# 	@protoc \
-# 	--go_out=paths=source_relative:./api-gateway/ \
-# 	--go-grpc_out=paths=source_relative:./api-gateway/ \
-# 	./url-gen/proto/url-gen.proto
+	@protoc \
+	--go_out=paths=source_relative:./api-gateway/ \
+	--go-grpc_out=paths=source_relative:./api-gateway/ \
+	./url-gen/proto/url-gen.proto
 
 proto-url-read:
 	@protoc \
@@ -15,7 +15,7 @@ proto-url-read:
 	--go-grpc_out=paths=source_relative:. \
 	./url-read/proto/url-read.proto
 
-# 	@protoc \
-# 	--go_out=paths=source_relative:./api-gateway/ \
-# 	--go-grpc_out=paths=source_relative:./api-gateway/ \
-# 	./url-read/proto/url-read.proto
+	@protoc \
+	--go_out=paths=source_relative:./api-gateway/ \
+	--go-grpc_out=paths=source_relative:./api-gateway/ \
+	./url-read/proto/url-read.proto
