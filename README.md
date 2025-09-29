@@ -1,6 +1,6 @@
 # URL Shortener Microservices
 
-A distributed URL shortener built with Go microservices, gRPC, and Docker.
+A distributed URL shortener built with Go microservice architecture (gRPC, Redis, PosgreSQL, Kafka)
 
 ## Architecture
 
