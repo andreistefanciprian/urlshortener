@@ -46,8 +46,12 @@ func (s *Implementation) GetLongURL(ctx context.Context, request *uread.LongURLR
 		"shortCode":   request.ShortUrl,
 		"originalURL": response.OriginalURL,
 	}).Info("Successfully retrieved original URL")
+	var expiration *timestamppb.Timestamp
+	if response.ExpiresAt != nil {
+		expiration = timestamppb.New(*response.ExpiresAt)
+	}
 	return &uread.LongURLResponse{
 		LongUrl:    response.OriginalURL,
-		Expiration: timestamppb.New(*response.ExpiresAt),
+		Expiration: expiration,
 	}, nil
 }
