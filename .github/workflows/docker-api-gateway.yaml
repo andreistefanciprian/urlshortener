@@ -43,7 +43,7 @@ jobs:
           ts=$(date +%s)
           echo "BUILD_ID=${branch}-${sha}-${ts}" >> $GITHUB_OUTPUT
 
-  push-docker-image:
+  docker:
     needs: [generate-build-id]
     uses: andreistefanciprian/gh-reusable-workflows/.github/workflows/build_and_push_docker_image_to_dockerhub.yaml@main
     with:
