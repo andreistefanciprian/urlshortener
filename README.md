@@ -33,7 +33,7 @@ bash scripts/test.sh
 curl -s -X POST -H "Content-Type: application/json" -d '{"longUrl": "https://protobuf.dev/getting-started/gotutorial/", "expiresIn": 1}' http://l.it/create
 
 # Use curl to get Long URL
-curl http://l.it/TRDZip6
+curl -I http://l.it/TRDZip6
 
 # Tear down services
 make down
