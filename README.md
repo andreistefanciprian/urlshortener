@@ -19,18 +19,22 @@ Requirements:
 
 ```
 # Start all services
-docker compose up --build --remove-orphans
+make up
+
+# Add domain mapping to resolve l.it to localhost (required for testing)
+# Edit /etc/hosts file: sudo vim /etc/hosts
+# Add this line: 127.0.0.1 l.it
+# This allows generated URLs like http://l.it/TRDZip6 to work locally
 
 # Run tests
 bash scripts/test.sh
 
 # Use curl to create short URL
-curl -s -X POST -H "Content-Type: application/json" -d '{"longUrl": "https://protobuf.dev/getting-started/gotutorial/", "expiresIn": 1}' http://localhost:8080/create
+curl -s -X POST -H "Content-Type: application/json" -d '{"longUrl": "https://protobuf.dev/getting-started/gotutorial/", "expiresIn": 1}' http://l.it/create
 
 # Use curl to get Long URL
-curl http://localhost:8080/TRDZip6
+curl http://l.it/TRDZip6
 
 # Tear down services
-docker compose down --remove-orphans
-docker volume prune -af
+make down
 ```
