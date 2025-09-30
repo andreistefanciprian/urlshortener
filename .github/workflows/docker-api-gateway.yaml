@@ -1,0 +1,55 @@
+name: api-gateway container image build and push to DockerHub
+
+on:
+  push:
+    tags:
+      - '*'
+    branches:
+      - 'main'
+    paths:
+      - 'api-gateway/go.*'
+      - 'api-gateway/**/*.go'
+      - 'api-gateway/infra/Dockerfile'
+      - '.github/workflows/docker-api-gateway.yaml'
+  pull_request:
+    branches: [ 'main' ]
+    paths:
+      - 'api-gateway/go.*'
+      - 'api-gateway/**/*.go'
+      - 'api-gateway/infra/Dockerfile'
+      - '.github/workflows/docker-api-gateway.yaml'
+  workflow_dispatch:
+  
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+  
+jobs:
+
+  generate-build-id:
+    runs-on: ubuntu-latest
+    outputs:
+      BUILD_ID: ${{ steps.prep.outputs.BUILD_ID }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Generate build ID
+        id: prep
+        run: |
+          branch=${GITHUB_REF##*/}
+          sha=${GITHUB_SHA::8}
+          ts=$(date +%s)
+          echo "BUILD_ID=${branch}-${sha}-${ts}" >> $GITHUB_OUTPUT
+
+  docker:
+    needs: [generate-build-id]
+    uses: andreistefanciprian/gh-reusable-workflows/.github/workflows/build_and_push_docker_image_to_dockerhub.yaml@main
+    with:
+      image_name: andreistefanciprian/urlshortener-api-gateway
+      image_tag: ${{ needs.generate-build-id.outputs.BUILD_ID }}
+      dockerhub_username: andreistefanciprian
+      file: api-gateway/infra/Dockerfile
+      context: ./api-gateway
+    secrets: inherit
