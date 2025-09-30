@@ -23,4 +23,14 @@ docker compose up --build --remove-orphans
 
 # Run tests
 bash scripts/test.sh
+
+# Use curl to create short URL
+curl -s -X POST -H "Content-Type: application/json" -d '{"longUrl": "https://protobuf.dev/getting-started/gotutorial/", "expiresIn": 1}' http://localhost:8080/create
+
+# Use curl to get Long URL
+curl http://localhost:8080/TRDZip6
+
+# Tear down services
+docker compose down --remove-orphans
+docker volume prune -af
 ```
