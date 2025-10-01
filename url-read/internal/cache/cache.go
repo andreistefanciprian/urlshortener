@@ -70,6 +70,7 @@ func (r *RedisURLCacher) Get(ctx context.Context, shortURL string) (string, erro
 // Set stores Short URL and Long URL mapping in Redis cache with specified expiration time
 func (r *RedisURLCacher) Set(ctx context.Context, shortURL, longURL string, expiresAt time.Time) error {
 	// Calculate TTL from absolute expiration time
+	// Negative and zero TTL validation will be done upstream
 	ttl := time.Until(expiresAt)
 
 	err := r.client.Set(ctx, shortURL, longURL, ttl).Err()
