@@ -60,7 +60,7 @@ func (r *MyURLRepository) GetLongURL(ctx context.Context, shortCode string) (*Lo
 		if errors.Is(err, pgx.ErrNoRows) {
 			r.logger.WithFields(logrus.Fields{
 				"shortCode": shortCode,
-			}).Info("Short URL not found")
+			}).Info("Short URL not found in database")
 			return nil, fmt.Errorf("short URL '%s' not found", shortCode)
 		}
 		r.logger.WithError(err).WithFields(logrus.Fields{
@@ -73,7 +73,7 @@ func (r *MyURLRepository) GetLongURL(ctx context.Context, shortCode string) (*Lo
 		"shortCode":   shortCode,
 		"originalURL": response.OriginalURL,
 		"expiresAt":   response.ExpiresAt,
-	}).Infof("Successfully fetched original URL")
+	}).Infof("Successfully fetched original URL from database")
 
 	return &LongURLRecord{
 		OriginalURL: response.OriginalURL,
