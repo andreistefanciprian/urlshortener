@@ -11,6 +11,44 @@ This project was built following system design principles from this excellent Yo
 - **url-gen**: gRPC URL generation service (port 50052) - creates short URLs
 - **url-read**: gRPC URL reading service (port 50053) - resolves short URLs and tracks clicks
 
+## GetLongURL Architecture Flow
+
+The `getLongURL` operation follows a cache-first architecture to ensure optimal performance and minimal database load:
+
+![GetLongURL Flow](get_long_url_flow.png)
+
+### Flow Steps:
+
+1. **HTTP Request**: Client makes a GET request to `l.it/{shortCode}`
+2. **API Gateway**: 
+   - Receives HTTP request on port 8080
+   - Validates the short code format (7 characters)
+   - Extracts short code from URL path
+   - Makes gRPC call to url-read service
+
+3. **URL-Read Service** (Cache-First Strategy):
+   - **Cache Check**: First attempts to retrieve URL from Redis cache
+   - **Cache Hit**: If found in cache, returns immediately with cached data
+   - **Cache Miss**: If not in cache, proceeds to database lookup
+   - **Database Query**: Queries PostgreSQL for the original URL
+   - **Cache Update**: Stores retrieved URL in Redis for future requests
+   - Returns response to API Gateway
+
+4. **Response Processing**:
+   - API Gateway checks URL expiration
+   - If expired, returns 410 Gone status
+   - If valid, performs HTTP 302 redirect to original URL
+
+### Performance Benefits:
+- **Reduced Latency**: Cache hits avoid database queries
+- **Database Load Reduction**: Frequently accessed URLs served from cache
+- **Scalability**: Redis cache can handle high read throughput
+
+### Cache Strategy:
+- URLs are cached after first database retrieval
+- Cache includes both the long URL and expiration timestamp
+- Failed cache operations don't fail the request (graceful degradation)
+
 ## Local Development with Docker Compose
 
 Requirements:
