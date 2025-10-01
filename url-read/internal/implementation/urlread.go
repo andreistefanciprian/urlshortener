@@ -90,7 +90,7 @@ func (s *Implementation) GetLongURL(ctx context.Context, request *uread.LongURLR
 			"shortCode":   request.ShortUrl,
 			"originalURL": response.OriginalURL,
 			"expiration":  response.ExpiresAt,
-		}).Debug("Skipping cache storage for expired URL")
+		}).Warn("Skipping cache storage for expired URL")
 	}
 
 	return &uread.LongURLResponse{
