@@ -55,9 +55,16 @@ services:
       - DB_NAME=urls
       - DB_USER=url_read_user
       - DB_PASSWORD=Auth123
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=redispassword
+      - REDIS_DB=0
       - URL_READ_PORT=50053
     depends_on:
       url-gen-db:
+        condition: service_healthy
+        restart: true
+      redis:
         condition: service_healthy
         restart: true
     networks:
@@ -85,8 +92,27 @@ services:
       retries: 5
       start_period: 30s
 
+  # Redis Cache
+  redis:
+    image: redis:8-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass redispassword
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "redispassword", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - urlshortener
+
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   urlshortener:

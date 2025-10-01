@@ -2,7 +2,9 @@ package urlread
 
 import (
 	"context"
+	"time"
 
+	cache "github.com/andreistefanciprian/urlshortener/url-read/internal/cache"
 	repo "github.com/andreistefanciprian/urlshortener/url-read/internal/db"
 	uread "github.com/andreistefanciprian/urlshortener/url-read/proto"
 	"github.com/sirupsen/logrus"
@@ -13,43 +15,84 @@ type Implementation struct {
 	logger *logrus.Logger
 	repo   repo.URLRepository
 	uread.UnimplementedURLReaderServer
+	cache cache.URLCacher
 }
 
-func NewUrlReadImplementation(logger *logrus.Logger, repository repo.URLRepository) *Implementation {
+func NewUrlReadImplementation(logger *logrus.Logger, repository repo.URLRepository, cache cache.URLCacher) *Implementation {
 	return &Implementation{
 		logger: logger,
 		repo:   repository,
+		cache:  cache,
 	}
 }
 
 func (s *Implementation) GetLongURL(ctx context.Context, request *uread.LongURLRequest) (*uread.LongURLResponse, error) {
-	s.logger.WithContext(ctx).WithFields(logrus.Fields{
-		"shortCode": request.ShortUrl,
-	}).Info("Processing long URL read request")
 
-	// Check if context is cancelled
-	if ctx.Err() != nil {
-		s.logger.WithContext(ctx).Error("Request context cancelled")
-		return nil, ctx.Err()
+	// Retrieve the original URL from Cache
+	cacheResponse, err := s.cache.Get(ctx, request.ShortUrl)
+	if err != nil {
+		s.logger.WithContext(ctx).WithError(err).WithFields(logrus.Fields{
+			"shortCode": request.ShortUrl,
+		}).Errorf("Failed to retrieve original URL from cache: %v", err)
+	} else if cacheResponse != nil {
+		s.logger.WithContext(ctx).WithFields(logrus.Fields{
+			"shortCode":   request.ShortUrl,
+			"originalURL": cacheResponse.LongURL,
+			"expiration":  cacheResponse.ExpiresAt,
+		}).Debug("Successfully retrieved original URL from cache")
+		var expiration *timestamppb.Timestamp
+		if !cacheResponse.ExpiresAt.IsZero() {
+			expiration = timestamppb.New(cacheResponse.ExpiresAt)
+		}
+		return &uread.LongURLResponse{
+			LongUrl:    cacheResponse.LongURL,
+			Expiration: expiration,
+		}, nil
 	}
 
+	// If Cache MISS
 	// Retrieve the original URL from the database (context will be used by db layer)
 	response, err := s.repo.GetLongURL(ctx, request.ShortUrl)
 	if err != nil {
 		s.logger.WithContext(ctx).WithError(err).WithFields(logrus.Fields{
 			"shortCode": request.ShortUrl,
-		}).Errorf("Failed to retrieve original URL: %v", err)
+		}).Errorf("Failed to retrieve original URL from database: %v", err)
 		return nil, err
 	}
 
 	s.logger.WithContext(ctx).WithFields(logrus.Fields{
 		"shortCode":   request.ShortUrl,
 		"originalURL": response.OriginalURL,
-	}).Info("Successfully retrieved original URL")
+		"expiration":  response.ExpiresAt,
+	}).Debug("Successfully retrieved original URL from database")
 	var expiration *timestamppb.Timestamp
 	if response.ExpiresAt != nil {
 		expiration = timestamppb.New(*response.ExpiresAt)
 	}
+
+	// Only cache the URL if it hasn't expired
+	if response.ExpiresAt == nil || !response.ExpiresAt.Before(time.Now()) {
+		// Store the original URL in Cache for future requests
+		err = s.cache.Set(ctx, request.ShortUrl, cache.CachedURL{
+			LongURL:   response.OriginalURL,
+			ExpiresAt: *response.ExpiresAt,
+		})
+		if err != nil {
+			s.logger.WithContext(ctx).WithError(err).WithFields(logrus.Fields{
+				"shortCode":   request.ShortUrl,
+				"originalURL": response.OriginalURL,
+				"expiration":  response.ExpiresAt,
+			}).Errorf("Failed to store original URL in cache: %v", err)
+			// Proceeding without failing the request, as we have the data from DB
+		}
+	} else {
+		s.logger.WithContext(ctx).WithFields(logrus.Fields{
+			"shortCode":   request.ShortUrl,
+			"originalURL": response.OriginalURL,
+			"expiration":  response.ExpiresAt,
+		}).Warn("Skipping cache storage for expired URL")
+	}
+
 	return &uread.LongURLResponse{
 		LongUrl:    response.OriginalURL,
 		Expiration: expiration,
