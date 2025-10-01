@@ -88,10 +88,3 @@ func (s *Implementation) GetLongURL(ctx context.Context, request *uread.LongURLR
 		Expiration: expiration,
 	}, nil
 }
-
-// func validateExpiresAt(expiration *time.Time) error {
-// 	if expiration != nil && expiration.Before(time.Now()) {
-// 		return fmt.Errorf("expiration time cannot be in the past")
-// 	}
-// 	return nil
-// }
