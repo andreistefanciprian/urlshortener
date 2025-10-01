@@ -73,9 +73,13 @@ func (s *Implementation) GetLongURL(ctx context.Context, request *uread.LongURLR
 	// Only cache the URL if it hasn't expired
 	if response.ExpiresAt == nil || !response.ExpiresAt.Before(time.Now()) {
 		// Store the original URL in Cache for future requests
+		var expiresAt time.Time
+		if response.ExpiresAt != nil {
+			expiresAt = *response.ExpiresAt
+		}
 		err = s.cache.Set(ctx, request.ShortUrl, cache.CachedURL{
 			LongURL:   response.OriginalURL,
-			ExpiresAt: *response.ExpiresAt,
+			ExpiresAt: expiresAt,
 		})
 		if err != nil {
 			s.logger.WithContext(ctx).WithError(err).WithFields(logrus.Fields{
