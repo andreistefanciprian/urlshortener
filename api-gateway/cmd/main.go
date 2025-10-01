@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	ugen "github.com/andreistefanciprian/urlshortener/api-gateway/url-gen/proto"
@@ -113,6 +114,12 @@ func (h *APIHandler) GetLongURL(w http.ResponseWriter, r *http.Request) {
 	// Call gRPC service
 	response, err := h.urlReadClient.GetLongURL(ctx, grpcReq)
 	if err != nil {
+		// Check if it's a "not found" error (which could be an expired/deleted URL)
+		if strings.Contains(err.Error(), "not found") {
+			h.logger.Infof("Short URL %s not found (may be expired or deleted)", shortUrlCode)
+			http.Error(w, "Short URL not found", http.StatusNotFound)
+			return
+		}
 		h.logger.Errorf("gRPC call to GetLongURL failed: %v", err)
 		http.Error(w, "Failed to retrieve long URL", http.StatusInternalServerError)
 		return
@@ -191,7 +198,7 @@ func (h *APIHandler) CreateShortURL(w http.ResponseWriter, r *http.Request) {
 	// Create gRPC request
 	grpcReq := &ugen.ShortURLRequest{
 		LongUrl:    req.LongUrl,
-		Expiration: timestamppb.New(time.Now().Add(time.Duration(req.ExpiresIn) * 24 * time.Hour)),
+		Expiration: timestamppb.New(time.Now().Add(time.Duration(req.ExpiresIn) * time.Minute)),
 	}
 
 	// Call gRPC service
