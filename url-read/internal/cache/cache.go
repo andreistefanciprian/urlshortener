@@ -69,7 +69,7 @@ func (r *RedisURLCacher) Get(ctx context.Context, shortURLCode string) (*CachedU
 	if err != nil {
 		// Check if it's a cache miss (key not found)
 		if err == redis.Nil {
-			r.logger.WithField("shortURLCode", shortURLCode).Info("Cache MISS: Short URL Code not found in cache, checking database")
+			r.logger.WithField("shortURLCode", shortURLCode).Info("Cache MISS: Short URL Code not found in cache")
 			return nil, nil // Return nil for cache miss
 		}
 		// This is an actual Redis error (connection issues, etc.)
