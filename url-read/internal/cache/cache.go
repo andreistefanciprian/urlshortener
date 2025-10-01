@@ -49,15 +49,15 @@ func NewRedisURLCacher(logger *logrus.Logger) (URLCacher, error) {
 func (r *RedisURLCacher) Del(ctx context.Context, shortURLCode string) error {
 	result, err := r.client.Del(ctx, shortURLCode).Result()
 	if err != nil {
-		r.logger.WithError(err).WithField("shortURLCode", shortURLCode).Error("Error deleting short URL Codefrom cache")
+		r.logger.WithError(err).WithField("shortURLCode", shortURLCode).Error("Error deleting short URL Code from cache")
 		return err
 	}
 	if result == 0 {
-		r.logger.WithField("shortURLCode", shortURLCode).Info("Cache MISS: Short URL Codenot found in Redis")
+		r.logger.WithField("shortURLCode", shortURLCode).Info("Cache MISS: Short URL Code not found in cache")
 		return nil // No error for cache miss, just log it
 	}
 	// Successfully deleted from cache
-	r.logger.WithField("shortURLCode", shortURLCode).Info("Short URL Codedeleted from cache")
+	r.logger.WithField("shortURLCode", shortURLCode).Info("Short URL Code deleted from cache")
 	return nil
 }
 
@@ -69,7 +69,7 @@ func (r *RedisURLCacher) Get(ctx context.Context, shortURLCode string) (*CachedU
 	if err != nil {
 		// Check if it's a cache miss (key not found)
 		if err == redis.Nil {
-			r.logger.WithField("shortURLCode", shortURLCode).Info("Cache MISS: Short URL Code not found in Redis, checking database")
+			r.logger.WithField("shortURLCode", shortURLCode).Info("Cache MISS: Short URL Code not found in cache, checking database")
 			return nil, nil // Return nil for cache miss
 		}
 		// This is an actual Redis error (connection issues, etc.)
@@ -102,7 +102,7 @@ func (r *RedisURLCacher) Get(ctx context.Context, shortURLCode string) (*CachedU
 		"longURL":      longURL,
 		"expiresAt":    expiresAt,
 		"ttl":          ttl,
-	}).Info("Cache HIT: Short URL Code found in Redis")
+	}).Info("Cache HIT: Short URL Code found in cache")
 
 	return cachedURL, nil
 }
