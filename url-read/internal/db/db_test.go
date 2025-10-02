@@ -27,7 +27,6 @@ func (suite *URLRepoTestSuite) SetupSuite() {
 	suite.pgContainer = pgContainer
 
 	logger := logrus.New()
-	// repository, err := NewMyURLRepositoryWithConnectionString(logger, suite.pgContainer.ConnectionString)
 	repository, err := NewMyURLRepository(logger, suite.pgContainer.ConnectionString)
 	if err != nil {
 		log.Fatal(err)
