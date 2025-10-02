@@ -16,7 +16,7 @@ This project was built following system design principles from this excellent Yo
 
 The API Gateway exposes two main REST endpoints:
 
-##### POST /create
+### POST /create
 Creates a new short URL from a long URL.
 
 **Flow:** Client → API Gateway → URL-Gen Service → PostgreSQL → Return short URL
@@ -33,7 +33,7 @@ Creates a new short URL from a long URL.
 }
 ```
 
-##### GET /{shortCode}
+### GET /{shortCode}
 Retrieves and redirects to the original long URL.
 
 **Flow:** Client → API Gateway → URL-Read Service → Redis/PostgreSQL → 302 Redirect
