@@ -37,7 +37,8 @@ func main() {
 	initLogger()
 
 	// Initialize DB repository
-	repo, err := db.NewMyURLRepository(logger)
+	dbConfig := db.GetDBConfigFromEnv()
+	repo, err := db.NewMyURLRepository(logger, dbConfig.DSNString())
 	if err != nil {
 		logger.WithError(err).Fatal("Failed to initialize database repository")
 	}
