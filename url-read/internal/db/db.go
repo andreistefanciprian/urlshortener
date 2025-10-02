@@ -24,9 +24,9 @@ type MyURLRepository struct {
 }
 
 // NewMyURLRepository creates a new repository instance with database connection
-func NewMyURLRepository(logger *logrus.Logger) (*MyURLRepository, error) {
+func NewMyURLRepository(logger *logrus.Logger, connectionString string) (*MyURLRepository, error) {
 	// Initialize database connection
-	db, err := initDB()
+	db, err := initDB(connectionString)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize database: %w", err)
 	}
@@ -98,13 +98,10 @@ func (c *DBConfig) DSNString() string {
 }
 
 // initDB collects database parameters from environment variables and creates connection pool
-func initDB() (*pgxpool.Pool, error) {
-
-	// Get database configuration from environment variables
-	config := getDBConfigFromEnv()
+func initDB(connectionString string) (*pgxpool.Pool, error) {
 
 	// Create connection pool configuration
-	poolConfig, err := pgxpool.ParseConfig(config.DSNString())
+	poolConfig, err := pgxpool.ParseConfig(connectionString)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse database config: %w", err)
 	}
@@ -133,8 +130,8 @@ func initDB() (*pgxpool.Pool, error) {
 	return db, nil
 }
 
-// getDBConfigFromEnv collects database configuration from environment variables
-func getDBConfigFromEnv() DBConfig {
+// GetDBConfigFromEnv collects database configuration from environment variables
+func GetDBConfigFromEnv() DBConfig {
 	config := DBConfig{
 		Host:     getEnvOrDefault("DB_HOST", "localhost"),
 		Port:     getEnvAsIntOrDefault("DB_PORT", 5432),
