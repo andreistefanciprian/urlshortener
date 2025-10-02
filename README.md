@@ -11,6 +11,42 @@ This project was built following system design principles from this excellent Yo
 - **url-gen**: gRPC URL generation service (port 50052) - creates short URLs
 - **url-read**: gRPC URL reading service (port 50053) - resolves short URLs and tracks clicks
 
+## API Endpoints
+
+The API Gateway exposes two main REST endpoints:
+
+##### POST /create
+Creates a new short URL from a long URL.
+
+**Request:**
+```json
+{
+  "longUrl": "https://example.com/very/long/url",
+  "expiresIn": 7
+}
+```
+
+**Response:**
+```json
+{
+  "shortUrl": "l.it/ABC123X",
+  "expiration": "2025-10-10T12:00:00Z"
+}
+```
+
+##### GET /{shortCode}
+Retrieves and redirects to the original long URL.
+
+**Request:**
+```
+GET /ABC123X
+```
+
+**Response:**
+- **302 Found**: Redirects to the original long URL
+- **404 Not Found**: Short code doesn't exist
+- **410 Gone**: Short URL has expired
+
 ## GetLongURL Architecture Flow
 
 The `getLongURL` operation follows a cache-first architecture to ensure optimal performance and minimal database load:
