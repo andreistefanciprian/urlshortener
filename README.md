@@ -18,18 +18,16 @@ The API Gateway exposes two main REST endpoints:
 ##### POST /create
 Creates a new short URL from a long URL.
 
-**Request:**
 ```json
+# Request
 {
   "longUrl": "https://example.com/very/long/url",
   "expiresIn": 7
 }
-```
 
-**Response:**
-```json
+# Response
 {
-  "shortUrl": "l.it/ABC123X",
+  "shortUrl": "l.it/gt0PFD8",
   "expiration": "2025-10-10T12:00:00Z"
 }
 ```
@@ -37,53 +35,25 @@ Creates a new short URL from a long URL.
 ##### GET /{shortCode}
 Retrieves and redirects to the original long URL.
 
-**Request:**
 ```
-GET /ABC123X
-```
+# Request
+GET /gt0PFD8
 
-**Response:**
-- **302 Found**: Redirects to the original long URL
-- **404 Not Found**: Short code doesn't exist
-- **410 Gone**: Short URL has expired
+# Response
+302 Found: Redirects to original URL
+404 Not Found: Short code doesn't exist  
+410 Gone: Short URL has expired
+```
 
 ## GetLongURL Architecture Flow
 
-The `getLongURL` operation follows a cache-first architecture to ensure optimal performance and minimal database load:
+Cache-first architecture for optimal performance:
 
 ![GetLongURL Flow](get_long_url_flow.png)
 
-### Flow Steps:
+**Flow:** Client → API Gateway → URL-Read Service (Redis Cache → PostgreSQL if cache miss) → 302 Redirect
 
-1. **HTTP Request**: Client makes a GET request to `l.it/{shortCode}`
-2. **API Gateway**: 
-   - Receives HTTP request on port 8080
-   - Validates the short code format (7 characters)
-   - Extracts short code from URL path
-   - Makes gRPC call to url-read service
-
-3. **URL-Read Service** (Cache-First Strategy):
-   - **Cache Check**: First attempts to retrieve URL from Redis cache
-   - **Cache Hit**: If found in cache, returns immediately with cached data
-   - **Cache Miss**: If not in cache, proceeds to database lookup
-   - **Database Query**: Queries PostgreSQL for the original URL
-   - **Cache Update**: Stores retrieved URL in Redis for future requests
-   - Returns response to API Gateway
-
-4. **Response Processing**:
-   - API Gateway checks URL expiration
-   - If expired, returns 410 Gone status
-   - If valid, performs HTTP 302 redirect to original URL
-
-### Performance Benefits:
-- **Reduced Latency**: Cache hits avoid database queries
-- **Database Load Reduction**: Frequently accessed URLs served from cache
-- **Scalability**: Redis cache can handle high read throughput
-
-### Cache Strategy:
-- URLs are cached after first database retrieval
-- Cache includes both the long URL and expiration timestamp
-- Failed cache operations don't fail the request (graceful degradation)
+**Benefits:** Fast lookups via Redis cache, graceful fallback to database, scalable read throughput
 
 ## Local Development with Docker Compose
 
