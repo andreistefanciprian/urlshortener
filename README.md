@@ -7,9 +7,10 @@ This project was built following system design principles from this excellent Yo
 ## Architecture
 
 - **api-gateway**: REST API server (port 8080) - handles HTTP requests and routes to gRPC services
-- **auth**: gRPC authentication service (port 50051) - user management and JWT tokens
 - **url-gen**: gRPC URL generation service (port 50052) - creates short URLs
 - **url-read**: gRPC URL reading service (port 50053) - resolves short URLs and tracks clicks
+- **redis**: Cache layer for fast URL lookups and reduced database load
+- **postgresql**: Primary database for persistent URL storage and metadata 
 
 ## API Endpoints
 
@@ -18,14 +19,14 @@ The API Gateway exposes two main REST endpoints:
 ##### POST /create
 Creates a new short URL from a long URL.
 
+**Flow:** Client → API Gateway → URL-Gen Service → PostgreSQL → Return short URL
+
 ```json
-# Request
 {
   "longUrl": "https://example.com/very/long/url",
   "expiresIn": 7
 }
 
-# Response
 {
   "shortUrl": "l.it/gt0PFD8",
   "expiration": "2025-10-10T12:00:00Z"
@@ -34,6 +35,8 @@ Creates a new short URL from a long URL.
 
 ##### GET /{shortCode}
 Retrieves and redirects to the original long URL.
+
+**Flow:** Client → API Gateway → URL-Read Service → Redis/PostgreSQL → 302 Redirect
 
 ```
 # Request
@@ -51,7 +54,7 @@ Cache-first architecture for optimal performance:
 
 ![GetLongURL Flow](get_long_url_flow.png)
 
-**Flow:** Client → API Gateway → URL-Read Service (Redis Cache → PostgreSQL if cache miss) → 302 Redirect
+**Flow:** Client → API Gateway → URL-Read Service (Redis Cache HIT → 302 Redirect | Cache MISS → PostgreSQL → 302 Redirect)
 
 **Benefits:** Fast lookups via Redis cache, graceful fallback to database, scalable read throughput
 
