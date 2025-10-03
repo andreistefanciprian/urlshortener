@@ -54,7 +54,7 @@ func (suite *URLCacheTestSuite) TestSetAndGet_CachedURL() {
 
 	// Set the cached URL
 	err := suite.cache.Set(suite.ctx, shortURLCode, cachedURL)
-	assert.NoError(suite.T(), err, "Failed to set cached URL")
+	assert.NoError(t, err, "Failed to set cached URL")
 
 	// Get the cached URL
 	retrievedURL, err := suite.cache.Get(suite.ctx, shortURLCode)
