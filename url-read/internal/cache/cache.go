@@ -32,7 +32,7 @@ type RedisURLCacher struct {
 }
 
 // NewRedisURLCacher creates a new Redis client for caching URL mappings
-func NewRedisURLCacher(logger *logrus.Logger, redisOptions *redis.Options) (URLCacher, error) {
+func NewRedisURLCacher(logger *logrus.Logger, redisOptions *redis.Options) (*RedisURLCacher, error) {
 	// Initialize Redis client
 	cache, err := initCache(redisOptions)
 	if err != nil {
