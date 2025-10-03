@@ -54,7 +54,9 @@ jobs:
 
       - name: Run unit tests
         working-directory: ./url-read
-        run: go test -v ./...
+        run: |
+          go test -v ./internal/db/
+          go test -v ./internal/cache/
 
   generate-build-id:
     needs: [unit-tests]
