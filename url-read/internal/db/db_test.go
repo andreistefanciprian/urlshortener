@@ -14,7 +14,7 @@ import (
 type URLRepoTestSuite struct {
 	suite.Suite
 	pgContainer *testhelpers.PostgresContainer
-	repository  *MyURLRepository
+	repository  *PostgresURLStore
 	ctx         context.Context
 }
 
@@ -27,7 +27,7 @@ func (suite *URLRepoTestSuite) SetupSuite() {
 	suite.pgContainer = pgContainer
 
 	logger := logrus.New()
-	repository, err := NewMyURLRepository(logger, suite.pgContainer.ConnectionString)
+	repository, err := NewPostgresURLStore(logger, suite.pgContainer.ConnectionString)
 	if err != nil {
 		log.Fatal(err)
 	}

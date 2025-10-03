@@ -40,11 +40,11 @@ func main() {
 
 	// Initialize DB repository
 	dbConfig := db.GetDBConfigFromEnv()
-	repo, err := db.NewMyURLRepository(logger, dbConfig.DSNString())
+	urlRepo, err := db.NewPostgresURLStore(logger, dbConfig.DSNString())
 	if err != nil {
 		logger.WithError(err).Fatal("Failed to initialize database repository")
 	}
-	defer repo.Close()
+	defer urlRepo.Close()
 	logger.Info("Connected to PostgreSQL database")
 
 	// Initialize Redis URL Cacher
@@ -60,16 +60,16 @@ func main() {
 		ConnMaxIdleTime: time.Minute * 5, // Close idle connections after 5 minutes
 	}
 
-	urlCacher, err := cache.NewRedisURLCacher(logger, redisOptions)
+	urlCache, err := cache.NewRedisURLCache(logger, redisOptions)
 	if err != nil {
 		logger.WithError(err).Fatal("Failed to initialize Redis URL cacher")
 	}
-	defer urlCacher.Close()
+	defer urlCache.Close()
 	logger.Info("Connected to Redis cache")
 
 	// Create gRPC server
 	grpcServer := grpc.NewServer()
-	urlReadService := urlread.NewUrlReadImplementation(logger, repo, urlCacher)
+	urlReadService := urlread.NewUrlReadImplementation(logger, urlRepo, urlCache)
 	proto.RegisterURLReaderServer(grpcServer, urlReadService)
 
 	// Start listening for gRPC requests
