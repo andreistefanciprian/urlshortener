@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"time"
 
 	"github.com/andreistefanciprian/urlshortener/url-read/internal/cache"
 	"github.com/andreistefanciprian/urlshortener/url-read/internal/db"
 	urlread "github.com/andreistefanciprian/urlshortener/url-read/internal/implementation"
 	proto "github.com/andreistefanciprian/urlshortener/url-read/proto"
+	redis "github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
@@ -46,7 +48,19 @@ func main() {
 	logger.Info("Connected to PostgreSQL database")
 
 	// Initialize Redis URL Cacher
-	urlCacher, err := cache.NewRedisURLCacher(logger)
+	cacheConfig := cache.GetCacheConfigFromEnv()
+	redisOptions := &redis.Options{
+		Addr:     fmt.Sprintf("%s:%d", cacheConfig.Host, cacheConfig.Port),
+		Password: cacheConfig.Password,
+		DB:       cacheConfig.DB,
+		// Connection pool settings optimized for read operations
+		PoolSize:        20,              // Max connections in pool
+		MinIdleConns:    5,               // Keep connections warm
+		PoolTimeout:     time.Second * 4, // Wait time for pool connection
+		ConnMaxIdleTime: time.Minute * 5, // Close idle connections after 5 minutes
+	}
+
+	urlCacher, err := cache.NewRedisURLCacher(logger, redisOptions)
 	if err != nil {
 		logger.WithError(err).Fatal("Failed to initialize Redis URL cacher")
 	}
