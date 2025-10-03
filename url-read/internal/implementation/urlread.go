@@ -13,12 +13,12 @@ import (
 
 type Implementation struct {
 	logger *logrus.Logger
-	repo   repo.URLRepository
+	repo   repo.URLStore
 	uread.UnimplementedURLReaderServer
-	cache cache.URLCacher
+	cache cache.URLCache
 }
 
-func NewUrlReadImplementation(logger *logrus.Logger, repository repo.URLRepository, cache cache.URLCacher) *Implementation {
+func NewUrlReadImplementation(logger *logrus.Logger, repository repo.URLStore, cache cache.URLCache) *Implementation {
 	return &Implementation{
 		logger: logger,
 		repo:   repository,
@@ -32,13 +32,13 @@ func (s *Implementation) GetLongURL(ctx context.Context, request *uread.LongURLR
 	cacheResponse, err := s.cache.Get(ctx, request.ShortUrl)
 	if err != nil {
 		s.logger.WithContext(ctx).WithError(err).WithFields(logrus.Fields{
-			"shortCode": request.ShortUrl,
+			"shortURLCode": request.ShortUrl,
 		}).Errorf("Failed to retrieve original URL from cache: %v", err)
 	} else if cacheResponse != nil {
 		s.logger.WithContext(ctx).WithFields(logrus.Fields{
-			"shortCode":   request.ShortUrl,
-			"originalURL": cacheResponse.LongURL,
-			"expiration":  cacheResponse.ExpiresAt,
+			"shortURLCode": request.ShortUrl,
+			"originalURL":  cacheResponse.LongURL,
+			"expiration":   cacheResponse.ExpiresAt,
 		}).Debug("Successfully retrieved original URL from cache")
 		var expiration *timestamppb.Timestamp
 		if !cacheResponse.ExpiresAt.IsZero() {
@@ -55,15 +55,15 @@ func (s *Implementation) GetLongURL(ctx context.Context, request *uread.LongURLR
 	response, err := s.repo.GetLongURL(ctx, request.ShortUrl)
 	if err != nil {
 		s.logger.WithContext(ctx).WithError(err).WithFields(logrus.Fields{
-			"shortCode": request.ShortUrl,
+			"shortURLCode": request.ShortUrl,
 		}).Errorf("Failed to retrieve original URL from database: %v", err)
 		return nil, err
 	}
 
 	s.logger.WithContext(ctx).WithFields(logrus.Fields{
-		"shortCode":   request.ShortUrl,
-		"originalURL": response.OriginalURL,
-		"expiration":  response.ExpiresAt,
+		"shortURLCode": request.ShortUrl,
+		"originalURL":  response.OriginalURL,
+		"expiration":   response.ExpiresAt,
 	}).Debug("Successfully retrieved original URL from database")
 	var expiration *timestamppb.Timestamp
 	if response.ExpiresAt != nil {
@@ -77,23 +77,23 @@ func (s *Implementation) GetLongURL(ctx context.Context, request *uread.LongURLR
 		if response.ExpiresAt != nil {
 			expiresAt = *response.ExpiresAt
 		}
-		err = s.cache.Set(ctx, request.ShortUrl, cache.CachedURL{
+		err = s.cache.Set(ctx, request.ShortUrl, cache.URLCacheEntry{
 			LongURL:   response.OriginalURL,
 			ExpiresAt: expiresAt,
 		})
 		if err != nil {
 			s.logger.WithContext(ctx).WithError(err).WithFields(logrus.Fields{
-				"shortCode":   request.ShortUrl,
-				"originalURL": response.OriginalURL,
-				"expiration":  response.ExpiresAt,
+				"shortURLCode": request.ShortUrl,
+				"originalURL":  response.OriginalURL,
+				"expiration":   response.ExpiresAt,
 			}).Errorf("Failed to store original URL in cache: %v", err)
 			// Proceeding without failing the request, as we have the data from DB
 		}
 	} else {
 		s.logger.WithContext(ctx).WithFields(logrus.Fields{
-			"shortCode":   request.ShortUrl,
-			"originalURL": response.OriginalURL,
-			"expiration":  response.ExpiresAt,
+			"shortURLCode": request.ShortUrl,
+			"originalURL":  response.OriginalURL,
+			"expiration":   response.ExpiresAt,
 		}).Warn("Skipping cache storage for expired URL")
 	}
 

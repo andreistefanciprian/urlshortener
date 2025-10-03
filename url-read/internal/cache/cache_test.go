@@ -15,7 +15,7 @@ import (
 type URLCacheTestSuite struct {
 	suite.Suite
 	redisContainer *testhelpers.RedisContainer
-	cache          *RedisURLCacher
+	cache          *RedisURLCache
 	ctx            context.Context
 }
 
@@ -27,7 +27,7 @@ func (suite *URLCacheTestSuite) SetupSuite() {
 	}
 	suite.redisContainer = redisContainer
 	logger := logrus.New()
-	cache, err := NewRedisURLCacher(logger, suite.redisContainer.RedisOpts)
+	cache, err := NewRedisURLCache(logger, suite.redisContainer.RedisOpts)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,24 +43,24 @@ func (suite *URLCacheTestSuite) TearDownSuite() {
 	}
 }
 
-func (suite *URLCacheTestSuite) TestSetAndGet_CachedURL() {
+func (suite *URLCacheTestSuite) TestSetAndGet_URLCacheEntry() {
 	t := suite.T()
 	shortURLCode := "TEST123"
 	expiresAt := time.Now().Add(10 * time.Minute)
-	cachedURL := CachedURL{
+	URLCacheEntry := URLCacheEntry{
 		LongURL:   "https://example.com/long-url",
 		ExpiresAt: expiresAt,
 	}
 
 	// Set the cached URL
-	err := suite.cache.Set(suite.ctx, shortURLCode, cachedURL)
+	err := suite.cache.Set(suite.ctx, shortURLCode, URLCacheEntry)
 	assert.NoError(t, err, "Failed to set cached URL")
 
 	// Get the cached URL
 	retrievedURL, err := suite.cache.Get(suite.ctx, shortURLCode)
 	assert.NoError(t, err, "Failed to get cached URL")
 	assert.NotNil(t, retrievedURL, "Expected to retrieve a cached URL, got nil")
-	assert.Equal(t, cachedURL.LongURL, retrievedURL.LongURL, "LongURL should match")
+	assert.Equal(t, URLCacheEntry.LongURL, retrievedURL.LongURL, "LongURL should match")
 }
 
 func (suite *URLCacheTestSuite) TestGet_NonExistentKey() {

@@ -13,69 +13,69 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type URLRepository interface {
-	GetLongURL(ctx context.Context, shortCode string) (*LongURLRecord, error)
+type URLStore interface {
+	GetLongURL(ctx context.Context, shortURLCode string) (*URLRecord, error)
 	Close() error
 }
 
-type MyURLRepository struct {
+type PostgresURLStore struct {
 	logger *logrus.Logger
 	db     *pgxpool.Pool
 }
 
-// NewMyURLRepository creates a new repository instance with database connection
-func NewMyURLRepository(logger *logrus.Logger, connectionString string) (*MyURLRepository, error) {
+// NewPostgresURLStore creates a new repository instance with database connection
+func NewPostgresURLStore(logger *logrus.Logger, connectionString string) (*PostgresURLStore, error) {
 	// Initialize database connection
 	db, err := initDB(connectionString)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize database: %w", err)
 	}
 
-	return &MyURLRepository{
+	return &PostgresURLStore{
 		logger: logger,
 		db:     db,
 	}, nil
 }
 
-func (r *MyURLRepository) Close() error {
+func (r *PostgresURLStore) Close() error {
 	r.db.Close()
 	return nil
 }
 
-type LongURLRecord struct {
+type URLRecord struct {
 	OriginalURL string
 	ExpiresAt   *time.Time
 }
 
-func (r *MyURLRepository) GetLongURL(ctx context.Context, shortCode string) (*LongURLRecord, error) {
+func (r *PostgresURLStore) GetLongURL(ctx context.Context, shortURLCode string) (*URLRecord, error) {
 	// SQL query to fetch the original URL by short code
 	query := `
 		SELECT original_url, expires_at
 		FROM short_links 
 		WHERE code = $1 AND (expires_at IS NULL OR expires_at > NOW())`
 
-	var response LongURLRecord
-	err := r.db.QueryRow(ctx, query, shortCode).Scan(&response.OriginalURL, &response.ExpiresAt)
+	var response URLRecord
+	err := r.db.QueryRow(ctx, query, shortURLCode).Scan(&response.OriginalURL, &response.ExpiresAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			r.logger.WithFields(logrus.Fields{
-				"shortCode": shortCode,
+				"shortURLCode": shortURLCode,
 			}).Info("Short URL not found in database")
-			return nil, fmt.Errorf("short URL '%s' not found", shortCode)
+			return nil, fmt.Errorf("short URL '%s' not found", shortURLCode)
 		}
 		r.logger.WithError(err).WithFields(logrus.Fields{
-			"shortCode": shortCode,
+			"shortURLCode": shortURLCode,
 		}).Error("Failed to fetch original URL from database")
 		return nil, fmt.Errorf("failed to retrieve URL: %w", err)
 	}
 
 	r.logger.WithFields(logrus.Fields{
-		"shortCode":   shortCode,
-		"originalURL": response.OriginalURL,
-		"expiresAt":   response.ExpiresAt,
+		"shortURLCode": shortURLCode,
+		"originalURL":  response.OriginalURL,
+		"expiresAt":    response.ExpiresAt,
 	}).Infof("Successfully fetched original URL from database")
 
-	return &LongURLRecord{
+	return &URLRecord{
 		OriginalURL: response.OriginalURL,
 		ExpiresAt:   response.ExpiresAt,
 	}, nil
