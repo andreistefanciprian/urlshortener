@@ -52,11 +52,14 @@ jobs:
         working-directory: ./url-read
         run: go mod download
 
-      - name: Run unit tests
+      - name: Run unit tests postgres
         working-directory: ./url-read
-        run: |
-          go test -v ./internal/db/
-          go test -v ./internal/cache/
+        run: go test -v ./internal/db/
+
+
+      - name: Run unit tests redis
+        working-directory: ./url-read
+        run: go test -v ./internal/cache/
 
   generate-build-id:
     needs: [unit-tests]
