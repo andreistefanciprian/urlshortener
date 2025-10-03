@@ -32,9 +32,9 @@ type RedisURLCacher struct {
 }
 
 // NewRedisURLCacher creates a new Redis client for caching URL mappings
-func NewRedisURLCacher(logger *logrus.Logger) (URLCacher, error) {
+func NewRedisURLCacher(logger *logrus.Logger, redisOptions *redis.Options) (URLCacher, error) {
 	// Initialize Redis client
-	cache, err := initCache()
+	cache, err := initCache(redisOptions)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize Redis cache: %w", err)
 	}
@@ -144,25 +144,10 @@ type CacheConfig struct {
 }
 
 // initCache collects cache parameters from environment variables and creates Redis connection
-func initCache() (*redis.Client, error) {
-	// Get cache configuration from environment variables
-	config := getCacheConfigFromEnv()
-
-	// Create Redis client options
-	opt := &redis.Options{
-		Addr:     fmt.Sprintf("%s:%d", config.Host, config.Port),
-		Password: config.Password,
-		DB:       config.DB,
-
-		// Connection pool settings optimized for read operations
-		PoolSize:        20,              // Max connections in pool
-		MinIdleConns:    5,               // Keep connections warm
-		PoolTimeout:     time.Second * 4, // Wait time for pool connection
-		ConnMaxIdleTime: time.Minute * 5, // Close idle connections after 5 minutes
-	}
+func initCache(redisOptions *redis.Options) (*redis.Client, error) {
 
 	// Create Redis client
-	rdb := redis.NewClient(opt)
+	rdb := redis.NewClient(redisOptions)
 
 	// Test the connection
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -176,7 +161,7 @@ func initCache() (*redis.Client, error) {
 }
 
 // getCacheConfigFromEnv collects cache configuration from environment variables
-func getCacheConfigFromEnv() CacheConfig {
+func GetCacheConfigFromEnv() CacheConfig {
 	config := CacheConfig{
 		Host:     getEnvOrDefault("REDIS_HOST", "localhost"),
 		Port:     getEnvAsIntOrDefault("REDIS_PORT", 6379),
