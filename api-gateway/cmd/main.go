@@ -198,7 +198,7 @@ func (h *APIHandler) CreateShortURL(w http.ResponseWriter, r *http.Request) {
 	// Create gRPC request
 	grpcReq := &ugen.ShortURLRequest{
 		LongUrl:    req.LongUrl,
-		Expiration: timestamppb.New(time.Now().Add(time.Duration(req.ExpiresIn) * time.Minute)),
+		Expiration: timestamppb.New(time.Now().Add(time.Duration(req.ExpiresIn) * 24 * time.Hour)),
 	}
 
 	// Call gRPC service
