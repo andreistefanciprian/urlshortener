@@ -11,11 +11,11 @@ import (
 
 type URLGenService struct {
 	logger *logrus.Logger
-	repo   repo.URLRepository
+	repo   repo.URLStore
 	ugen.UnimplementedURLGeneratorServer
 }
 
-func NewURLGenService(logger *logrus.Logger, repository repo.URLRepository) *URLGenService {
+func NewURLGenService(logger *logrus.Logger, repository repo.URLStore) *URLGenService {
 	return &URLGenService{
 		logger: logger,
 		repo:   repository,
@@ -35,25 +35,25 @@ func (s *URLGenService) GenerateShortURL(ctx context.Context, URLRequestPayload 
 	}
 
 	// Generate a unique short code
-	shortCode, err := shortCodeGenerator()
+	shortURLCode, err := shortCodeGenerator()
 	if err != nil {
 		s.logger.WithContext(ctx).WithError(err).Error("Failed to generate short code")
 		return nil, err
 	}
 
 	// Store the mapping in the database (context will be used by db layer)
-	err = s.repo.CreateShortURL(ctx, URLRequestPayload.LongUrl, shortCode, URLRequestPayload.Expiration.AsTime())
+	err = s.repo.CreateShortURL(ctx, URLRequestPayload.LongUrl, shortURLCode, URLRequestPayload.Expiration.AsTime())
 	if err != nil {
 		s.logger.WithContext(ctx).WithError(err).Error("Failed to create short URL")
 		return nil, err
 	}
 
 	// Return the full short URL
-	shortUrl := "http://" + URLShortenerDomainName + "/" + shortCode
+	shortUrl := "http://" + URLShortenerDomainName + "/" + shortURLCode
 
 	s.logger.WithContext(ctx).WithFields(logrus.Fields{
-		"shortCode": shortCode,
-		"shortUrl":  shortUrl,
+		"shortURLCode": shortURLCode,
+		"shortUrl":     shortUrl,
 	}).Info("Successfully generated short URL")
 
 	return &ugen.ShortURLResponse{

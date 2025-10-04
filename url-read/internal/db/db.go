@@ -47,15 +47,15 @@ type URLRecord struct {
 	ExpiresAt   *time.Time
 }
 
-func (r *PostgresURLStore) GetLongURL(ctx context.Context, shortURLCode string) (*URLRecord, error) {
-	// SQL query to fetch the original URL by short code
-	query := `
+const getLongURLQuery = `
 		SELECT original_url, expires_at
 		FROM short_links 
 		WHERE code = $1 AND (expires_at IS NULL OR expires_at > NOW())`
 
+func (r *PostgresURLStore) GetLongURL(ctx context.Context, shortURLCode string) (*URLRecord, error) {
+	// SQL query to fetch the original URL by short code
 	var response URLRecord
-	err := r.db.QueryRow(ctx, query, shortURLCode).Scan(&response.OriginalURL, &response.ExpiresAt)
+	err := r.db.QueryRow(ctx, getLongURLQuery, shortURLCode).Scan(&response.OriginalURL, &response.ExpiresAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			r.logger.WithFields(logrus.Fields{
