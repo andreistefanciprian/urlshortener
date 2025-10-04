@@ -122,14 +122,14 @@ func (c *URLReadServiceTestSuite) TearDownSuite() {
 		log.Printf("Failed to close cache: %v", err)
 	}
 	if err := c.cacheContainer.RedisContainer.Terminate(c.ctx); err != nil {
-		log.Fatalf("error terminating redis container: %s", err)
+		log.Printf("error terminating redis container: %s", err)
 	}
 
 	if err := c.repository.Close(); err != nil {
 		log.Printf("Failed to close repository: %v", err)
 	}
 	if err := c.dbContainer.PostgresContainer.Terminate(c.ctx); err != nil {
-		log.Fatalf("error terminating postgres container: %s", err)
+		log.Printf("error terminating postgres container: %s", err)
 	}
 }
 
