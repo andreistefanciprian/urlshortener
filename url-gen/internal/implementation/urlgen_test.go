@@ -2,7 +2,6 @@ package urlgen
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"testing"
 
@@ -49,8 +48,7 @@ func (c *URLGenServiceTestSuite) TestGenerateShortURL_Length() {
 	response, err := c.implementation.GenerateShortURL(c.ctx, &ugen.ShortURLRequest{LongUrl: "https://example.com/long-url-1"})
 	assert.NoError(t, err)
 	assert.NotNil(t, response)
-	fmt.Println(response.ShortUrl)
-	assert.Equal(t, 19, len(response.ShortUrl))
+	assert.Equal(t, 7, len(response.ShortUrl))
 }
 
 func (c *URLGenServiceTestSuite) TearDownSuite() {

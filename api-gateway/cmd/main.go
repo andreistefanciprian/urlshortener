@@ -174,6 +174,8 @@ func validateCreateRequest(req *CreateShortURLRequest) error {
 	return nil
 }
 
+const URLShortenerDomainName = "l.it"
+
 func (h *APIHandler) CreateShortURL(w http.ResponseWriter, r *http.Request) {
 	// Use request context for future enhancements such as logging, timeouts, tracing, etc.
 	ctx := r.Context()
@@ -208,6 +210,9 @@ func (h *APIHandler) CreateShortURL(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to generate short URL", http.StatusInternalServerError)
 		return
 	}
+
+	// Prepend domain to the short URL code
+	response.ShortUrl = "http://" + URLShortenerDomainName + "/" + response.ShortUrl
 
 	// Respond with the short URL
 	responseJSON, err := json.Marshal(response)
