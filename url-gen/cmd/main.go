@@ -45,7 +45,7 @@ func main() {
 
 	// Create gRPC server
 	grpcServer := grpc.NewServer()
-	urlGenService := urlgen.NewUrlGenImplementation(logger, repo)
+	urlGenService := urlgen.NewURLGenService(logger, repo)
 	proto.RegisterURLGeneratorServer(grpcServer, urlGenService)
 
 	// Start listening for gRPC requests

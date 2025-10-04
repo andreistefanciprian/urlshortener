@@ -13,68 +13,68 @@ import (
 
 type URLRepoTestSuite struct {
 	suite.Suite
-	pgContainer *testhelpers.PostgresContainer
+	dbContainer *testhelpers.PostgresContainer
 	repository  *PostgresURLStore
 	ctx         context.Context
 }
 
-func (suite *URLRepoTestSuite) SetupSuite() {
-	suite.ctx = context.Background()
-	pgContainer, err := testhelpers.CreatePostgresContainer(suite.ctx)
+func (c *URLRepoTestSuite) SetupSuite() {
+	c.ctx = context.Background()
+	dbContainer, err := testhelpers.CreatePostgresContainer(c.ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
-	suite.pgContainer = pgContainer
+	c.dbContainer = dbContainer
 
 	logger := logrus.New()
-	repository, err := NewPostgresURLStore(logger, suite.pgContainer.ConnectionString)
+	repository, err := NewPostgresURLStore(logger, c.dbContainer.ConnectionString)
 	if err != nil {
 		log.Fatal(err)
 	}
-	suite.repository = repository
+	c.repository = repository
 }
 
-func (suite *URLRepoTestSuite) TearDownSuite() {
-	if err := suite.repository.Close(); err != nil {
+func (c *URLRepoTestSuite) TearDownSuite() {
+	if err := c.repository.Close(); err != nil {
 		log.Printf("Failed to close repository: %v", err)
 	}
-	if err := suite.pgContainer.PostgresContainer.Terminate(suite.ctx); err != nil {
+	if err := c.dbContainer.PostgresContainer.Terminate(c.ctx); err != nil {
 		log.Fatalf("error terminating postgres container: %s", err)
 	}
 }
 
-func (suite *URLRepoTestSuite) TestGetLongURL_ValidURL() {
-	t := suite.T()
+func (c *URLRepoTestSuite) TestGetLongURL_ValidURL() {
+	t := c.T()
 
-	longURLResponse, err := suite.repository.GetLongURL(suite.ctx, "wRZ32pT")
+	longURLResponse, err := c.repository.GetLongURL(c.ctx, "wRZ32pT")
 	assert.NoError(t, err)
 	assert.NotNil(t, longURLResponse)
 	assert.Equal(t, "https://example.com/long-url-1", longURLResponse.OriginalURL)
 	assert.NotNil(t, longURLResponse.ExpiresAt)
 }
 
-func (suite *URLRepoTestSuite) TestGetLongURL_NonExistentURL() {
-	t := suite.T()
+func (c *URLRepoTestSuite) TestGetLongURL_NonExistentURL() {
+	t := c.T()
 
-	_, err := suite.repository.GetLongURL(suite.ctx, "INVALID")
+	_, err := c.repository.GetLongURL(c.ctx, "INVALID")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "not found")
 }
 
-func (suite *URLRepoTestSuite) TestGetLongURL_ExpiredURL() {
-	t := suite.T()
+func (c *URLRepoTestSuite) TestGetLongURL_ExpiredURL() {
+	t := c.T()
 
 	// N9qGJxH is an expired URL in the test data
-	_, err := suite.repository.GetLongURL(suite.ctx, "N9qGJxH")
+	_, err := c.repository.GetLongURL(c.ctx, "N9qGJxH")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "not found")
 }
 
-func (suite *URLRepoTestSuite) TestGetLongURL_URLWithoutExpiration() {
-	t := suite.T()
+func (c *URLRepoTestSuite) TestGetLongURL_URLWithoutExpiration() {
+	t := c.T()
 
 	// GD38yB5 has no expiration (NULL expires_at) in the test data
-	longURLResponse, err := suite.repository.GetLongURL(suite.ctx, "GD38yB5")
+	longURLResponse, err := c.repository.GetLongURL(c.ctx, "GD38yB5")
 	assert.NoError(t, err)
 	assert.NotNil(t, longURLResponse)
 	assert.Equal(t, "https://example.com/long-url-2", longURLResponse.OriginalURL)
