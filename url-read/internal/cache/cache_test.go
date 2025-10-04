@@ -14,37 +14,37 @@ import (
 
 type URLCacheTestSuite struct {
 	suite.Suite
-	redisContainer *testhelpers.RedisContainer
+	cacheContainer *testhelpers.RedisContainer
 	cache          *RedisURLCache
 	ctx            context.Context
 }
 
-func (suite *URLCacheTestSuite) SetupSuite() {
-	suite.ctx = context.Background()
-	redisContainer, err := testhelpers.CreateRedisContainer(suite.ctx)
+func (c *URLCacheTestSuite) SetupSuite() {
+	c.ctx = context.Background()
+	cacheContainer, err := testhelpers.CreateRedisContainer(c.ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
-	suite.redisContainer = redisContainer
+	c.cacheContainer = cacheContainer
 	logger := logrus.New()
-	cache, err := NewRedisURLCache(logger, suite.redisContainer.RedisOpts)
+	cache, err := NewRedisURLCache(logger, c.cacheContainer.RedisOpts)
 	if err != nil {
 		log.Fatal(err)
 	}
-	suite.cache = cache
+	c.cache = cache
 }
 
-func (suite *URLCacheTestSuite) TearDownSuite() {
-	if err := suite.cache.Close(); err != nil {
+func (c *URLCacheTestSuite) TearDownSuite() {
+	if err := c.cache.Close(); err != nil {
 		log.Printf("Failed to close cache: %v", err)
 	}
-	if err := suite.redisContainer.RedisContainer.Terminate(suite.ctx); err != nil {
+	if err := c.cacheContainer.RedisContainer.Terminate(c.ctx); err != nil {
 		log.Fatalf("error terminating redis container: %s", err)
 	}
 }
 
-func (suite *URLCacheTestSuite) TestSetAndGet_URLCacheEntry() {
-	t := suite.T()
+func (c *URLCacheTestSuite) TestSetAndGet_URLCacheEntry() {
+	t := c.T()
 	shortURLCode := "TEST123"
 	expiresAt := time.Now().Add(10 * time.Minute)
 	URLCacheEntry := URLCacheEntry{
@@ -53,25 +53,22 @@ func (suite *URLCacheTestSuite) TestSetAndGet_URLCacheEntry() {
 	}
 
 	// Set the cached URL
-	err := suite.cache.Set(suite.ctx, shortURLCode, URLCacheEntry)
+	err := c.cache.Set(c.ctx, shortURLCode, URLCacheEntry)
 	assert.NoError(t, err, "Failed to set cached URL")
 
 	// Get the cached URL
-	retrievedURL, err := suite.cache.Get(suite.ctx, shortURLCode)
+	retrievedURL, err := c.cache.Get(c.ctx, shortURLCode)
 	assert.NoError(t, err, "Failed to get cached URL")
 	assert.NotNil(t, retrievedURL, "Expected to retrieve a cached URL, got nil")
 	assert.Equal(t, URLCacheEntry.LongURL, retrievedURL.LongURL, "LongURL should match")
 }
 
-func (suite *URLCacheTestSuite) TestGet_NonExistentKey() {
-	t := suite.T()
+func (c *URLCacheTestSuite) TestGet_NonExistentKey() {
+	t := c.T()
 	shortURLCode := "nonexistent"
 
-	retrievedURL, err := suite.cache.Get(suite.ctx, shortURLCode)
-	if err != nil {
-		t.Fatalf("Error occurred while getting non-existent key: %v", err)
-	}
-
+	retrievedURL, err := c.cache.Get(c.ctx, shortURLCode)
+	assert.NoError(t, err, "Should not error when getting non-existent key")
 	assert.Nil(t, retrievedURL, "Expected nil for non-existent key")
 }
 
