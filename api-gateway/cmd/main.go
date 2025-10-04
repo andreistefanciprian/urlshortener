@@ -54,15 +54,15 @@ func main() {
 	logger.Infof("Connected to URL Reading service at %s", urlReadAddress)
 
 	// Initialize HTTP handler
-	apiHandler := NewAPIHandler(logger, urlGenClient, urlReadClient)
+	urlGateway := NewURLGateway(logger, urlGenClient, urlReadClient)
 	httpPort := os.Getenv("API_GATEWAY_PORT")
 	if httpPort == "" {
 		httpPort = "8080" // Default port
 	}
 	// Set up HTTP routes
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /create", apiHandler.CreateShortURL)
-	mux.HandleFunc("GET /{shortCode}", apiHandler.GetLongURL)
+	mux.HandleFunc("POST /create", urlGateway.CreateShortURL)
+	mux.HandleFunc("GET /{shortCode}", urlGateway.GetLongURL)
 
 	// Start HTTP server
 	logger.Infof("Starting API Gateway on port %s", httpPort)
@@ -72,27 +72,27 @@ func main() {
 
 }
 
-type HTTPHandler interface {
+type URLHandler interface {
 	// Define methods for handling HTTP requests
 	CreateShortURL(w http.ResponseWriter, r *http.Request)
 	GetLongURL(w http.ResponseWriter, r *http.Request)
 }
 
-type APIHandler struct {
+type URLGateway struct {
 	logger        *logrus.Logger
 	urlGenClient  ugen.URLGeneratorClient // gRPC URLGeneratorClient
 	urlReadClient uread.URLReaderClient   // gRPC URLReaderClient
 }
 
-func NewAPIHandler(logger *logrus.Logger, urlGenClient ugen.URLGeneratorClient, urlReadClient uread.URLReaderClient) *APIHandler {
-	return &APIHandler{
+func NewURLGateway(logger *logrus.Logger, urlGenClient ugen.URLGeneratorClient, urlReadClient uread.URLReaderClient) *URLGateway {
+	return &URLGateway{
 		logger:        logger,
 		urlGenClient:  urlGenClient,
 		urlReadClient: urlReadClient,
 	}
 }
 
-func (h *APIHandler) GetLongURL(w http.ResponseWriter, r *http.Request) {
+func (h *URLGateway) GetLongURL(w http.ResponseWriter, r *http.Request) {
 	// Use request context for future enhancements such as logging, timeouts, tracing, etc.
 	ctx := r.Context()
 
@@ -101,7 +101,7 @@ func (h *APIHandler) GetLongURL(w http.ResponseWriter, r *http.Request) {
 
 	// Validate required fields
 	if err := validateShortURL(shortUrlCode); err != nil {
-		h.logger.Errorf(err.Error())
+		h.logger.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -140,7 +140,10 @@ func (h *APIHandler) GetLongURL(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, response.LongUrl, http.StatusFound)
 }
 
-const shortUrlCodeLength = 7
+const (
+	shortUrlCodeLength     = 7
+	URLShortenerDomainName = "l.it"
+)
 
 func validateShortURL(shortURL string) error {
 	// Basic validation: check if the short URL is not empty and has a valid format
@@ -174,9 +177,7 @@ func validateCreateRequest(req *CreateShortURLRequest) error {
 	return nil
 }
 
-const URLShortenerDomainName = "l.it"
-
-func (h *APIHandler) CreateShortURL(w http.ResponseWriter, r *http.Request) {
+func (h *URLGateway) CreateShortURL(w http.ResponseWriter, r *http.Request) {
 	// Use request context for future enhancements such as logging, timeouts, tracing, etc.
 	ctx := r.Context()
 
