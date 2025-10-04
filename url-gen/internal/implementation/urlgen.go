@@ -48,23 +48,18 @@ func (s *URLGenService) GenerateShortURL(ctx context.Context, URLRequestPayload 
 		return nil, err
 	}
 
-	// Return the full short URL
-	shortUrl := "http://" + URLShortenerDomainName + "/" + shortURLCode
-
 	s.logger.WithContext(ctx).WithFields(logrus.Fields{
 		"shortURLCode": shortURLCode,
-		"shortUrl":     shortUrl,
-	}).Info("Successfully generated short URL")
+	}).Info("Successfully generated short URL code")
 
 	return &ugen.ShortURLResponse{
-		ShortUrl: shortUrl,
+		ShortUrl: shortURLCode,
 	}, nil
 }
 
 const (
-	codeAlphabet           = "FxnXM1kBN6cuhsAvjW3Co7l2RePyY8DwaU04Tzt9fHQrqSVKdpimLGIJOgb5ZE"
-	codeLength             = 7 // 7-char length
-	URLShortenerDomainName = "l.it"
+	codeAlphabet = "FxnXM1kBN6cuhsAvjW3Co7l2RePyY8DwaU04Tzt9fHQrqSVKdpimLGIJOgb5ZE"
+	codeLength   = 7 // 7-char length
 )
 
 func shortCodeGenerator() (string, error) {
