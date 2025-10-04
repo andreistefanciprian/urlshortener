@@ -11,22 +11,22 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type Implementation struct {
+type URLReadService struct {
 	logger *logrus.Logger
 	repo   repo.URLStore
 	uread.UnimplementedURLReaderServer
 	cache cache.URLCache
 }
 
-func NewUrlReadImplementation(logger *logrus.Logger, repository repo.URLStore, cache cache.URLCache) *Implementation {
-	return &Implementation{
+func NewURLReadService(logger *logrus.Logger, repository repo.URLStore, cache cache.URLCache) *URLReadService {
+	return &URLReadService{
 		logger: logger,
 		repo:   repository,
 		cache:  cache,
 	}
 }
 
-func (s *Implementation) GetLongURL(ctx context.Context, request *uread.LongURLRequest) (*uread.LongURLResponse, error) {
+func (s *URLReadService) GetLongURL(ctx context.Context, request *uread.LongURLRequest) (*uread.LongURLResponse, error) {
 
 	// Retrieve the original URL from Cache
 	cacheResponse, err := s.cache.Get(ctx, request.ShortUrl)

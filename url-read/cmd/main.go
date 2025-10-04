@@ -69,7 +69,7 @@ func main() {
 
 	// Create gRPC server
 	grpcServer := grpc.NewServer()
-	urlReadService := urlread.NewUrlReadImplementation(logger, urlRepo, urlCache)
+	urlReadService := urlread.NewURLReadService(logger, urlRepo, urlCache)
 	proto.RegisterURLReaderServer(grpcServer, urlReadService)
 
 	// Start listening for gRPC requests
