@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"testing"
+	"time"
 
 	cache "github.com/andreistefanciprian/urlshortener/url-read/internal/cache"
 	db "github.com/andreistefanciprian/urlshortener/url-read/internal/db"
@@ -94,6 +95,26 @@ func (c *URLReadServiceTestSuite) TestGetLongURL_URLWithoutExpiration() {
 	assert.NotNil(t, response)
 	assert.Equal(t, "https://example.com/long-url-2", response.LongUrl)
 	assert.Nil(t, response.Expiration)
+}
+
+func (c *URLReadServiceTestSuite) TestGetLongUR_CacheHIT() {
+	t := c.T()
+	shortURLCode := "TEST123"
+	expiresAt := time.Now().Add(10 * time.Minute)
+	URLCacheEntry := cache.URLCacheEntry{
+		LongURL:   "https://example.com/long-url",
+		ExpiresAt: expiresAt,
+	}
+
+	// Set the cached URL
+	err := c.cache.Set(c.ctx, shortURLCode, URLCacheEntry)
+	assert.NoError(t, err, "Failed to set cached URL")
+
+	// Get the cached URL
+	retrievedURL, err := c.cache.Get(c.ctx, shortURLCode)
+	assert.NoError(t, err, "Failed to get cached URL")
+	assert.NotNil(t, retrievedURL, "Expected to retrieve a cached URL, got nil")
+	assert.Equal(t, URLCacheEntry.LongURL, retrievedURL.LongURL, "LongURL should match")
 }
 
 func (c *URLReadServiceTestSuite) TearDownSuite() {
