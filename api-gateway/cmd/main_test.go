@@ -230,7 +230,7 @@ func TestValidateURL_LowercaseSchemaAndHost(t *testing.T) {
 			err := req.validateURL()
 
 			assert.NoError(t, err, "Expected no error for URL: "+tc.longUrl)
-			assert.Equal(t, tc.expectedLongUrl, req.LongUrl, "LongUrl should have schema and host lowercased")
+			assert.Equal(t, tc.expectedLongUrl, req.LongUrl, "LongUrl should have scheme and host lowercased")
 		})
 	}
 }
