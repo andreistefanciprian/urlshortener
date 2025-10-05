@@ -38,7 +38,7 @@ func TestValidateExpiration_ZeroExpiration(t *testing.T) {
 
 func TestValidateExpiration_NegativeExpiration(t *testing.T) {
 
-	// Test case: Valid expiration value
+	// Test case: Negative expiration value
 	req := CreateShortURLRequest{
 		LongUrl:   "https://example.com",
 		ExpiresIn: -10,
