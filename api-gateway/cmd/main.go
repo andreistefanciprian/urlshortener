@@ -197,8 +197,19 @@ func (u *CreateShortURLRequest) validateURL() error {
 		return fmt.Errorf("URL must have a valid host")
 	}
 
-	// Normalize the URL by ensuring it uses the parsed version
-	// This handles cases like extra whitespace, case normalization, etc.
+	// Normalize the URL for consistent storage and deduplication
+	// Convert scheme and host to lowercase for proper normalization
+	parsedURL.Scheme = strings.ToLower(parsedURL.Scheme)
+	parsedURL.Host = strings.ToLower(parsedURL.Host)
+
+	// Remove default ports for cleaner URLs
+	if parsedURL.Scheme == "https" && strings.HasSuffix(parsedURL.Host, ":443") {
+		parsedURL.Host = strings.TrimSuffix(parsedURL.Host, ":443")
+	} else if parsedURL.Scheme == "http" && strings.HasSuffix(parsedURL.Host, ":80") {
+		parsedURL.Host = strings.TrimSuffix(parsedURL.Host, ":80")
+	}
+
+	// Set the normalized URL back to the request
 	u.LongUrl = parsedURL.String()
 	return nil
 }
