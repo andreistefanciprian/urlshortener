@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -164,16 +165,41 @@ type CreateShortURLRequest struct {
 	ExpiresIn int    `json:"expiresIn"` // Expiration time in days
 }
 
-func validateCreateRequest(req *CreateShortURLRequest) error {
-	// Validate required fields
-	if req.LongUrl == "" {
-		return fmt.Errorf("long URL is required")
+func (u *CreateShortURLRequest) validateExpiration() error {
+
+	// Validate expiration time
+	if u.ExpiresIn < 0 {
+		return fmt.Errorf("expiration time cannot be negative")
 	}
+
 	// Set default expiration if not provided
-	if req.ExpiresIn == 0 {
-		req.ExpiresIn = 7 // Default to 7 days if not provided
+	if u.ExpiresIn == 0 {
+		u.ExpiresIn = 7 // Default to 7 days if not provided
 	}
-	// Further validation logic can be added here (e.g., regex check)
+
+	return nil
+}
+
+func (u *CreateShortURLRequest) validateURL() error {
+	// Parse and validate the URL using net/url ParseRequestURI according to RFC3986 for request URIs
+	parsedURL, err := url.ParseRequestURI(u.LongUrl)
+	if err != nil {
+		return fmt.Errorf("invalid URL format: %v", err)
+	}
+
+	// Validate URL scheme - only allow http and https
+	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+		return fmt.Errorf("URL must use http or https scheme, got: %s", parsedURL.Scheme)
+	}
+
+	// Validate that the URL has a host (catch https:// no Host URLs)
+	if parsedURL.Host == "" {
+		return fmt.Errorf("URL must have a valid host")
+	}
+
+	// Normalize the URL by ensuring it uses the parsed version
+	// This handles cases like extra whitespace, case normalization, etc.
+	u.LongUrl = parsedURL.String()
 	return nil
 }
 
@@ -192,15 +218,27 @@ func (h *URLGateway) CreateShortURL(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate required fields and set defaults
-	if err := validateCreateRequest(&req); err != nil {
-		h.logger.Errorf("Request validation failed: %v", err)
+	if err := req.validateURL(); err != nil {
+		h.logger.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// Create gRPC request
+	if err := req.validateExpiration(); err != nil {
+		h.logger.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Log the incoming request
+	h.logger.WithContext(ctx).WithFields(logrus.Fields{
+		"longUrl":   req.LongUrl,
+		"expiresIn": req.ExpiresIn,
+	}).Info("Received CreateShortURL request")
+
+	// Create gRPC request with the validated and normalized URL
 	grpcReq := &ugen.ShortURLRequest{
-		LongUrl:    req.LongUrl,
+		LongUrl:    req.LongUrl, // This is now validated and normalized
 		Expiration: timestamppb.New(time.Now().Add(time.Duration(req.ExpiresIn) * 24 * time.Hour)),
 	}
 
