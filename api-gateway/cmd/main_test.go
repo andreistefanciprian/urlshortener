@@ -205,7 +205,7 @@ func TestValidateURL_LowercaseSchemaAndHost(t *testing.T) {
 		expectedLongUrl string
 	}{
 		{
-			name:            "URL Contains Schema and Host Uppercase chars: HTTPS://Example.COM/path",
+			name:            "URL Contains Scheme and Host Uppercase chars: HTTPS://Example.COM/path",
 			longUrl:         "HTTPS://Example.COM/path",
 			expectedLongUrl: "https://example.com/path",
 		},
