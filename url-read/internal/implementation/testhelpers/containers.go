@@ -19,8 +19,8 @@ type PostgresContainer struct {
 }
 
 func CreatePostgresContainer(ctx context.Context) (*PostgresContainer, error) {
-	pgContainer, err := postgrestest.RunContainer(ctx,
-		testcontainers.WithImage("postgres:15-alpine"),
+	pgContainer, err := postgrestest.Run(ctx,
+		"postgres:15-alpine",
 		postgrestest.WithInitScripts(filepath.Join("testdata", "init-db.sql")),
 		postgrestest.WithDatabase("urls"),
 		postgrestest.WithUsername("test_user"),
@@ -49,8 +49,8 @@ type RedisContainer struct {
 }
 
 func CreateRedisContainer(ctx context.Context) (*RedisContainer, error) {
-	redisContainer, err := redistest.RunContainer(ctx,
-		testcontainers.WithImage("redis:7-alpine"),
+	redisContainer, err := redistest.Run(ctx,
+		"redis:7-alpine",
 		redistest.WithSnapshotting(10, 1),
 		redistest.WithLogLevel(redistest.LogLevelVerbose),
 		testcontainers.WithWaitStrategy(

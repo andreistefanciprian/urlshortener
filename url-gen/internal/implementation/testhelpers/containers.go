@@ -16,8 +16,8 @@ type PostgresContainer struct {
 }
 
 func CreatePostgresContainer(ctx context.Context) (*PostgresContainer, error) {
-	pgContainer, err := postgrestest.RunContainer(ctx,
-		testcontainers.WithImage("postgres:15-alpine"),
+	pgContainer, err := postgrestest.Run(ctx,
+		"postgres:15-alpine",
 		postgrestest.WithInitScripts(filepath.Join("testdata", "init-db.sql")),
 		postgrestest.WithDatabase("urls"),
 		postgrestest.WithUsername("test_user"),
