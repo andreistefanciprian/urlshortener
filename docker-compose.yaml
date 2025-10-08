@@ -7,12 +7,14 @@ services:
       dockerfile: infra/Dockerfile
     ports:
       - "80:8080"
+      - "9090:9090"
     environment:
       - URL_GEN_HOST=url-gen
       - URL_GEN_PORT=50052
       - URL_READ_HOST=url-read
       - URL_READ_PORT=50053
       - API_GATEWAY_PORT=8080
+      - METRICS_PORT=9090
     depends_on:
       url-gen:
         condition: service_started
