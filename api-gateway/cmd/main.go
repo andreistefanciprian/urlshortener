@@ -147,11 +147,14 @@ func main() {
 	}()
 
 	// Handle graceful shutdown
-	handleGracefulShutdown(logger, metricsSrv, apiSrv)
+	handleGracefulShutdown(logger, map[string]*http.Server{
+		"metrics": metricsSrv,
+		"api":     apiSrv,
+	})
 }
 
 // handleGracefulShutdown waits for interrupt signals and gracefully shuts down the provided servers
-func handleGracefulShutdown(logger *logrus.Logger, servers ...*http.Server) {
+func handleGracefulShutdown(logger *logrus.Logger, servers map[string]*http.Server) {
 	// Wait for interrupt signal to gracefully shutdown the servers
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
@@ -163,19 +166,11 @@ func handleGracefulShutdown(logger *logrus.Logger, servers ...*http.Server) {
 	defer cancel()
 
 	// Shutdown all servers
-	for i, server := range servers {
-		serverName := fmt.Sprintf("Server %d", i+1)
-		switch i {
-		case 0:
-			serverName = "Metrics server"
-		case 1:
-			serverName = "API server"
-		}
-
+	for name, server := range servers {
 		if err := server.Shutdown(ctx); err != nil {
-			logger.WithError(err).Errorf("%s forced to shutdown", serverName)
+			logger.WithError(err).Errorf("%s server forced to shutdown", name)
 		} else {
-			logger.Infof("%s shutdown gracefully", serverName)
+			logger.Infof("%s server shutdown gracefully", name)
 		}
 	}
 
