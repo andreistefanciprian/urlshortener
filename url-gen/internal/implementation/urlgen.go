@@ -28,12 +28,6 @@ func (s *URLGenService) GenerateShortURL(ctx context.Context, URLRequestPayload 
 		"longUrl": URLRequestPayload.LongUrl,
 	}).Info("Processing short URL generation request")
 
-	// Check if context is cancelled
-	if ctx.Err() != nil {
-		s.logger.WithContext(ctx).Error("Request context cancelled")
-		return nil, ctx.Err()
-	}
-
 	// Generate a unique short code
 	shortURLCode, err := shortCodeGenerator()
 	if err != nil {
