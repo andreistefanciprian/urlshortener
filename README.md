@@ -48,6 +48,12 @@ GET /gt0PFD8
 410 Gone: Short URL has expired
 ```
 
+## Monitoring & Metrics
+
+The API Gateway includes built-in Prometheus metrics for observability. See [MONITORING.md](MONITORING.md) for detailed documentation.
+
+**Quick Access**: Metrics available at `http://localhost:9090/metrics`
+
 ## GetLongURL Architecture Flow
 
 Cache-first architecture for optimal performance:
@@ -81,6 +87,9 @@ curl -s -X POST -H "Content-Type: application/json" -d '{"longUrl": "https://pro
 
 # Use curl to get Long URL
 curl -I http://l.it/TRDZip6
+
+# View Prometheus metrics
+curl http://localhost:9090/metrics | grep url_total
 
 # Tear down services
 make down
