@@ -398,7 +398,6 @@ func (h *URLGateway) CreateShortURL(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		createShortURLTotal.WithLabelValues("error").Inc()
 		h.logger.Errorf("Failed to write response: %v", err)
-		http.Error(w, "Failed to write response", http.StatusInternalServerError)
 		return
 	}
 
