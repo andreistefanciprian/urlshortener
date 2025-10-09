@@ -2,7 +2,7 @@ package urlgen
 
 import (
 	"context"
-	"strings"
+	"errors"
 
 	repo "github.com/andreistefanciprian/urlshortener/url-gen/internal/db"
 	ugen "github.com/andreistefanciprian/urlshortener/url-gen/proto"
@@ -59,13 +59,13 @@ func (s *URLGenService) GenerateShortURL(ctx context.Context, URLRequestPayload 
 func (s *URLGenService) DeleteShortURL(ctx context.Context, request *ugen.DeleteShortURLRequest) (*ugen.DeleteShortURLResponse, error) {
 	err := s.repo.Delete(ctx, request.ShortUrlCode)
 	if err != nil {
-		if strings.Contains(err.Error(), "not found") {
+		if errors.Is(err, repo.ErrShortURLCodeNotFound) {
 			s.logger.WithContext(ctx).WithFields(logrus.Fields{
 				"shortURLCode": request.ShortUrlCode,
 			}).Info("Short URL code not found in database")
 			return &ugen.DeleteShortURLResponse{
 				Success: false,
-				Message: err.Error(),
+				Message: repo.ErrShortURLCodeNotFound.Error(),
 			}, nil
 		}
 		s.logger.WithContext(ctx).WithFields(logrus.Fields{

@@ -68,6 +68,8 @@ const deleteShortURLQuery = `
 		DELETE FROM short_links 
 		WHERE code = $1`
 
+var ErrShortURLCodeNotFound = fmt.Errorf("short URL code not found")
+
 func (r *PostgresURLStore) Delete(ctx context.Context, shortURLCode string) error {
 	// SQL query to delete a short link by code
 	result, err := r.db.Exec(ctx, deleteShortURLQuery, shortURLCode)
@@ -82,7 +84,7 @@ func (r *PostgresURLStore) Delete(ctx context.Context, shortURLCode string) erro
 		r.logger.WithFields(logrus.Fields{
 			"shortURLCode": shortURLCode,
 		}).Debug("Short URL code not found in database")
-		return fmt.Errorf("short URL code not found: '%s'", shortURLCode)
+		return ErrShortURLCodeNotFound
 	}
 
 	r.logger.WithFields(logrus.Fields{
