@@ -14,7 +14,7 @@ This project was built following system design principles from this excellent Yo
 
 ## API Endpoints
 
-The API Gateway exposes two main REST endpoints:
+The API Gateway exposes three main REST endpoints:
 
 ### POST /create
 Creates a new short URL from a long URL.
@@ -46,6 +46,21 @@ GET /gt0PFD8
 302 Found: Redirects to original URL
 404 Not Found: Short code doesn't exist  
 410 Gone: Short URL has expired
+```
+
+### DELETE /{shortCode}
+Deletes a short URL and removes it from both database and cache.
+
+**Flow:** Client → API Gateway → URL-Gen Service → Redis/PostgreSQL → Confirmation
+
+```
+# Request
+DELETE /gt0PFD8
+
+# Response
+200 OK: Short URL deleted successfully
+404 Not Found: Short code doesn't exist
+500 Internal Server Error: Database/cache error
 ```
 
 ## Monitoring & Metrics
@@ -86,7 +101,10 @@ bash scripts/test.sh
 curl -s -X POST -H "Content-Type: application/json" -d '{"longUrl": "https://protobuf.dev/getting-started/gotutorial/", "expiresIn": 1}' http://l.it/create
 
 # Use curl to get Long URL
-curl -I http://l.it/TRDZip6
+curl -X GET -I http://l.it/TRDZip6
+
+# Use curl to delete Short URL
+curl -X DELETE -I http://l.it/TRDZip6
 
 # View Prometheus metrics
 curl http://localhost:9090/metrics | grep url_total
