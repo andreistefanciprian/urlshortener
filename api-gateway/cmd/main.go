@@ -15,38 +15,12 @@ import (
 
 	ugen "github.com/andreistefanciprian/urlshortener/api-gateway/url-gen/proto"
 	uread "github.com/andreistefanciprian/urlshortener/api-gateway/url-read/proto"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
-
-// Prometheus metrics
-var (
-	createShortURLTotal = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "create_short_url_total",
-			Help: "Total number of short URL creation requests",
-		},
-		[]string{"status"}, // Labels: success, error, invalid_url, invalid_expiration
-	)
-
-	getLongURLTotal = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "get_long_url_total",
-			Help: "Total number of long URL retrieval requests",
-		},
-		[]string{"status"}, // Labels: success, error, not_found, expired
-	)
-)
-
-func init() {
-	// Register Prometheus metrics
-	prometheus.MustRegister(createShortURLTotal)
-	prometheus.MustRegister(getLongURLTotal)
-}
 
 // getEnvAsIntOrDefault returns environment variable as int or default if not set or invalid
 func getEnvAsIntOrDefault(key string, defaultValue int) int {
@@ -67,6 +41,8 @@ func getEnvOrDefault(key, defaultValue string) string {
 }
 
 func main() {
+	// Initialize Prometheus metrics
+	initMetrics()
 
 	// Initialize the logger
 	logger := initLogger()
@@ -245,11 +221,16 @@ func (h *URLGateway) GetLongURL(w http.ResponseWriter, r *http.Request) {
 
 	// Success - increment counter and redirect
 	getLongURLTotal.WithLabelValues("success").Inc()
+	h.logger.WithFields(logrus.Fields{
+		"shortURLCode": shortUrlCode,
+		"longURL":      response.LongUrl,
+	}).Info("Successfully processed GetLongURL request")
 
 	// Redirect with 302 to the original long URL
 	w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate")
 	w.Header().Set("Expires", "0")
 	http.Redirect(w, r, response.LongUrl, http.StatusFound)
+
 }
 
 const (
@@ -355,12 +336,6 @@ func (h *URLGateway) CreateShortURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Log the incoming request
-	h.logger.WithContext(ctx).WithFields(logrus.Fields{
-		"longUrl":   req.LongUrl,
-		"expiresIn": req.ExpiresIn,
-	}).Info("Received CreateShortURL request")
-
 	// Create gRPC request with the validated and normalized URL
 	grpcReq := &ugen.ShortURLRequest{
 		LongUrl:    req.LongUrl, // This is now validated and normalized
@@ -397,8 +372,12 @@ func (h *URLGateway) CreateShortURL(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Success - increment counter
+	h.logger.WithFields(logrus.Fields{
+		"shortURLCode": response.ShortUrl,
+		"longURL":      req.LongUrl,
+		"expiresIn":    req.ExpiresIn,
+	}).Info("Successfully processed CreateShortURL request")
 	createShortURLTotal.WithLabelValues("success").Inc()
-	h.logger.Infof("Successfully processed CreateShortURL request for %s", req.LongUrl)
 }
 
 func initLogger() *logrus.Logger {
