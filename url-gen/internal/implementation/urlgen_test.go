@@ -51,6 +51,31 @@ func (c *URLGenServiceTestSuite) TestGenerateShortURL_Length() {
 	assert.Equal(t, 7, len(response.ShortUrl))
 }
 
+func (c *URLGenServiceTestSuite) TestDeleteShortURL_Success() {
+	t := c.T()
+
+	// First, generate a short URL
+	response, err := c.implementation.GenerateShortURL(c.ctx, &ugen.ShortURLRequest{LongUrl: "https://example.com/long-url-1"})
+	assert.NoError(t, err)
+	assert.NotNil(t, response)
+
+	// Now, delete the short URL
+	deleteResponse, err := c.implementation.DeleteShortURL(c.ctx, &ugen.DeleteShortURLRequest{ShortUrlCode: response.ShortUrl})
+	assert.NoError(t, err)
+	assert.NotNil(t, deleteResponse)
+	assert.True(t, deleteResponse.Success)
+}
+
+func (c *URLGenServiceTestSuite) TestDeleteShortURL_DoesNotExist() {
+	t := c.T()
+
+	// Attempt to delete a non-existent short URL
+	deleteResponse, err := c.implementation.DeleteShortURL(c.ctx, &ugen.DeleteShortURLRequest{ShortUrlCode: "NONEXIST"})
+	assert.NoError(t, err)
+	assert.NotNil(t, deleteResponse)
+	assert.False(t, deleteResponse.Success)
+}
+
 func (c *URLGenServiceTestSuite) TearDownSuite() {
 	if err := c.repository.Close(); err != nil {
 		log.Printf("Failed to close repository: %v", err)
