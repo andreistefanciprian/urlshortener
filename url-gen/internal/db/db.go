@@ -59,7 +59,7 @@ func (r *PostgresURLStore) CreateShortURL(ctx context.Context, originalURL, shor
 		"shortURLCode": shortURLCode,
 		"originalURL":  originalURL,
 		"expiresAt":    expireTime,
-	}).Infof("Successfully created short URL")
+	}).Debug("Successfully created short URL")
 
 	return nil
 }
@@ -70,7 +70,7 @@ const deleteShortURLQuery = `
 
 func (r *PostgresURLStore) Delete(ctx context.Context, shortURLCode string) error {
 	// SQL query to delete a short link by code
-	_, err := r.db.Exec(ctx, deleteShortURLQuery, shortURLCode)
+	result, err := r.db.Exec(ctx, deleteShortURLQuery, shortURLCode)
 	if err != nil {
 		r.logger.WithError(err).WithFields(logrus.Fields{
 			"shortURLCode": shortURLCode,
@@ -78,9 +78,16 @@ func (r *PostgresURLStore) Delete(ctx context.Context, shortURLCode string) erro
 		return fmt.Errorf("failed to delete short URL: %w", err)
 	}
 
+	if result.RowsAffected() == 0 {
+		r.logger.WithFields(logrus.Fields{
+			"shortURLCode": shortURLCode,
+		}).Debug("Short URL code does not exist in database")
+		return fmt.Errorf("short URL code does not exist: '%s'", shortURLCode)
+	}
+
 	r.logger.WithFields(logrus.Fields{
 		"shortURLCode": shortURLCode,
-	}).Info("Successfully deleted short URL")
+	}).Debug("Successfully deleted short URL")
 
 	return nil
 }
