@@ -18,10 +18,19 @@ var (
 		},
 		[]string{"status"}, // Labels: success, error, not_found, expired
 	)
+
+	deleteShortURLTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "delete_short_url_total",
+			Help: "Total number of short URL deletion requests",
+		},
+		[]string{"status"}, // Labels: success, error, not_found
+	)
 )
 
 func initMetrics() {
 	// Register Prometheus metrics
 	prometheus.MustRegister(createShortURLTotal)
 	prometheus.MustRegister(getLongURLTotal)
+	prometheus.MustRegister(deleteShortURLTotal)
 }

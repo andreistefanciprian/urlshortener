@@ -79,6 +79,7 @@ func main() {
 	api := http.NewServeMux()
 	api.HandleFunc("POST /create", urlGateway.CreateShortURL)
 	api.HandleFunc("GET /{shortCode}", urlGateway.GetLongURL)
+	api.HandleFunc("DELETE /{shortCode}", urlGateway.DeleteShortURL)
 	apiSrv := &http.Server{
 		Addr:              fmt.Sprintf(":%d", apiPort),
 		Handler:           api,

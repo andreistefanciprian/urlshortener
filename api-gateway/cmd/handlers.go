@@ -18,6 +18,7 @@ type URLHandler interface {
 	// Define methods for handling HTTP requests
 	CreateShortURL(w http.ResponseWriter, r *http.Request)
 	GetLongURL(w http.ResponseWriter, r *http.Request)
+	DeleteShortURL(w http.ResponseWriter, r *http.Request)
 }
 
 type URLGateway struct {
@@ -34,8 +35,71 @@ func NewURLGateway(logger *logrus.Logger, urlGenClient ugen.URLGeneratorClient, 
 	}
 }
 
+func (h *URLGateway) DeleteShortURL(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// Extract short URL code from URL path
+	shortUrlCode := r.PathValue("shortCode")
+
+	// Validate required fields
+	if err := validateShortURL(shortUrlCode); err != nil {
+		getLongURLTotal.WithLabelValues("error").Inc()
+		h.logger.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Create gRPC request
+	grpcReq := &ugen.DeleteShortURLRequest{
+		ShortUrlCode: shortUrlCode,
+	}
+
+	// Call gRPC service
+	response, err := h.urlGenClient.DeleteShortURL(ctx, grpcReq)
+	if err != nil {
+		deleteShortURLTotal.WithLabelValues("error").Inc()
+		h.logger.Errorf("gRPC call to DeleteShortURL failed: %v", err)
+		http.Error(w, "Failed to delete short URL", http.StatusInternalServerError)
+		return
+	}
+
+	// Check if it's a "not found" error (which could be an expired/deleted URL)
+	if !response.Success {
+		deleteShortURLTotal.WithLabelValues("not_found").Inc()
+		h.logger.WithFields(logrus.Fields{
+			"shortURLCode": shortUrlCode,
+		}).Info("Short URL Code not found (may be expired or deleted)")
+		http.Error(w, response.Message, http.StatusNotFound)
+		return
+	}
+
+	// Success - increment counter
+	if response.Success {
+		deleteShortURLTotal.WithLabelValues("success").Inc()
+		h.logger.WithFields(logrus.Fields{
+			"shortURLCode": shortUrlCode,
+		}).Info("Successfully processed DeleteShortURL request")
+	}
+
+	// Respond with success message
+	responseJSON, err := json.Marshal(response)
+	if err != nil {
+		deleteShortURLTotal.WithLabelValues("error").Inc()
+		h.logger.Errorf("Failed to marshal gRPC response: %v", err)
+		http.Error(w, "Failed to process response", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(responseJSON)
+	if err != nil {
+		deleteShortURLTotal.WithLabelValues("error").Inc()
+		h.logger.Errorf("Failed to write response: %v", err)
+		return
+	}
+}
+
 func (h *URLGateway) GetLongURL(w http.ResponseWriter, r *http.Request) {
-	// Use request context for future enhancements such as logging, timeouts, tracing, etc.
 	ctx := r.Context()
 
 	// Extract short URL code from URL path
