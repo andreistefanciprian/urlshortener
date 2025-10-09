@@ -118,6 +118,102 @@ func (x *ShortURLResponse) GetShortUrl() string {
 	return ""
 }
 
+type DeleteShortURLRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ShortUrlCode  string                 `protobuf:"bytes,1,opt,name=short_url_code,json=shortUrlCode,proto3" json:"short_url_code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteShortURLRequest) Reset() {
+	*x = DeleteShortURLRequest{}
+	mi := &file_url_gen_proto_url_gen_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteShortURLRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteShortURLRequest) ProtoMessage() {}
+
+func (x *DeleteShortURLRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_url_gen_proto_url_gen_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteShortURLRequest.ProtoReflect.Descriptor instead.
+func (*DeleteShortURLRequest) Descriptor() ([]byte, []int) {
+	return file_url_gen_proto_url_gen_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *DeleteShortURLRequest) GetShortUrlCode() string {
+	if x != nil {
+		return x.ShortUrlCode
+	}
+	return ""
+}
+
+type DeleteShortURLResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"` // Optional message for additional context
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteShortURLResponse) Reset() {
+	*x = DeleteShortURLResponse{}
+	mi := &file_url_gen_proto_url_gen_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteShortURLResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteShortURLResponse) ProtoMessage() {}
+
+func (x *DeleteShortURLResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_url_gen_proto_url_gen_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteShortURLResponse.ProtoReflect.Descriptor instead.
+func (*DeleteShortURLResponse) Descriptor() ([]byte, []int) {
+	return file_url_gen_proto_url_gen_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *DeleteShortURLResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *DeleteShortURLResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_url_gen_proto_url_gen_proto protoreflect.FileDescriptor
 
 const file_url_gen_proto_url_gen_proto_rawDesc = "" +
@@ -129,9 +225,15 @@ const file_url_gen_proto_url_gen_proto_rawDesc = "" +
 	"expiration\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"expiration\"/\n" +
 	"\x10ShortURLResponse\x12\x1b\n" +
-	"\tshort_url\x18\x01 \x01(\tR\bshortUrl2G\n" +
+	"\tshort_url\x18\x01 \x01(\tR\bshortUrl\"=\n" +
+	"\x15DeleteShortURLRequest\x12$\n" +
+	"\x0eshort_url_code\x18\x01 \x01(\tR\fshortUrlCode\"L\n" +
+	"\x16DeleteShortURLResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage2\x8a\x01\n" +
 	"\fURLGenerator\x127\n" +
-	"\x10GenerateShortURL\x12\x10.ShortURLRequest\x1a\x11.ShortURLResponseB;Z9github.com/andreistefanciprian/urlshortener/url-gen/protob\x06proto3"
+	"\x10GenerateShortURL\x12\x10.ShortURLRequest\x1a\x11.ShortURLResponse\x12A\n" +
+	"\x0eDeleteShortURL\x12\x16.DeleteShortURLRequest\x1a\x17.DeleteShortURLResponseB;Z9github.com/andreistefanciprian/urlshortener/url-gen/protob\x06proto3"
 
 var (
 	file_url_gen_proto_url_gen_proto_rawDescOnce sync.Once
@@ -145,18 +247,22 @@ func file_url_gen_proto_url_gen_proto_rawDescGZIP() []byte {
 	return file_url_gen_proto_url_gen_proto_rawDescData
 }
 
-var file_url_gen_proto_url_gen_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_url_gen_proto_url_gen_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_url_gen_proto_url_gen_proto_goTypes = []any{
-	(*ShortURLRequest)(nil),       // 0: ShortURLRequest
-	(*ShortURLResponse)(nil),      // 1: ShortURLResponse
-	(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
+	(*ShortURLRequest)(nil),        // 0: ShortURLRequest
+	(*ShortURLResponse)(nil),       // 1: ShortURLResponse
+	(*DeleteShortURLRequest)(nil),  // 2: DeleteShortURLRequest
+	(*DeleteShortURLResponse)(nil), // 3: DeleteShortURLResponse
+	(*timestamppb.Timestamp)(nil),  // 4: google.protobuf.Timestamp
 }
 var file_url_gen_proto_url_gen_proto_depIdxs = []int32{
-	2, // 0: ShortURLRequest.expiration:type_name -> google.protobuf.Timestamp
+	4, // 0: ShortURLRequest.expiration:type_name -> google.protobuf.Timestamp
 	0, // 1: URLGenerator.GenerateShortURL:input_type -> ShortURLRequest
-	1, // 2: URLGenerator.GenerateShortURL:output_type -> ShortURLResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
+	2, // 2: URLGenerator.DeleteShortURL:input_type -> DeleteShortURLRequest
+	1, // 3: URLGenerator.GenerateShortURL:output_type -> ShortURLResponse
+	3, // 4: URLGenerator.DeleteShortURL:output_type -> DeleteShortURLResponse
+	3, // [3:5] is the sub-list for method output_type
+	1, // [1:3] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name
@@ -173,7 +279,7 @@ func file_url_gen_proto_url_gen_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_url_gen_proto_url_gen_proto_rawDesc), len(file_url_gen_proto_url_gen_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

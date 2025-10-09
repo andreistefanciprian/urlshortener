@@ -5,10 +5,13 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 
+	"github.com/andreistefanciprian/urlshortener/url-gen/internal/cache"
 	"github.com/andreistefanciprian/urlshortener/url-gen/internal/db"
 	urlgen "github.com/andreistefanciprian/urlshortener/url-gen/internal/implementation"
 	proto "github.com/andreistefanciprian/urlshortener/url-gen/proto"
+	redis "github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
@@ -38,15 +41,35 @@ func main() {
 
 	// Initialize DB repository
 	dbConfig := db.GetDBConfigFromEnv()
-	repo, err := db.NewPostgresURLStore(logger, dbConfig.DSNString())
+	urlRepo, err := db.NewPostgresURLStore(logger, dbConfig.DSNString())
 	if err != nil {
 		logger.WithError(err).Fatal("Failed to initialize database repository")
 	}
-	defer repo.Close()
+	defer urlRepo.Close()
+	logger.Info("Connected to PostgreSQL database")
+
+	// Initialize Redis URL Cacher
+	cacheConfig := cache.GetCacheConfigFromEnv()
+	redisOptions := &redis.Options{
+		Addr:     fmt.Sprintf("%s:%d", cacheConfig.Host, cacheConfig.Port),
+		Password: cacheConfig.Password,
+		DB:       cacheConfig.DB,
+		// Connection pool settings optimized for read operations
+		PoolSize:        20,              // Max connections in pool
+		MinIdleConns:    5,               // Keep connections warm
+		PoolTimeout:     time.Second * 4, // Wait time for pool connection
+		ConnMaxIdleTime: time.Minute * 5, // Close idle connections after 5 minutes
+	}
+	urlCache, err := cache.NewRedisURLCache(logger, redisOptions)
+	if err != nil {
+		logger.WithError(err).Fatal("Failed to initialize Redis URL cacher")
+	}
+	defer urlCache.Close()
+	logger.Info("Connected to Redis cache")
 
 	// Create gRPC server
 	grpcServer := grpc.NewServer()
-	urlGenService := urlgen.NewURLGenService(logger, repo)
+	urlGenService := urlgen.NewURLGenService(logger, urlRepo, urlCache)
 	proto.RegisterURLGeneratorServer(grpcServer, urlGenService)
 
 	// Start listening for gRPC requests
