@@ -52,6 +52,8 @@ const getLongURLQuery = `
 		FROM short_links 
 		WHERE code = $1 AND (expires_at IS NULL OR expires_at > NOW())`
 
+var ErrShortURLCodeNotFound = errors.New("short URL code not found")
+
 func (r *PostgresURLStore) GetLongURL(ctx context.Context, shortURLCode string) (*URLRecord, error) {
 	// SQL query to fetch the original URL by short code
 	var response URLRecord
@@ -61,7 +63,7 @@ func (r *PostgresURLStore) GetLongURL(ctx context.Context, shortURLCode string) 
 			r.logger.WithFields(logrus.Fields{
 				"shortURLCode": shortURLCode,
 			}).Info("Short URL not found in database")
-			return nil, fmt.Errorf("short URL '%s' not found", shortURLCode)
+			return nil, ErrShortURLCodeNotFound
 		}
 		r.logger.WithError(err).WithFields(logrus.Fields{
 			"shortURLCode": shortURLCode,
