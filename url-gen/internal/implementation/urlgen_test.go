@@ -5,6 +5,7 @@ import (
 	"log"
 	"testing"
 
+	cache "github.com/andreistefanciprian/urlshortener/url-gen/internal/cache"
 	db "github.com/andreistefanciprian/urlshortener/url-gen/internal/db"
 	"github.com/andreistefanciprian/urlshortener/url-gen/internal/implementation/testhelpers"
 	ugen "github.com/andreistefanciprian/urlshortener/url-gen/proto"
@@ -16,7 +17,9 @@ import (
 type URLGenServiceTestSuite struct {
 	suite.Suite
 	dbContainer    *testhelpers.PostgresContainer
+	cacheContainer *testhelpers.RedisContainer
 	repository     *db.PostgresURLStore
+	cache          *cache.RedisURLCache
 	implementation *URLGenService
 	ctx            context.Context
 }
@@ -38,8 +41,21 @@ func (c *URLGenServiceTestSuite) SetupSuite() {
 	}
 	c.repository = repository
 
+	// Setup Cache container
+	cacheContainer, err := testhelpers.CreateRedisContainer(c.ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	c.cacheContainer = cacheContainer
+
+	cache, err := cache.NewRedisURLCache(logger, c.cacheContainer.RedisOpts)
+	if err != nil {
+		log.Fatal(err)
+	}
+	c.cache = cache
+
 	// Create the URLGenService instance with real dependencies
-	c.implementation = NewURLGenService(logger, c.repository)
+	c.implementation = NewURLGenService(logger, c.repository, c.cache)
 }
 
 func (c *URLGenServiceTestSuite) TestGenerateShortURL_Length() {
@@ -82,6 +98,13 @@ func (c *URLGenServiceTestSuite) TearDownSuite() {
 	}
 	if err := c.dbContainer.PostgresContainer.Terminate(c.ctx); err != nil {
 		log.Printf("error terminating postgres container: %s", err)
+	}
+
+	if err := c.cache.Close(); err != nil {
+		log.Printf("Failed to close cache: %v", err)
+	}
+	if err := c.cacheContainer.RedisContainer.Terminate(c.ctx); err != nil {
+		log.Printf("error terminating redis container: %s", err)
 	}
 }
 

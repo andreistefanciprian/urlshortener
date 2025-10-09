@@ -53,6 +53,55 @@ test_get_long_url() {
     echo "========================================="
 }
 
+delete_short_url() {
+    echo "========================================="
+    echo "Testing API Gateway Delete Short URL"
+    echo "========================================="
+
+    echo
+    echo "Test 1: Create a short URL for deletion testing"
+    DELETE_SHORT_URL_CODE=$(curl -s -X POST -H "Content-Type: application/json" -d '{"longUrl": "https://google.com", "expiresIn": 10}' http://l.it/create | jq -r '.short_url')
+    echo "Created short URL for deletion: $DELETE_SHORT_URL_CODE"
+    echo
+    
+    echo "Test 2: Verify the short URL works before deletion"
+    curl -X GET -I $DELETE_SHORT_URL_CODE
+    echo
+    
+    echo "Test 3: Access the short URL again to confirm it's cached"
+    curl -X GET -I $DELETE_SHORT_URL_CODE
+    echo
+    
+    echo "Test 4: Delete the short URL"
+    curl -X DELETE -I $DELETE_SHORT_URL_CODE
+    echo
+    
+    echo "Test 5: Try to access the deleted URL (should fail)"
+    curl -X GET -I $DELETE_SHORT_URL_CODE
+    echo
+    
+    echo "Test 6: Try to delete the same URL again (should fail)"
+    curl -X DELETE -I $DELETE_SHORT_URL_CODE
+    echo
+    
+    echo "========================================="
+    echo "Delete Short URL tests completed"
+    echo "========================================="
+}
+
+check_metrics() {
+    echo "========================================="
+    echo "Checking Metrics"
+    echo "========================================="
+    
+    # Fetch and display metrics related to URL shortening
+    curl -s http://localhost:9090/metrics | grep url_total | grep -v "#"
+
+    echo "========================================="
+    echo "Metrics check completed"
+    echo "========================================="
+}
+
 check_db_table() {
     echo "========================================="
     echo "Checking Database Table"
@@ -70,4 +119,6 @@ check_db_table() {
 # Run the test functions
 test_create_short_url
 test_get_long_url
+delete_short_url
 check_db_table
+check_metrics

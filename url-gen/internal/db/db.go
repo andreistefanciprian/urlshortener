@@ -89,7 +89,7 @@ func (r *PostgresURLStore) Delete(ctx context.Context, shortURLCode string) erro
 
 	r.logger.WithFields(logrus.Fields{
 		"shortURLCode": shortURLCode,
-	}).Debug("Successfully deleted short URL")
+	}).Debug("Successfully deleted short URL from database")
 
 	return nil
 }

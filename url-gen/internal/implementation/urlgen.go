@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/andreistefanciprian/urlshortener/url-gen/internal/cache"
 	repo "github.com/andreistefanciprian/urlshortener/url-gen/internal/db"
 	ugen "github.com/andreistefanciprian/urlshortener/url-gen/proto"
 	gonanoid "github.com/matoous/go-nanoid"
@@ -13,13 +14,15 @@ import (
 type URLGenService struct {
 	logger *logrus.Logger
 	repo   repo.URLStore
+	cache  cache.URLCache
 	ugen.UnimplementedURLGeneratorServer
 }
 
-func NewURLGenService(logger *logrus.Logger, repository repo.URLStore) *URLGenService {
+func NewURLGenService(logger *logrus.Logger, repository repo.URLStore, cache cache.URLCache) *URLGenService {
 	return &URLGenService{
 		logger: logger,
 		repo:   repository,
+		cache:  cache,
 	}
 }
 
@@ -56,8 +59,28 @@ func (s *URLGenService) GenerateShortURL(ctx context.Context, URLRequestPayload 
 	}, nil
 }
 
+// TODO: maybe we should only return error and not a response
 func (s *URLGenService) DeleteShortURL(ctx context.Context, request *ugen.DeleteShortURLRequest) (*ugen.DeleteShortURLResponse, error) {
-	err := s.repo.Delete(ctx, request.ShortUrlCode)
+	// Delete from Cache first
+	err := s.cache.Del(ctx, request.ShortUrlCode)
+	if err != nil {
+		if errors.Is(err, cache.ErrShortURLCodeNotFound) {
+			s.logger.WithContext(ctx).WithFields(logrus.Fields{
+				"shortURLCode": request.ShortUrlCode,
+			}).Info("Short URL code not found in cache")
+		} else {
+			s.logger.WithContext(ctx).WithFields(logrus.Fields{
+				"shortURLCode": request.ShortUrlCode,
+			}).WithError(err).Error("Failed to delete short URL code from cache")
+		}
+	} else {
+		s.logger.WithContext(ctx).WithFields(logrus.Fields{
+			"shortURLCode": request.ShortUrlCode,
+		}).Info("Successfully deleted short URL Code from cache")
+	}
+
+	// Delete from Database
+	err = s.repo.Delete(ctx, request.ShortUrlCode)
 	if err != nil {
 		if errors.Is(err, repo.ErrShortURLCodeNotFound) {
 			s.logger.WithContext(ctx).WithFields(logrus.Fields{
@@ -75,13 +98,11 @@ func (s *URLGenService) DeleteShortURL(ctx context.Context, request *ugen.Delete
 			Success: false,
 			Message: err.Error(),
 		}, err
+	} else {
+		s.logger.WithContext(ctx).WithFields(logrus.Fields{
+			"shortURLCode": request.ShortUrlCode,
+		}).Info("Successfully deleted short URL Code from database")
 	}
-
-	// To be added Delete from Cache as well
-
-	s.logger.WithContext(ctx).WithFields(logrus.Fields{
-		"shortURLCode": request.ShortUrlCode,
-	}).Info("Successfully deleted short URL Code")
 
 	return &ugen.DeleteShortURLResponse{
 		Success: true,
