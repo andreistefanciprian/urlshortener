@@ -2,6 +2,7 @@ package urlgen
 
 import (
 	"context"
+	"strings"
 
 	repo "github.com/andreistefanciprian/urlshortener/url-gen/internal/db"
 	ugen "github.com/andreistefanciprian/urlshortener/url-gen/proto"
@@ -22,12 +23,16 @@ func NewURLGenService(logger *logrus.Logger, repository repo.URLStore) *URLGenSe
 	}
 }
 
-func (s *URLGenService) GenerateShortURL(ctx context.Context, URLRequestPayload *ugen.ShortURLRequest) (*ugen.ShortURLResponse, error) {
-	// Use context for logging and timeout handling
-	s.logger.WithContext(ctx).WithFields(logrus.Fields{
-		"longUrl": URLRequestPayload.LongUrl,
-	}).Info("Processing short URL generation request")
+const (
+	codeAlphabet = "FxnXM1kBN6cuhsAvjW3Co7l2RePyY8DwaU04Tzt9fHQrqSVKdpimLGIJOgb5ZE"
+	codeLength   = 7 // 7-char length
+)
 
+func shortCodeGenerator() (string, error) {
+	return gonanoid.Generate(codeAlphabet, codeLength)
+}
+
+func (s *URLGenService) GenerateShortURL(ctx context.Context, URLRequestPayload *ugen.ShortURLRequest) (*ugen.ShortURLResponse, error) {
 	// Generate a unique short code
 	shortURLCode, err := shortCodeGenerator()
 	if err != nil {
@@ -51,11 +56,35 @@ func (s *URLGenService) GenerateShortURL(ctx context.Context, URLRequestPayload 
 	}, nil
 }
 
-const (
-	codeAlphabet = "FxnXM1kBN6cuhsAvjW3Co7l2RePyY8DwaU04Tzt9fHQrqSVKdpimLGIJOgb5ZE"
-	codeLength   = 7 // 7-char length
-)
+func (s *URLGenService) DeleteShortURL(ctx context.Context, request *ugen.DeleteShortURLRequest) (*ugen.DeleteShortURLResponse, error) {
+	err := s.repo.Delete(ctx, request.ShortUrlCode)
+	if err != nil {
+		if strings.Contains(err.Error(), "does not exist") {
+			s.logger.WithContext(ctx).WithFields(logrus.Fields{
+				"shortURLCode": request.ShortUrlCode,
+			}).Info("Short URL code does not exist in database")
+			return &ugen.DeleteShortURLResponse{
+				Success: false,
+				Message: err.Error(),
+			}, nil
+		}
+		s.logger.WithContext(ctx).WithFields(logrus.Fields{
+			"shortURLCode": request.ShortUrlCode,
+		}).WithError(err).Error("Failed to delete short URL Code")
+		return &ugen.DeleteShortURLResponse{
+			Success: false,
+			Message: err.Error(),
+		}, err
+	}
 
-func shortCodeGenerator() (string, error) {
-	return gonanoid.Generate(codeAlphabet, codeLength)
+	// To be added Delete from Cache as well
+
+	s.logger.WithContext(ctx).WithFields(logrus.Fields{
+		"shortURLCode": request.ShortUrlCode,
+	}).Info("Successfully deleted short URL Code")
+
+	return &ugen.DeleteShortURLResponse{
+		Success: true,
+		Message: "Short URL Code deleted successfully",
+	}, nil
 }

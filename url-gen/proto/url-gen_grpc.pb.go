@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	URLGenerator_GenerateShortURL_FullMethodName = "/URLGenerator/GenerateShortURL"
+	URLGenerator_DeleteShortURL_FullMethodName   = "/URLGenerator/DeleteShortURL"
 )
 
 // URLGeneratorClient is the client API for URLGenerator service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type URLGeneratorClient interface {
 	GenerateShortURL(ctx context.Context, in *ShortURLRequest, opts ...grpc.CallOption) (*ShortURLResponse, error)
+	DeleteShortURL(ctx context.Context, in *DeleteShortURLRequest, opts ...grpc.CallOption) (*DeleteShortURLResponse, error)
 }
 
 type uRLGeneratorClient struct {
@@ -47,11 +49,22 @@ func (c *uRLGeneratorClient) GenerateShortURL(ctx context.Context, in *ShortURLR
 	return out, nil
 }
 
+func (c *uRLGeneratorClient) DeleteShortURL(ctx context.Context, in *DeleteShortURLRequest, opts ...grpc.CallOption) (*DeleteShortURLResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteShortURLResponse)
+	err := c.cc.Invoke(ctx, URLGenerator_DeleteShortURL_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // URLGeneratorServer is the server API for URLGenerator service.
 // All implementations must embed UnimplementedURLGeneratorServer
 // for forward compatibility.
 type URLGeneratorServer interface {
 	GenerateShortURL(context.Context, *ShortURLRequest) (*ShortURLResponse, error)
+	DeleteShortURL(context.Context, *DeleteShortURLRequest) (*DeleteShortURLResponse, error)
 	mustEmbedUnimplementedURLGeneratorServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedURLGeneratorServer struct{}
 
 func (UnimplementedURLGeneratorServer) GenerateShortURL(context.Context, *ShortURLRequest) (*ShortURLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateShortURL not implemented")
+}
+func (UnimplementedURLGeneratorServer) DeleteShortURL(context.Context, *DeleteShortURLRequest) (*DeleteShortURLResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteShortURL not implemented")
 }
 func (UnimplementedURLGeneratorServer) mustEmbedUnimplementedURLGeneratorServer() {}
 func (UnimplementedURLGeneratorServer) testEmbeddedByValue()                      {}
@@ -104,6 +120,24 @@ func _URLGenerator_GenerateShortURL_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _URLGenerator_DeleteShortURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteShortURLRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(URLGeneratorServer).DeleteShortURL(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: URLGenerator_DeleteShortURL_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(URLGeneratorServer).DeleteShortURL(ctx, req.(*DeleteShortURLRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // URLGenerator_ServiceDesc is the grpc.ServiceDesc for URLGenerator service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +148,10 @@ var URLGenerator_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GenerateShortURL",
 			Handler:    _URLGenerator_GenerateShortURL_Handler,
+		},
+		{
+			MethodName: "DeleteShortURL",
+			Handler:    _URLGenerator_DeleteShortURL_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -6,6 +6,7 @@ option go_package = "github.com/andreistefanciprian/urlshortener/url-gen/proto";
 
 service URLGenerator {
     rpc GenerateShortURL(ShortURLRequest) returns (ShortURLResponse);
+    rpc DeleteShortURL(DeleteShortURLRequest) returns (DeleteShortURLResponse);
 }
 message ShortURLRequest {
     string long_url = 1;
@@ -14,4 +15,13 @@ message ShortURLRequest {
 
 message ShortURLResponse {
     string short_url = 1;
+}
+
+message DeleteShortURLRequest {
+    string short_url_code = 1;
+}
+
+message DeleteShortURLResponse {
+    bool success = 1;
+    string message = 2; // Optional message for additional context
 }
