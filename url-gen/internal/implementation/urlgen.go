@@ -59,10 +59,10 @@ func (s *URLGenService) GenerateShortURL(ctx context.Context, URLRequestPayload 
 func (s *URLGenService) DeleteShortURL(ctx context.Context, request *ugen.DeleteShortURLRequest) (*ugen.DeleteShortURLResponse, error) {
 	err := s.repo.Delete(ctx, request.ShortUrlCode)
 	if err != nil {
-		if strings.Contains(err.Error(), "does not exist") {
+		if strings.Contains(err.Error(), "not found") {
 			s.logger.WithContext(ctx).WithFields(logrus.Fields{
 				"shortURLCode": request.ShortUrlCode,
-			}).Info("Short URL code does not exist in database")
+			}).Info("Short URL code not found in database")
 			return &ugen.DeleteShortURLResponse{
 				Success: false,
 				Message: err.Error(),

@@ -81,8 +81,8 @@ func (r *PostgresURLStore) Delete(ctx context.Context, shortURLCode string) erro
 	if result.RowsAffected() == 0 {
 		r.logger.WithFields(logrus.Fields{
 			"shortURLCode": shortURLCode,
-		}).Debug("Short URL code does not exist in database")
-		return fmt.Errorf("short URL code does not exist: '%s'", shortURLCode)
+		}).Debug("Short URL code not found in database")
+		return fmt.Errorf("short URL code not found: '%s'", shortURLCode)
 	}
 
 	r.logger.WithFields(logrus.Fields{
