@@ -43,7 +43,7 @@ func (h *URLGateway) DeleteShortURL(w http.ResponseWriter, r *http.Request) {
 
 	// Validate required fields
 	if err := validateShortURL(shortUrlCode); err != nil {
-		getLongURLTotal.WithLabelValues("error").Inc()
+		deleteShortURLTotal.WithLabelValues("error").Inc()
 		h.logger.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
