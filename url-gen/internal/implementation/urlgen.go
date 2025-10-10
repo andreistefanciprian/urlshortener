@@ -9,6 +9,8 @@ import (
 	ugen "github.com/andreistefanciprian/urlshortener/url-gen/proto"
 	gonanoid "github.com/matoous/go-nanoid"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type URLGenService struct {
@@ -107,5 +109,27 @@ func (s *URLGenService) DeleteShortURL(ctx context.Context, request *ugen.Delete
 	return &ugen.DeleteShortURLResponse{
 		Success: true,
 		Message: "Short URL Code deleted successfully",
+	}, nil
+}
+
+func (s *URLGenService) GetAllURLs(ctx context.Context, _ *emptypb.Empty) (*ugen.GetAllURLsResponse, error) {
+	urls, err := s.repo.GetAllURLs(ctx)
+	if err != nil {
+		s.logger.WithContext(ctx).WithError(err).Error("Failed to retrieve all URLs")
+		return nil, err
+	}
+
+	var urlResponses []*ugen.URLRecord
+	for _, url := range urls {
+		urlResponses = append(urlResponses, &ugen.URLRecord{
+			ShortUrlCode: url.ShortURLCode,
+			OriginalUrl:  url.OriginalURL,
+			CreatedAt:    timestamppb.New(url.CreatedAt),
+			ExpireTime:   timestamppb.New(*url.ExpiresAt),
+		})
+	}
+
+	return &ugen.GetAllURLsResponse{
+		Urls: urlResponses,
 	}, nil
 }

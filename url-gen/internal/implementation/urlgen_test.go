@@ -12,6 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type URLGenServiceTestSuite struct {
@@ -27,6 +28,7 @@ type URLGenServiceTestSuite struct {
 func (c *URLGenServiceTestSuite) SetupSuite() {
 	c.ctx = context.Background()
 	logger := logrus.New()
+	logger.SetLevel(logrus.DebugLevel)
 
 	// Setup DB container
 	dbContainer, err := testhelpers.CreatePostgresContainer(c.ctx)
@@ -90,6 +92,37 @@ func (c *URLGenServiceTestSuite) TestDeleteShortURL_DoesNotExist() {
 	assert.NoError(t, err)
 	assert.NotNil(t, deleteResponse)
 	assert.False(t, deleteResponse.Success)
+}
+
+func (c *URLGenServiceTestSuite) TestGetAllURLs_Success() {
+	t := c.T()
+
+	response, err := c.implementation.GetAllURLs(c.ctx, &emptypb.Empty{})
+	assert.NoError(t, err)
+	assert.NotNil(t, response)
+	assert.NotEmpty(t, response.Urls)
+	assert.Equal(t, 2, len(response.Urls)) // Only 2 non-expired URLs in test data
+}
+
+func (c *URLGenServiceTestSuite) TestGetAllURLs_AfterDeletinngAllURLs() {
+	t := c.T()
+
+	// First, delete all existing URLs
+	response, err := c.implementation.GetAllURLs(c.ctx, &emptypb.Empty{})
+	assert.NoError(t, err)
+	assert.NotNil(t, response)
+
+	for _, url := range response.Urls {
+		_, err := c.implementation.DeleteShortURL(c.ctx, &ugen.DeleteShortURLRequest{ShortUrlCode: url.ShortUrlCode})
+		assert.NoError(t, err)
+	}
+
+	// Now, get all URLs again
+	responseAfterDeletion, err := c.implementation.GetAllURLs(c.ctx, &emptypb.Empty{})
+	assert.NoError(t, err)
+	assert.NotNil(t, responseAfterDeletion)
+	assert.Empty(t, responseAfterDeletion.Urls)
+	assert.Equal(t, 0, len(responseAfterDeletion.Urls))
 }
 
 func (c *URLGenServiceTestSuite) TearDownSuite() {
