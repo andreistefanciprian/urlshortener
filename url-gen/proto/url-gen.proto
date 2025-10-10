@@ -1,12 +1,14 @@
 syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 option go_package = "github.com/andreistefanciprian/urlshortener/url-gen/proto";
 
 service URLGenerator {
     rpc GenerateShortURL(ShortURLRequest) returns (ShortURLResponse);
     rpc DeleteShortURL(DeleteShortURLRequest) returns (DeleteShortURLResponse);
+    rpc GetAllURLs(google.protobuf.Empty) returns (GetAllURLsResponse);
 }
 message ShortURLRequest {
     string long_url = 1;
@@ -24,4 +26,15 @@ message DeleteShortURLRequest {
 message DeleteShortURLResponse {
     bool success = 1;
     string message = 2; // Optional message for additional context
+}
+
+message URLRecord {
+    string original_url = 1;
+    string short_url_code = 2;
+    google.protobuf.Timestamp created_at = 3;
+    google.protobuf.Timestamp expire_time = 4; // Optional expiration date
+}
+
+message GetAllURLsResponse {
+    repeated URLRecord urls = 1;
 }
