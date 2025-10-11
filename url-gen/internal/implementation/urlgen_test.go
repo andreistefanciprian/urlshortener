@@ -108,7 +108,7 @@ func (c *URLGenServiceTestSuite) TestGetAllURLs_Success() {
 	assert.NoError(t, err)
 	assert.NotNil(t, response)
 	assert.NotEmpty(t, response.Urls)
-	assert.Equal(t, 2, len(response.Urls)) // Only 2 non-expired URLs in test data
+	assert.Equal(t, 2, len(response.Urls))
 }
 
 func (c *URLGenServiceTestSuite) TestGetAllURLs_AfterDeletingAllURLs() {
