@@ -12,6 +12,7 @@ import (
 type URLStore interface {
 	CreateShortURL(ctx context.Context, originalURL, shortURLCode string, expireTime time.Time) error
 	Delete(ctx context.Context, shortURLCode string) error
+	GetAllURLs(ctx context.Context) ([]URLRecord, error)
 	Close() error
 }
 
@@ -92,4 +93,43 @@ func (r *PostgresURLStore) Delete(ctx context.Context, shortURLCode string) erro
 	}).Debug("Successfully deleted short URL from database")
 
 	return nil
+}
+
+type URLRecord struct {
+	OriginalURL  string
+	ShortURLCode string
+	CreatedAt    time.Time
+	ExpiresAt    *time.Time
+}
+
+const getAllURLsQuery = `
+		SELECT code, original_url, created_at, expires_at
+		FROM short_links WHERE expires_at > now()`
+
+func (r *PostgresURLStore) GetAllURLs(ctx context.Context) ([]URLRecord, error) {
+	rows, err := r.db.Query(ctx, getAllURLsQuery)
+	if err != nil {
+		r.logger.WithError(err).Error("Failed to retrieve all URLs from database")
+		return nil, fmt.Errorf("failed to retrieve all URLs: %w", err)
+	}
+	defer rows.Close()
+
+	var urls []URLRecord
+	for rows.Next() {
+		var record URLRecord
+		err := rows.Scan(&record.ShortURLCode, &record.OriginalURL, &record.CreatedAt, &record.ExpiresAt)
+		if err != nil {
+			r.logger.WithError(err).Error("Failed to scan URL record from database")
+			return nil, fmt.Errorf("failed to scan URL record: %w", err)
+		}
+		urls = append(urls, record)
+	}
+
+	if rows.Err() != nil {
+		r.logger.WithError(rows.Err()).Error("Error occurred during rows iteration")
+		return nil, fmt.Errorf("error during rows iteration: %w", rows.Err())
+	}
+
+	r.logger.Debugf("Successfully retrieved %d URLs from database", len(urls))
+	return urls, nil
 }

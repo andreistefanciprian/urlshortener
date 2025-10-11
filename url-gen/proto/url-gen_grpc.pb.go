@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	URLGenerator_GenerateShortURL_FullMethodName = "/URLGenerator/GenerateShortURL"
 	URLGenerator_DeleteShortURL_FullMethodName   = "/URLGenerator/DeleteShortURL"
+	URLGenerator_GetAllURLs_FullMethodName       = "/URLGenerator/GetAllURLs"
 )
 
 // URLGeneratorClient is the client API for URLGenerator service.
@@ -29,6 +31,7 @@ const (
 type URLGeneratorClient interface {
 	GenerateShortURL(ctx context.Context, in *ShortURLRequest, opts ...grpc.CallOption) (*ShortURLResponse, error)
 	DeleteShortURL(ctx context.Context, in *DeleteShortURLRequest, opts ...grpc.CallOption) (*DeleteShortURLResponse, error)
+	GetAllURLs(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAllURLsResponse, error)
 }
 
 type uRLGeneratorClient struct {
@@ -59,12 +62,23 @@ func (c *uRLGeneratorClient) DeleteShortURL(ctx context.Context, in *DeleteShort
 	return out, nil
 }
 
+func (c *uRLGeneratorClient) GetAllURLs(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAllURLsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllURLsResponse)
+	err := c.cc.Invoke(ctx, URLGenerator_GetAllURLs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // URLGeneratorServer is the server API for URLGenerator service.
 // All implementations must embed UnimplementedURLGeneratorServer
 // for forward compatibility.
 type URLGeneratorServer interface {
 	GenerateShortURL(context.Context, *ShortURLRequest) (*ShortURLResponse, error)
 	DeleteShortURL(context.Context, *DeleteShortURLRequest) (*DeleteShortURLResponse, error)
+	GetAllURLs(context.Context, *emptypb.Empty) (*GetAllURLsResponse, error)
 	mustEmbedUnimplementedURLGeneratorServer()
 }
 
@@ -80,6 +94,9 @@ func (UnimplementedURLGeneratorServer) GenerateShortURL(context.Context, *ShortU
 }
 func (UnimplementedURLGeneratorServer) DeleteShortURL(context.Context, *DeleteShortURLRequest) (*DeleteShortURLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteShortURL not implemented")
+}
+func (UnimplementedURLGeneratorServer) GetAllURLs(context.Context, *emptypb.Empty) (*GetAllURLsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllURLs not implemented")
 }
 func (UnimplementedURLGeneratorServer) mustEmbedUnimplementedURLGeneratorServer() {}
 func (UnimplementedURLGeneratorServer) testEmbeddedByValue()                      {}
@@ -138,6 +155,24 @@ func _URLGenerator_DeleteShortURL_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _URLGenerator_GetAllURLs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(URLGeneratorServer).GetAllURLs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: URLGenerator_GetAllURLs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(URLGeneratorServer).GetAllURLs(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // URLGenerator_ServiceDesc is the grpc.ServiceDesc for URLGenerator service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +187,10 @@ var URLGenerator_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteShortURL",
 			Handler:    _URLGenerator_DeleteShortURL_Handler,
+		},
+		{
+			MethodName: "GetAllURLs",
+			Handler:    _URLGenerator_GetAllURLs_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

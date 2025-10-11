@@ -9,6 +9,7 @@ package proto
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -214,11 +215,123 @@ func (x *DeleteShortURLResponse) GetMessage() string {
 	return ""
 }
 
+type URLRecord struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OriginalUrl   string                 `protobuf:"bytes,1,opt,name=original_url,json=originalUrl,proto3" json:"original_url,omitempty"`
+	ShortUrlCode  string                 `protobuf:"bytes,2,opt,name=short_url_code,json=shortUrlCode,proto3" json:"short_url_code,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	ExpireTime    *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"` // Optional expiration date
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *URLRecord) Reset() {
+	*x = URLRecord{}
+	mi := &file_url_gen_proto_url_gen_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *URLRecord) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*URLRecord) ProtoMessage() {}
+
+func (x *URLRecord) ProtoReflect() protoreflect.Message {
+	mi := &file_url_gen_proto_url_gen_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use URLRecord.ProtoReflect.Descriptor instead.
+func (*URLRecord) Descriptor() ([]byte, []int) {
+	return file_url_gen_proto_url_gen_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *URLRecord) GetOriginalUrl() string {
+	if x != nil {
+		return x.OriginalUrl
+	}
+	return ""
+}
+
+func (x *URLRecord) GetShortUrlCode() string {
+	if x != nil {
+		return x.ShortUrlCode
+	}
+	return ""
+}
+
+func (x *URLRecord) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *URLRecord) GetExpireTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpireTime
+	}
+	return nil
+}
+
+type GetAllURLsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Urls          []*URLRecord           `protobuf:"bytes,1,rep,name=urls,proto3" json:"urls,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAllURLsResponse) Reset() {
+	*x = GetAllURLsResponse{}
+	mi := &file_url_gen_proto_url_gen_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAllURLsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAllURLsResponse) ProtoMessage() {}
+
+func (x *GetAllURLsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_url_gen_proto_url_gen_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAllURLsResponse.ProtoReflect.Descriptor instead.
+func (*GetAllURLsResponse) Descriptor() ([]byte, []int) {
+	return file_url_gen_proto_url_gen_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetAllURLsResponse) GetUrls() []*URLRecord {
+	if x != nil {
+		return x.Urls
+	}
+	return nil
+}
+
 var File_url_gen_proto_url_gen_proto protoreflect.FileDescriptor
 
 const file_url_gen_proto_url_gen_proto_rawDesc = "" +
 	"\n" +
-	"\x1burl-gen/proto/url-gen.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"h\n" +
+	"\x1burl-gen/proto/url-gen.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\"h\n" +
 	"\x0fShortURLRequest\x12\x19\n" +
 	"\blong_url\x18\x01 \x01(\tR\alongUrl\x12:\n" +
 	"\n" +
@@ -230,10 +343,22 @@ const file_url_gen_proto_url_gen_proto_rawDesc = "" +
 	"\x0eshort_url_code\x18\x01 \x01(\tR\fshortUrlCode\"L\n" +
 	"\x16DeleteShortURLResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage2\x8a\x01\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"\xcc\x01\n" +
+	"\tURLRecord\x12!\n" +
+	"\foriginal_url\x18\x01 \x01(\tR\voriginalUrl\x12$\n" +
+	"\x0eshort_url_code\x18\x02 \x01(\tR\fshortUrlCode\x129\n" +
+	"\n" +
+	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12;\n" +
+	"\vexpire_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"expireTime\"4\n" +
+	"\x12GetAllURLsResponse\x12\x1e\n" +
+	"\x04urls\x18\x01 \x03(\v2\n" +
+	".URLRecordR\x04urls2\xc5\x01\n" +
 	"\fURLGenerator\x127\n" +
 	"\x10GenerateShortURL\x12\x10.ShortURLRequest\x1a\x11.ShortURLResponse\x12A\n" +
-	"\x0eDeleteShortURL\x12\x16.DeleteShortURLRequest\x1a\x17.DeleteShortURLResponseB;Z9github.com/andreistefanciprian/urlshortener/url-gen/protob\x06proto3"
+	"\x0eDeleteShortURL\x12\x16.DeleteShortURLRequest\x1a\x17.DeleteShortURLResponse\x129\n" +
+	"\n" +
+	"GetAllURLs\x12\x16.google.protobuf.Empty\x1a\x13.GetAllURLsResponseB;Z9github.com/andreistefanciprian/urlshortener/url-gen/protob\x06proto3"
 
 var (
 	file_url_gen_proto_url_gen_proto_rawDescOnce sync.Once
@@ -247,25 +372,33 @@ func file_url_gen_proto_url_gen_proto_rawDescGZIP() []byte {
 	return file_url_gen_proto_url_gen_proto_rawDescData
 }
 
-var file_url_gen_proto_url_gen_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_url_gen_proto_url_gen_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_url_gen_proto_url_gen_proto_goTypes = []any{
 	(*ShortURLRequest)(nil),        // 0: ShortURLRequest
 	(*ShortURLResponse)(nil),       // 1: ShortURLResponse
 	(*DeleteShortURLRequest)(nil),  // 2: DeleteShortURLRequest
 	(*DeleteShortURLResponse)(nil), // 3: DeleteShortURLResponse
-	(*timestamppb.Timestamp)(nil),  // 4: google.protobuf.Timestamp
+	(*URLRecord)(nil),              // 4: URLRecord
+	(*GetAllURLsResponse)(nil),     // 5: GetAllURLsResponse
+	(*timestamppb.Timestamp)(nil),  // 6: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),          // 7: google.protobuf.Empty
 }
 var file_url_gen_proto_url_gen_proto_depIdxs = []int32{
-	4, // 0: ShortURLRequest.expiration:type_name -> google.protobuf.Timestamp
-	0, // 1: URLGenerator.GenerateShortURL:input_type -> ShortURLRequest
-	2, // 2: URLGenerator.DeleteShortURL:input_type -> DeleteShortURLRequest
-	1, // 3: URLGenerator.GenerateShortURL:output_type -> ShortURLResponse
-	3, // 4: URLGenerator.DeleteShortURL:output_type -> DeleteShortURLResponse
-	3, // [3:5] is the sub-list for method output_type
-	1, // [1:3] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	6, // 0: ShortURLRequest.expiration:type_name -> google.protobuf.Timestamp
+	6, // 1: URLRecord.created_at:type_name -> google.protobuf.Timestamp
+	6, // 2: URLRecord.expire_time:type_name -> google.protobuf.Timestamp
+	4, // 3: GetAllURLsResponse.urls:type_name -> URLRecord
+	0, // 4: URLGenerator.GenerateShortURL:input_type -> ShortURLRequest
+	2, // 5: URLGenerator.DeleteShortURL:input_type -> DeleteShortURLRequest
+	7, // 6: URLGenerator.GetAllURLs:input_type -> google.protobuf.Empty
+	1, // 7: URLGenerator.GenerateShortURL:output_type -> ShortURLResponse
+	3, // 8: URLGenerator.DeleteShortURL:output_type -> DeleteShortURLResponse
+	5, // 9: URLGenerator.GetAllURLs:output_type -> GetAllURLsResponse
+	7, // [7:10] is the sub-list for method output_type
+	4, // [4:7] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_url_gen_proto_url_gen_proto_init() }
@@ -279,7 +412,7 @@ func file_url_gen_proto_url_gen_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_url_gen_proto_url_gen_proto_rawDesc), len(file_url_gen_proto_url_gen_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

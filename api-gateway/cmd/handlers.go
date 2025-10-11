@@ -11,6 +11,7 @@ import (
 	ugen "github.com/andreistefanciprian/urlshortener/api-gateway/url-gen/proto"
 	uread "github.com/andreistefanciprian/urlshortener/api-gateway/url-read/proto"
 	"github.com/sirupsen/logrus"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -19,6 +20,7 @@ type URLHandler interface {
 	CreateShortURL(w http.ResponseWriter, r *http.Request)
 	GetLongURL(w http.ResponseWriter, r *http.Request)
 	DeleteShortURL(w http.ResponseWriter, r *http.Request)
+	GetAllURLs(w http.ResponseWriter, r *http.Request)
 }
 
 type URLGateway struct {
@@ -33,6 +35,71 @@ func NewURLGateway(logger *logrus.Logger, urlGenClient ugen.URLGeneratorClient, 
 		urlGenClient:  urlGenClient,
 		urlReadClient: urlReadClient,
 	}
+}
+
+func (h *URLGateway) GetAllURLs(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// Create gRPC request (no parameters needed)
+	grpcReq := &emptypb.Empty{}
+
+	// Call gRPC service
+	response, err := h.urlGenClient.GetAllURLs(ctx, grpcReq)
+	if err != nil {
+		getAllURLsTotal.WithLabelValues("error").Inc()
+		h.logger.Errorf("gRPC call to GetAllURLs failed: %v", err)
+		http.Error(w, "Failed to retrieve URLs", http.StatusInternalServerError)
+		return
+	}
+
+	type URLInfo struct {
+		ShortUrl   string                 `json:"shortUrl"`
+		LongUrl    string                 `json:"longUrl"`
+		CreatedAt  *timestamppb.Timestamp `json:"createdAt"`
+		Expiration *timestamppb.Timestamp `json:"expiration,omitempty"`
+	}
+
+	// Map the gRPC response to our response structure
+	var urls []URLInfo
+	for _, urlRecord := range response.Urls {
+		urls = append(urls, URLInfo{
+			ShortUrl:   "http://" + URLShortenerDomainName + "/" + urlRecord.ShortUrlCode,
+			LongUrl:    urlRecord.OriginalUrl,
+			CreatedAt:  urlRecord.CreatedAt,
+			Expiration: urlRecord.ExpireTime,
+		})
+	}
+
+	// Respond with the list of URLs
+	if len(urls) == 0 {
+		getAllURLsTotal.WithLabelValues("no_content").Inc()
+		h.logger.Info("No URLs found in the system")
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	// Marshal the response to JSON
+	responseJSON, err := json.Marshal(urls)
+	if err != nil {
+		getAllURLsTotal.WithLabelValues("error").Inc()
+		h.logger.Errorf("Failed to marshal response: %v", err)
+		http.Error(w, "Failed to process response", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(responseJSON)
+	if err != nil {
+		getAllURLsTotal.WithLabelValues("error").Inc()
+		h.logger.Errorf("Failed to write response: %v", err)
+		return
+	}
+
+	// Success - increment counter
+	getAllURLsTotal.WithLabelValues("success").Inc()
+	h.logger.WithFields(logrus.Fields{
+		"count": len(response.Urls),
+	}).Info("Successfully processed GetAllURLs request")
 }
 
 func (h *URLGateway) DeleteShortURL(w http.ResponseWriter, r *http.Request) {

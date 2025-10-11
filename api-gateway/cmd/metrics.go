@@ -26,6 +26,14 @@ var (
 		},
 		[]string{"status"}, // Labels: success, error, not_found
 	)
+
+	getAllURLsTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "get_all_urls_total",
+			Help: "Total number of get all URLs requests",
+		},
+		[]string{"status"}, // Labels: success, error, no_content
+	)
 )
 
 func initMetrics() {
@@ -33,4 +41,5 @@ func initMetrics() {
 	prometheus.MustRegister(createShortURLTotal)
 	prometheus.MustRegister(getLongURLTotal)
 	prometheus.MustRegister(deleteShortURLTotal)
+	prometheus.MustRegister(getAllURLsTotal)
 }

@@ -95,7 +95,7 @@ check_metrics() {
     echo "========================================="
     
     # Fetch and display metrics related to URL shortening
-    curl -s http://localhost:9090/metrics | grep url_total | grep -v "#"
+    curl -s http://localhost:9090/metrics | grep -E 'url_total|urls_total' | grep -v "#"
 
     echo "========================================="
     echo "Metrics check completed"
@@ -115,10 +115,25 @@ check_db_table() {
     echo "========================================="
 }
 
+get_all_urls() {
+    echo "========================================="
+    echo "Testing API Gateway Get All URLs"
+    echo "========================================="
+
+    echo
+    echo "Test: Get all URLs"
+    curl -X GET http://l.it/ | jq .
+    echo
+    
+    echo "========================================="
+    echo "Get All URLs test completed"
+    echo "========================================="
+}
 
 # Run the test functions
 test_create_short_url
 test_get_long_url
 delete_short_url
+get_all_urls
 check_db_table
 check_metrics

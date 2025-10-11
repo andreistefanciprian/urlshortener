@@ -80,6 +80,7 @@ func main() {
 	api.HandleFunc("POST /create", urlGateway.CreateShortURL)
 	api.HandleFunc("GET /{shortCode}", urlGateway.GetLongURL)
 	api.HandleFunc("DELETE /{shortCode}", urlGateway.DeleteShortURL)
+	api.HandleFunc("GET /", urlGateway.GetAllURLs)
 	apiSrv := &http.Server{
 		Addr:              fmt.Sprintf(":%d", apiPort),
 		Handler:           api,
