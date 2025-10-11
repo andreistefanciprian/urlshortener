@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"testing"
+	"time"
 
 	cache "github.com/andreistefanciprian/urlshortener/url-gen/internal/cache"
 	db "github.com/andreistefanciprian/urlshortener/url-gen/internal/db"
@@ -13,6 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type URLGenServiceTestSuite struct {
@@ -63,7 +65,10 @@ func (c *URLGenServiceTestSuite) SetupSuite() {
 func (c *URLGenServiceTestSuite) TestGenerateShortURL_Length() {
 	t := c.T()
 
-	response, err := c.implementation.GenerateShortURL(c.ctx, &ugen.ShortURLRequest{LongUrl: "https://example.com/long-url-1"})
+	response, err := c.implementation.GenerateShortURL(c.ctx, &ugen.ShortURLRequest{
+		LongUrl:    "https://example.com/long-url-1",
+		Expiration: timestamppb.New(time.Now().Add(24 * time.Hour)), // Expires in 24 hours
+	})
 	assert.NoError(t, err)
 	assert.NotNil(t, response)
 	assert.Equal(t, 7, len(response.ShortUrl))
@@ -72,10 +77,8 @@ func (c *URLGenServiceTestSuite) TestGenerateShortURL_Length() {
 func (c *URLGenServiceTestSuite) TestDeleteShortURL_Success() {
 	t := c.T()
 
-	// First, generate a short URL
-	response, err := c.implementation.GenerateShortURL(c.ctx, &ugen.ShortURLRequest{LongUrl: "https://example.com/long-url-1"})
-	assert.NoError(t, err)
-	assert.NotNil(t, response)
+	// First, generate a short URL with future expiration
+	response, _ := c.addURLtoDB("https://example.com/long-url-2", 2)
 
 	// Now, delete the short URL
 	deleteResponse, err := c.implementation.DeleteShortURL(c.ctx, &ugen.DeleteShortURLRequest{ShortUrlCode: response.ShortUrl})
@@ -96,6 +99,10 @@ func (c *URLGenServiceTestSuite) TestDeleteShortURL_DoesNotExist() {
 
 func (c *URLGenServiceTestSuite) TestGetAllURLs_Success() {
 	t := c.T()
+
+	// Generate two short URLs
+	_, _ = c.addURLtoDB("https://example.com/long-url-1", 2)
+	_, _ = c.addURLtoDB("https://example.com/long-url-2", 2)
 
 	response, err := c.implementation.GetAllURLs(c.ctx, &emptypb.Empty{})
 	assert.NoError(t, err)
@@ -143,4 +150,15 @@ func (c *URLGenServiceTestSuite) TearDownSuite() {
 
 func TestURLGenServiceTestSuite(t *testing.T) {
 	suite.Run(t, new(URLGenServiceTestSuite))
+}
+
+func (c *URLGenServiceTestSuite) addURLtoDB(longURL string, days int) (*ugen.ShortURLResponse, error) {
+	response, err := c.implementation.GenerateShortURL(c.ctx, &ugen.ShortURLRequest{
+		LongUrl:    longURL,
+		Expiration: timestamppb.New(time.Now().Add(time.Duration(days) * 24 * time.Hour)),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
 }
