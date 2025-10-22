@@ -70,6 +70,8 @@ The system includes a web-based admin interface for easy URL management:
 
 **Access**: `http://localhost:8090`
 
+![Frontend UI](ui.png)
+
 ## Monitoring & Metrics
 
 The API Gateway includes built-in Prometheus metrics for observability. See [MONITORING.md](MONITORING.md) for detailed documentation.
