@@ -111,7 +111,12 @@ func (app *FrontendApp) home(w http.ResponseWriter, r *http.Request) {
 		}
 		client := &http.Client{}
 		app.logger.Debugf("Making POST request to: %s with payload: %s", endpointUrl, string(marshal_struct))
-		req, _ := http.NewRequest("POST", endpointUrl, bytes.NewBuffer(marshal_struct))
+		req, err := http.NewRequest("POST", endpointUrl, bytes.NewBuffer(marshal_struct))
+		if err != nil {
+			app.logger.Println("Error creating POST request:", err.Error())
+			fmt.Fprintf(w, "Error: %s", err.Error())
+			return
+		}
 		req.Header.Set("Content-Type", "application/json")
 		res, err := client.Do(req)
 		if err != nil {
