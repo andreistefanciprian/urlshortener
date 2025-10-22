@@ -11,7 +11,7 @@ func main() {
 	// Initialize the logger
 	logger := initLogger()
 
-	// APi Gateway environment variables
+	// API Gateway environment variables
 	backendHost := getEnvOrDefault("BACKEND_HOST", "api-gateway")
 	backendPort := getEnvAsIntOrDefault("BACKEND_PORT", 8080)
 	backendAddress := fmt.Sprintf("http://%s:%d", backendHost, backendPort)
