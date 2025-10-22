@@ -103,7 +103,12 @@ func (app *FrontendApp) home(w http.ResponseWriter, r *http.Request) {
 
 		endpointUrl := fmt.Sprintf("%s/create", app.backendUrl)
 
-		marshal_struct, _ := json.Marshal(newLongURL)
+		marshal_struct, err := json.Marshal(newLongURL)
+		if err != nil {
+			app.logger.Errorf("Error marshaling newLongURL: %v", err)
+			fmt.Fprintf(w, "Error: %s", err.Error())
+			return
+		}
 		client := &http.Client{}
 		app.logger.Debugf("Making POST request to: %s with payload: %s", endpointUrl, string(marshal_struct))
 		req, _ := http.NewRequest("POST", endpointUrl, bytes.NewBuffer(marshal_struct))
