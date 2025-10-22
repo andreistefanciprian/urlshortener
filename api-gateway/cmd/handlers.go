@@ -74,7 +74,14 @@ func (h *URLGateway) GetAllURLs(w http.ResponseWriter, r *http.Request) {
 	if len(urls) == 0 {
 		getAllURLsTotal.WithLabelValues("no_content").Inc()
 		h.logger.Info("No URLs found in the system")
-		w.WriteHeader(http.StatusNoContent)
+		// Return empty JSON array instead of StatusNoContent
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, err = w.Write([]byte("[]"))
+		if err != nil {
+			getAllURLsTotal.WithLabelValues("error").Inc()
+			h.logger.Errorf("Failed to write empty response: %v", err)
+		}
 		return
 	}
 
