@@ -47,7 +47,7 @@ func (app *FrontendApp) render(w http.ResponseWriter, files []string, data inter
 	err = ts.ExecuteTemplate(w, "base", data)
 	if err != nil {
 		app.logger.Println(err.Error())
-		http.Error(w, "Internal Server Error - exec templ", http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error - template execution failed", http.StatusInternalServerError)
 	}
 }
 
