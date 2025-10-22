@@ -81,7 +81,7 @@ func (app *FrontendApp) home(w http.ResponseWriter, r *http.Request) {
 
 		body, err := io.ReadAll(res.Body)
 		if err != nil {
-			fmt.Println(err)
+			app.logger.Errorf("Failed to read response body: %v", err)
 			return
 		}
 
