@@ -10,6 +10,7 @@ services:
       - BACKEND_HOST=api-gateway
       - BACKEND_PORT=8080
       - FRONTEND_PORT=8090
+      - LOG_LEVEL=DEBUG
     depends_on:
       api-gateway:
         condition: service_started
@@ -31,6 +32,7 @@ services:
       - URL_READ_PORT=50053
       - API_GATEWAY_PORT=8080
       - METRICS_PORT=9090
+      - LOG_LEVEL=DEBUG
     depends_on:
       url-gen:
         condition: service_started

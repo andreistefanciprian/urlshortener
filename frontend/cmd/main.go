@@ -22,6 +22,15 @@ func main() {
 	frontendPort := getEnvAsIntOrDefault("FRONTEND_PORT", 8090)
 	frontend := http.NewServeMux()
 	frontend.HandleFunc("GET /", frontendApp.home)
+	frontend.HandleFunc("POST /", frontendApp.home)
+	// Add favicon handler to prevent unnecessary requests
+	frontend.HandleFunc("GET /favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	})
+	// Add handler for Chrome DevTools and other well-known paths
+	frontend.HandleFunc("GET /.well-known/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	})
 	apiSrv := &http.Server{
 		Addr:              fmt.Sprintf(":%d", frontendPort),
 		Handler:           frontend,
