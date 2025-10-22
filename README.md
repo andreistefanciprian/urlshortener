@@ -6,6 +6,7 @@ This project was built following system design principles from this excellent Yo
 
 ## Architecture
 
+- **frontend**: Web UI service (port 8090) - Bootstrap based admin interface for managing URLs with create/delete functionality
 - **api-gateway**: REST API server (port 8080) - handles HTTP requests and routes to gRPC services
 - **url-gen**: gRPC URL generation service (port 50052) - creates short URLs
 - **url-read**: gRPC URL reading service (port 50053) - resolves short URLs and tracks clicks
@@ -63,6 +64,12 @@ DELETE /gt0PFD8
 500 Internal Server Error: Database/cache error
 ```
 
+## Frontend Web Interface
+
+The system includes a web-based admin interface for easy URL management:
+
+**Access**: `http://localhost:8090`
+
 ## Monitoring & Metrics
 
 The API Gateway includes built-in Prometheus metrics for observability. See [MONITORING.md](MONITORING.md) for detailed documentation.
@@ -93,6 +100,9 @@ make up
 # Edit /etc/hosts file: sudo vim /etc/hosts
 # Add this line: 127.0.0.1 l.it
 # This allows generated URLs like http://l.it/TRDZip6 to work locally
+
+# Access the web interface
+open http://localhost:8090
 
 # Run tests
 bash scripts/test.sh
