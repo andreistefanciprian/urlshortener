@@ -141,7 +141,12 @@ func (app *FrontendApp) home(w http.ResponseWriter, r *http.Request) {
 		app.logger.Debugf("Making DELETE request to: %s", endpointUrl)
 
 		client := &http.Client{}
-		req, _ := http.NewRequest("DELETE", endpointUrl, nil)
+		req, err := http.NewRequest("DELETE", endpointUrl, nil)
+		if err != nil {
+			app.logger.Debugf("Error creating DELETE request: %v", err)
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
 		res, err := client.Do(req)
 		if err != nil {
 			app.logger.Debugf("Error making delete request: %v", err)
