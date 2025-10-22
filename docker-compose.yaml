@@ -1,5 +1,21 @@
 services:
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: infra/Dockerfile
+    ports:
+      - "8090:8090"
+    environment:
+      - BACKEND_HOST=api-gateway
+      - BACKEND_PORT=8080
+      - FRONTEND_PORT=8090
+    depends_on:
+      api-gateway:
+        condition: service_started
+    networks:
+      - urlshortener
+
   # API Gateway - HTTP Server
   api-gateway:
     build:

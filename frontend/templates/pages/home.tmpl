@@ -1,0 +1,85 @@
+{{define "title"}}View Links{{end}}
+
+{{define "main"}}
+
+<div class="container">
+    <table class="table table-striped">
+    <thead>
+        <tr>
+            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#createShortLink">Add link</button>
+        </tr>
+
+        <!-- Modal Create Short Link-->
+        <div class="modal fade" id="createShortLink" tabindex="-1" aria-labelledby="createShortLinkLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                <h5 class="modal-title" id="createShortLinkLabel">Add a new Link</h5>
+                </div>
+                <form action="/" method="POST">
+                <div class="modal-body">
+
+                    <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon1">Long Link</span>
+                    <input type="text" class="form-control" placeholder="" aria-label="longURL" aria-describedby="basic-addon1" name="longURL" value="Long URL required" required>
+                    </div>
+                
+                </div>
+
+                <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                
+                    <input class="btn btn-outline-primary btn-sm" type="submit" name="create" value="Create">
+                
+                </div>
+                </form>
+                
+            </div>
+            </div>
+        </div>        
+        <tr>
+            <th scope="col">Short Link</th>
+            <th scope="col">Long Link</th>
+            <th scope="col">Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .}}
+            <tr>
+                <td>{{.ShortUrl}}</td>
+                <td>{{.LongUrl}}</td>
+                <td><button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteLink{{.ShortUrl}}">Delete</button></td>
+            </tr>
+
+            <!-- Modal Delete Link-->
+            <div class="modal fade" id="deleteLink{{.ShortUrl}}" tabindex="-1" aria-labelledby="deleteLinkLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="deleteLinkLabel">Delete Link #{{.ShortUrl}}</h5>
+                    </div>
+                    <div class="modal-body">
+                    Are you sure you want to delete link "{{.ShortUrl}}"?
+                    </div>
+                    
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    <form action="/" method="POST">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <input type="hidden" class="form-control" placeholder="" aria-label="ShortUrl" aria-describedby="basic-addon1" name="ShortUrl" value="{{.ShortUrl}}">
+                        <input class="btn btn-outline-danger btn-sm" type="submit" name="delete" value="Delete">
+                    </form>
+                    
+                    </div>
+                </div>
+                </div>
+            </div>
+
+        {{end}}
+
+    </tbody>
+    </table>
+</div>
+
+{{end}}
