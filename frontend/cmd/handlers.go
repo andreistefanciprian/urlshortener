@@ -154,7 +154,7 @@ func (app *FrontendApp) home(w http.ResponseWriter, r *http.Request) {
 		}
 		res, err := client.Do(req)
 		if err != nil {
-			app.logger.Debugf("Error making delete request: %v", err)
+			app.logger.Errorf("Error making delete request: %v", err)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
