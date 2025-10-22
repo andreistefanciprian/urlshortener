@@ -39,8 +39,8 @@ test_get_long_url() {
     echo
     
     echo
-    echo "Test 3: Get long URL with empty short code (should fail)"
-    curl -X GET http://l.it
+    echo "Test 3: Get long URL with invalid short code (should fail)"
+    curl -X GET http://l.it/12345
     echo
     
     echo
