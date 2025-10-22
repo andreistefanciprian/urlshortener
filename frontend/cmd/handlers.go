@@ -72,7 +72,12 @@ func (app *FrontendApp) home(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		client := &http.Client{}
 		endpointUrl := fmt.Sprintf("%s/", app.backendUrl)
-		req, _ := http.NewRequest("GET", endpointUrl, nil)
+		req, err := http.NewRequest("GET", endpointUrl, nil)
+		if err != nil {
+			app.logger.Println("Failed to create HTTP request:", err.Error())
+			http.Error(w, "Internal Server Error - failed to create request", http.StatusInternalServerError)
+			return
+		}
 		res, err := client.Do(req)
 		if err != nil {
 			fmt.Fprintf(w, "Error: %s", err.Error())
