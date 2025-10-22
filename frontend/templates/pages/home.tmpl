@@ -15,14 +15,14 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                <h5 class="modal-title" id="createShortLinkLabel">Create a new Short URL</h5>
+                <h5 class="modal-title" id="createShortLinkLabel">Enter your destination URL</h5>
                 </div>
 
                 <form action="/" method="POST">
                 <div class="modal-body">
 
                     <div class="input-group mb-3">
-                    <span class="input-group-text" id="basic-addon1">Long Link</span>
+                    <span class="input-group-text" id="basic-addon1">Long URL</span>
                     <input type="text" class="form-control" placeholder="Long URL required" aria-label="longURL" aria-describedby="basic-addon1" name="longURL" required>
                     </div>
                 
@@ -48,8 +48,8 @@
     <tbody>
         {{range .}}
             <tr>
-                <td><a href="{{.ShortUrl}}" target="_blank" rel="noopener noreferrer">{{.ShortUrl}}</a></td>
-                <td>{{.LongUrl}}</td>
+                <td><a href="{{.ShortUrl}}" target="_blank" rel="noopener noreferrer" class="small fw-bold">{{.StripHTTPSchemeFromShortUrl}}</a></td>
+                <td>{{.StripHTTPSchemeFromLongUrl}}</td>
                 <td><button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteLink{{.ShortUrl}}">Delete</button></td>
             </tr>
 
@@ -58,10 +58,10 @@
                 <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                    <h5 class="modal-title" id="deleteLinkLabel">Delete Link #{{.ShortUrl}}</h5>
+                    <h5 class="modal-title" id="deleteLinkLabel">Delete Short URL</h5>
                     </div>
                     <div class="modal-body">
-                    Are you sure you want to delete link "{{.ShortUrl}}"?
+                    Are you sure you want to delete short URL "{{.ShortUrl}}"?
                     </div>
                     
                     <div class="modal-footer">

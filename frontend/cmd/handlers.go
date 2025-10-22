@@ -36,6 +36,26 @@ type URLInfo struct {
 	Expiration *timestamppb.Timestamp `json:"expiration,omitempty"`
 }
 
+// stripHTTPScheme removes http:// or https:// from any URL string for display purposes
+func stripHTTPScheme(url string) string {
+	if len(url) >= 8 && url[:8] == "https://" {
+		return url[8:]
+	} else if len(url) >= 7 && url[:7] == "http://" {
+		return url[7:]
+	}
+	return url
+}
+
+// StripHTTPSchemeFromShortUrl returns the ShortUrl without http:// or https:// for display purposes
+func (u *URLInfo) StripHTTPSchemeFromShortUrl() string {
+	return stripHTTPScheme(u.ShortUrl)
+}
+
+// StripHTTPSchemeFromLongUrl returns the LongUrl without http:// or https:// for display purposes
+func (u *URLInfo) StripHTTPSchemeFromLongUrl() string {
+	return stripHTTPScheme(u.LongUrl)
+}
+
 func (app *FrontendApp) render(w http.ResponseWriter, files []string, data interface{}) {
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
@@ -97,6 +117,7 @@ func (app *FrontendApp) home(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// Render the template with URLs data
 		app.render(w, files, URLs)
 		return
 	}
