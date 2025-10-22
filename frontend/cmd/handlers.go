@@ -40,7 +40,7 @@ func (app *FrontendApp) render(w http.ResponseWriter, files []string, data inter
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
 		app.logger.Println(err.Error())
-		http.Error(w, "Internal Server Error - pars", http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error - template parsing failed", http.StatusInternalServerError)
 		return
 	}
 
