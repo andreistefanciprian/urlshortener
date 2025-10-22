@@ -148,7 +148,7 @@ func (app *FrontendApp) home(w http.ResponseWriter, r *http.Request) {
 		client := &http.Client{}
 		req, err := http.NewRequest("DELETE", endpointUrl, nil)
 		if err != nil {
-			app.logger.Debugf("Error creating DELETE request: %v", err)
+			app.logger.Errorf("Error creating DELETE request: %v", err)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
