@@ -48,7 +48,7 @@
     <tbody>
         {{range .}}
             <tr>
-                <td>{{.ShortUrl}}</td>
+                <td><a href="{{.ShortUrl}}" target="_blank" rel="noopener noreferrer">{{.ShortUrl}}</a></td>
                 <td>{{.LongUrl}}</td>
                 <td><button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteLink{{.ShortUrl}}">Delete</button></td>
             </tr>
