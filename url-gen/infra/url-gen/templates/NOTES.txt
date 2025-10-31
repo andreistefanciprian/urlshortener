@@ -1,0 +1,6 @@
+1. This is an internal gRPC service running on port {{ .Values.service.port }}.
+   It is accessed internally by other services in the cluster.
+
+   To connect to the service for debugging purposes:
+   export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "url-gen.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+   echo "Port-forward to gRPC service: kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME {{ .Values.service.port }}:{{ .Values.service.port }}"
