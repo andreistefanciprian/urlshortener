@@ -54,6 +54,8 @@ services:
       - DB_PASSWORD=Auth123
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - REDIS_PASSWORD=redispassword
+      - REDIS_DB=0
       - URL_GEN_PORT=50052
     depends_on:
       url-gen-db:
