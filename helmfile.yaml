@@ -1,0 +1,252 @@
+# Helmfile for URL Shortener Application
+# This file defines the deployment of the complete URL shortener application stack
+
+# Helm repositories
+repositories:
+  - name: cnpg
+    url: https://cloudnative-pg.github.io/charts
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+
+# Global configuration
+helmDefaults:
+  # Wait for deployments to be ready
+  wait: true
+  # Timeout for deployments
+  timeout: 300
+  # Force resource updates
+  force: false
+  # Recreate pods when needed
+  recreatePods: false
+
+# Define the releases
+releases:
+  # Redis (for caching) - single-node for dev
+  - name: redis
+    namespace: default
+    chart: bitnami/redis
+    values:
+      - architecture: standalone
+      - auth:
+          enabled: true
+          password: "redispassword"
+      - master:
+          persistence:
+            enabled: true
+            size: 1Gi
+    hooks:
+      - events: ["presync"]
+        showlogs: true
+        command: "echo"
+        args: ["Deploying Redis (standalone, no auth) ..."]
+      - events: ["postsync"]
+        showlogs: true
+        command: "echo"
+        args: ["Redis deployed"]
+  # CloudNative-PG Operator
+  - name: cnpg-operator
+    namespace: postgres
+    chart: cnpg/cloudnative-pg
+    version: 0.21.6
+    createNamespace: true
+    hooks:
+      - events: ["presync"]
+        showlogs: true
+        command: "echo"
+        args: ["Installing CloudNative-PG Operator..."]
+      - events: ["postsync"]
+        showlogs: true
+        command: "echo"
+        args: ["CloudNative-PG Operator installed successfully"]
+
+  # PostgreSQL Database using CloudNative-PG
+  - name: postgresql
+    namespace: postgres
+    chart: cnpg/cluster
+    values:
+      - cluster:
+          name: urls
+          imageName: ghcr.io/cloudnative-pg/postgresql:16
+          instances: 2
+
+          enableSuperuserAccess: true
+          superuserSecret: db-superuser
+
+          storage:
+            size: 1Gi
+            storageClass: standard
+          walStorage:
+            size: 1Gi
+            storageClass: standard
+          bootstrap:
+            initdb:
+              database: app
+              owner: appuser
+              secret: db-appuser
+              postInitApplicationSQLRefs:
+                configMapRefs:
+                  - name: db-init-sql
+                    key: init.sql
+                secretRefs: []
+          monitoring:
+            enablePodMonitor: true
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "250Mi"
+            limits:
+              memory: "1Gi"
+          affinity:
+            enablePodAntiAffinity: true
+    hooks:
+      - events: ["presync"]
+        showlogs: true
+        command: sh
+        args:
+          - -c
+          - |
+            kubectl -n postgres create secret generic db-superuser \
+              --from-literal=username=postgres \
+              --from-literal=password='postgres' \
+              --dry-run=client -o yaml | kubectl apply -f -
+
+      - events: ["presync"]
+        showlogs: true
+        command: sh
+        args:
+          - -c
+          - |
+            kubectl -n postgres create secret generic db-appuser \
+              --from-literal=username=appuser \
+              --from-literal=password='postgres' \
+              --dry-run=client -o yaml | kubectl apply -f -
+
+      - events: ["presync"]
+        showlogs: true
+        command: sh
+        args:
+          - -c
+          - |
+            kubectl -n postgres create configmap db-init-sql \
+              --from-file=init.sql=scripts/init.sql \
+              --dry-run=client -o yaml | kubectl apply -f -
+
+    # PostgreSQL depends on the operator being ready
+    needs:
+      - postgres/cnpg-operator
+
+  # URL Generation Service - gRPC backend service
+  - name: url-gen
+    namespace: default
+    chart: ./url-gen/infra/url-gen
+    values:
+      - ./url-gen/infra/url-gen/values.yaml
+    set:
+      # Override default values if needed
+      - name: secrets.DB_PASSWORD
+        value: Auth123
+      - name: config.LOG_LEVEL
+        value: DEBUG
+      - name: config.DB_HOST
+        value: postgresql-cluster-rw.postgres.svc
+      - name: config.REDIS_HOST
+        value: redis-master
+      - name: config.REDIS_PASSWORD
+        value: redispassword
+      - name: config.REDIS_DB
+        value: "0"
+    # Hooks for lifecycle management
+    hooks:
+      - events: ["presync"]
+        showlogs: true
+        command: "echo"
+        args: ["Deploying URL Generation Service..."]
+      - events: ["postsync"]
+        showlogs: true
+        command: "echo"
+        args: ["URL Generation Service deployed successfully"]
+    # URL Gen depends on PostgreSQL being ready
+    needs:
+      - postgres/postgresql
+      - redis
+
+  # URL Reading Service - gRPC backend service
+  - name: url-read
+    namespace: default
+    chart: ./url-read/infra/url-read
+    values:
+      - ./url-read/infra/url-read/values.yaml
+    set:
+      - name: secrets.DB_PASSWORD
+        value: Auth123
+      - name: config.LOG_LEVEL
+        value: DEBUG
+      - name: config.DB_HOST
+        value: postgresql-cluster-rw.postgres.svc
+      - name: config.REDIS_HOST
+        value: redis-master
+      - name: config.REDIS_PASSWORD
+        value: redispassword
+      - name: config.REDIS_DB
+        value: "0"
+    hooks:
+      - events: ["presync"]
+        showlogs: true
+        command: "echo"
+        args: ["Deploying URL Reading Service..."]
+      - events: ["postsync"]
+        showlogs: true
+        command: "echo"
+        args: ["URL Reading Service deployed successfully"]
+    needs:
+      - postgres/postgresql
+      - redis
+
+  # API Gateway Service
+  - name: api-gateway
+    namespace: default
+    chart: ./api-gateway/infra/api-gateway
+    values:
+      - ./api-gateway/infra/api-gateway/values.yaml
+    set:
+      # Override default values if needed
+      - name: config.LOG_LEVEL
+        value: DEBUG
+    # Hooks for lifecycle management
+    hooks:
+      - events: ["presync"]
+        showlogs: true
+        command: "echo"
+        args: ["Deploying API Gateway..."]
+      - events: ["postsync"]
+        showlogs: true
+        command: "echo"
+        args: ["API Gateway deployed successfully"]
+    # API Gateway depends on URL Gen and URL Read being ready
+    needs:
+      - url-gen
+      - url-read
+
+  # Frontend Service
+  - name: frontend
+    namespace: default
+    chart: ./frontend/infra/frontend
+    values:
+      - ./frontend/infra/frontend/values.yaml
+    set:
+      # Override default values if needed
+      - name: config.LOG_LEVEL
+        value: DEBUG
+    # Hooks for lifecycle management
+    hooks:
+      - events: ["presync"]
+        showlogs: true
+        command: "echo"
+        args: ["Deploying Frontend..."]
+      - events: ["postsync"]
+        showlogs: true
+        command: "echo"
+        args: ["Frontend deployed successfully"]
+    # Frontend depends on API Gateway being ready
+    needs:
+      - api-gateway
