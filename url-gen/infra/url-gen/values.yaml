@@ -21,6 +21,8 @@ config:
   DB_USER: "url_gen_user"
   REDIS_HOST: "redis"
   REDIS_PORT: "6379"
+  REDIS_PASSWORD: "redispassword"
+  REDIS_DB: "0"
   URL_GEN_PORT: "50052"
   LOG_LEVEL: "INFO"
 
@@ -84,14 +86,14 @@ resources: {}
   #   memory: 128Mi
 
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-livenessProbe:
-  httpGet:
-    path: /
-    port: http
-readinessProbe:
-  httpGet:
-    path: /
-    port: http
+# livenessProbe:
+#   httpGet:
+#     path: /
+#     port: http
+# readinessProbe:
+#   httpGet:
+#     path: /
+#     port: http
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
