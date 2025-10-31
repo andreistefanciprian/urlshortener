@@ -1,4 +1,4 @@
-# Default values for url-gen.
+# Default values for url-read.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -7,7 +7,7 @@ replicaCount: 1
 
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
-  repository: andreistefanciprian/urlshortener-url-gen
+  repository: andreistefanciprian/urlshortener-url-read
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
@@ -18,12 +18,12 @@ config:
   DB_HOST: "url-gen-db"
   DB_PORT: "5432"
   DB_NAME: "urls"
-  DB_USER: "url_gen_user"
+  DB_USER: "url_read_user"
   REDIS_HOST: "redis"
   REDIS_PORT: "6379"
   REDIS_PASSWORD: "redispassword"
   REDIS_DB: "0"
-  URL_GEN_PORT: "50052"
+  URL_READ_PORT: "50053"
   LOG_LEVEL: "INFO"
 
 # Sensitive configuration that should be in secrets
@@ -71,7 +71,15 @@ service:
   # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: ClusterIP
   # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
-  port: 50052
+  port: 50053
+
+# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
+ingress: {}
+
+# -- Expose the service via gateway-api HTTPRoute
+# Requires Gateway API resources and suitable controller installed within the cluster
+# (see: https://gateway-api.sigs.k8s.io/guides/)
+httpRoute: {}
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
