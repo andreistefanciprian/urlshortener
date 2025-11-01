@@ -13,7 +13,7 @@ kubectl -n postgres exec -it svc/postgresql-cluster-rw -- bash
 psql -h postgresql-cluster-rw.postgres.svc -p 5432 -U postgres -d app
 # paste contents of scripts/init.sql, then \q
 
-# other postresql commands
+# other postgresql commands
 \l
 \du
 \c app
