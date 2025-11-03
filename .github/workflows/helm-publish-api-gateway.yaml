@@ -1,0 +1,106 @@
+name: Publish API Gateway Helm Chart to GHCR (OCI)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'api-gateway/infra/api-gateway/**'
+      - '.github/workflows/helm-publish-api-gateway.yaml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: helm-chart-api-gateway-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CHART_DIR: api-gateway/infra/api-gateway
+  CHART_NAME: api-gateway
+  CHART_REPO_PATH: urlshortener
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.4
+
+      - name: Determine lowercase owner
+        id: owner
+        run: |
+          echo "owner_lc=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+      - name: Helm registry login (GHCR)
+        env:
+          HELM_REGISTRY: ghcr.io
+          HELM_USERNAME: ${{ github.actor }}
+          HELM_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$HELM_PASSWORD" | helm registry login "$HELM_REGISTRY" \
+            --username "$HELM_USERNAME" \
+            --password-stdin
+
+      - name: Lint chart
+        run: |
+          helm lint "$CHART_DIR"
+
+      - name: Package chart
+        run: |
+          mkdir -p dist/charts
+          helm package "$CHART_DIR" --destination dist/charts
+          echo "PACKAGED=$(ls dist/charts/${CHART_NAME}-*.tgz)" >> $GITHUB_ENV
+
+      - name: Push chart to GHCR (OCI)
+        env:
+          OWNER_LC: ${{ steps.owner.outputs.owner_lc }}
+        run: |
+          # Example destination: oci://ghcr.io/<owner>/charts
+          helm push "$PACKAGED" oci://ghcr.io/${OWNER_LC}/${CHART_REPO_PATH}
+
+      - name: Make GHCR package public (best-effort)
+        env:
+          OWNER: ${{ steps.owner.outputs.owner_lc }}
+          PKG_PATH: ${{ env.CHART_REPO_PATH }}
+          PKG_NAME: ${{ env.CHART_NAME }}
+          # Uses the built-in GITHUB_TOKEN. If your org requires a PAT, replace with a secret like GHCR_ADMIN_TOKEN.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          PKG="${PKG_PATH}/${PKG_NAME}"
+          PKG_ENC=${PKG//\//%2F}
+
+          # User-owned repo: directly use the user endpoint
+          API_URL="https://api.github.com/user/packages/container/${PKG_ENC}/visibility"
+
+          echo "Setting visibility to public for GHCR package: ${OWNER}/${PKG}"
+          HTTP_CODE=$(curl -s -o /tmp/resp.json -w "%{http_code}" -X PUT \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "$API_URL" \
+            -d '{"visibility":"public"}')
+
+          echo "API status: $HTTP_CODE"
+          echo "Response: $(cat /tmp/resp.json)"
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "GHCR package visibility set to public."
+          else
+            echo "Warning: Failed to set GHCR package public. Check token scopes (need write:packages, repo)." >&2
+          fi
+
+      - name: Summary
+        env:
+          OWNER_LC: ${{ steps.owner.outputs.owner_lc }}
+        run: |
+          echo "Chart packaged: $PACKAGED" >> $GITHUB_STEP_SUMMARY
+          echo "Published to: oci://ghcr.io/${OWNER_LC}/${CHART_REPO_PATH}/${CHART_NAME}" >> $GITHUB_STEP_SUMMARY
+          echo "Note: If the 'Make public' step fails, create a repo secret GHCR_ADMIN_TOKEN with a classic PAT that has write:packages + repo (and admin:org for orgs), then update the workflow to use it." >> $GITHUB_STEP_SUMMARY
