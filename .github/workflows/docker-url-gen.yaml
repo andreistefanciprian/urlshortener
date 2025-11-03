@@ -1,4 +1,4 @@
-name: url-gen container image build and push to DockerHub
+name: url-gen image build and push to DockerHub
 
 on:
   push:

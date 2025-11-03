@@ -1,11 +1,11 @@
-name: Publish URL Gen Helm Chart to GHCR (OCI)
+name: api-gateway helm push to GHCR (OCI)
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'url-gen/infra/url-gen/**'
-      - '.github/workflows/helm-publish-url-gen.yaml'
+      - 'api-gateway/infra/api-gateway/**'
+      - '.github/workflows/helm-publish-api-gateway.yaml'
   workflow_dispatch: {}
 
 permissions:
@@ -13,12 +13,12 @@ permissions:
   packages: write
 
 concurrency:
-  group: helm-chart-url-gen-${{ github.ref }}
+  group: helm-chart-api-gateway-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  CHART_DIR: url-gen/infra/url-gen
-  CHART_NAME: url-gen
+  CHART_DIR: api-gateway/infra/api-gateway
+  CHART_NAME: api-gateway
   CHART_REPO_PATH: urlshortener
 
 jobs:

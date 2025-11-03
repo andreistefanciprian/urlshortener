@@ -1,4 +1,4 @@
-name: api-gateway container image build and push to DockerHub
+name: api-gateway image build and push to DockerHub
 
 on:
   push:

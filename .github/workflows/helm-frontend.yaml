@@ -1,4 +1,4 @@
-name: Publish Frontend Helm Chart to GHCR (OCI)
+name: frontend helm push to GHCR (OCI)
 
 on:
   push:
