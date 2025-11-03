@@ -1,11 +1,11 @@
-name: Publish API Gateway Helm Chart to GHCR (OCI)
+name: url-read helm push to GHCR (OCI)
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'api-gateway/infra/api-gateway/**'
-      - '.github/workflows/helm-publish-api-gateway.yaml'
+      - 'url-read/infra/url-read/**'
+      - '.github/workflows/helm-publish-url-read.yaml'
   workflow_dispatch: {}
 
 permissions:
@@ -13,12 +13,12 @@ permissions:
   packages: write
 
 concurrency:
-  group: helm-chart-api-gateway-${{ github.ref }}
+  group: helm-chart-url-read-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  CHART_DIR: api-gateway/infra/api-gateway
-  CHART_NAME: api-gateway
+  CHART_DIR: url-read/infra/url-read
+  CHART_NAME: url-read
   CHART_REPO_PATH: urlshortener
 
 jobs:
@@ -62,7 +62,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          # Derive base MAJOR.MINOR from Chart.yaml (e.g., 0.1 from 0.1.0)
           CURRENT=$(awk -F': ' '/^version:/{print $2}' "$CHART_DIR/Chart.yaml" | tr -d '"' | head -n1)
           if [[ -z "${CURRENT}" ]]; then CURRENT="0.1.0"; fi
           BASE=$(echo "$CURRENT" | awk -F. '{print $1 "." $2}')
@@ -70,7 +69,6 @@ jobs:
           PKG="${PKG_PATH}/${CHART_NAME}"
           PKG_ENC=${PKG//\//%2F}
 
-          # Query GHCR for existing versions and compute next patch
           API_URL="https://api.github.com/user/packages/container/${PKG_ENC}/versions?per_page=100"
           RESP=$(curl -s -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$API_URL" || true)
 
@@ -90,7 +88,6 @@ jobs:
       - name: Package chart
         run: |
           mkdir -p dist/charts
-          # Package with computed version; also set appVersion to the same value
           helm package "$CHART_DIR" --destination dist/charts --version "$CHART_VERSION" --app-version "$CHART_VERSION"
           echo "PACKAGED=$(ls dist/charts/${CHART_NAME}-*.tgz)" >> $GITHUB_ENV
 
@@ -98,7 +95,6 @@ jobs:
         env:
           OWNER_LC: ${{ steps.owner.outputs.owner_lc }}
         run: |
-          # Example destination: oci://ghcr.io/<owner>/charts
           helm push "$PACKAGED" oci://ghcr.io/${OWNER_LC}/${CHART_REPO_PATH}
 
       - name: Make GHCR package public (best-effort)
@@ -106,16 +102,12 @@ jobs:
           OWNER: ${{ steps.owner.outputs.owner_lc }}
           PKG_PATH: ${{ env.CHART_REPO_PATH }}
           PKG_NAME: ${{ env.CHART_NAME }}
-          # Uses the built-in GITHUB_TOKEN. If your org requires a PAT, replace with a secret like GHCR_ADMIN_TOKEN.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           PKG="${PKG_PATH}/${PKG_NAME}"
           PKG_ENC=${PKG//\//%2F}
-
-          # User-owned repo: directly use the user endpoint
           API_URL="https://api.github.com/user/packages/container/${PKG_ENC}/visibility"
-
           echo "Setting visibility to public for GHCR package: ${OWNER}/${PKG}"
           HTTP_CODE=$(curl -s -o /tmp/resp.json -w "%{http_code}" -X PUT \
             -H "Authorization: Bearer $GH_TOKEN" \
@@ -123,7 +115,6 @@ jobs:
             -H "X-GitHub-Api-Version: 2022-11-28" \
             "$API_URL" \
             -d '{"visibility":"public"}')
-
           echo "API status: $HTTP_CODE"
           echo "Response: $(cat /tmp/resp.json)"
           if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then

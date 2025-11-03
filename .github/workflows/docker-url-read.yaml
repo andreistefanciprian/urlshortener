@@ -1,4 +1,4 @@
-name: url-read container image build and push to DockerHub
+name: url-read image build and push to DockerHub
 
 on:
   push:
