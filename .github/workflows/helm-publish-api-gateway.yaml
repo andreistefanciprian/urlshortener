@@ -53,10 +53,45 @@ jobs:
         run: |
           helm lint "$CHART_DIR"
 
+      - name: Compute next chart version (patch bump)
+        env:
+          OWNER: ${{ steps.owner.outputs.owner_lc }}
+          PKG_PATH: ${{ env.CHART_REPO_PATH }}
+          CHART_NAME: ${{ env.CHART_NAME }}
+          CHART_DIR: ${{ env.CHART_DIR }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # Derive base MAJOR.MINOR from Chart.yaml (e.g., 0.1 from 0.1.0)
+          CURRENT=$(awk -F': ' '/^version:/{print $2}' "$CHART_DIR/Chart.yaml" | tr -d '"' | head -n1)
+          if [[ -z "${CURRENT}" ]]; then CURRENT="0.1.0"; fi
+          BASE=$(echo "$CURRENT" | awk -F. '{print $1 "." $2}')
+
+          PKG="${PKG_PATH}/${CHART_NAME}"
+          PKG_ENC=${PKG//\//%2F}
+
+          # Query GHCR for existing versions and compute next patch
+          API_URL="https://api.github.com/user/packages/container/${PKG_ENC}/versions?per_page=100"
+          RESP=$(curl -s -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$API_URL" || true)
+
+          PATCH_MAX=$(echo "$RESP" \
+            | jq -r '.[].metadata.container.tags[]? // empty' \
+            | grep -E "^${BASE//./\\.}\\.[0-9]+$" || true)
+          if [[ -n "$PATCH_MAX" ]]; then
+            PATCH_MAX=$(echo "$PATCH_MAX" | awk -F. '{print $3}' | sort -n | tail -1)
+          fi
+          if [[ -z "${PATCH_MAX:-}" ]]; then PATCH_MAX=-1; fi
+
+          NEXT_PATCH=$((PATCH_MAX + 1))
+          CHART_VERSION="${BASE}.${NEXT_PATCH}"
+          echo "Using chart version: $CHART_VERSION"
+          echo "CHART_VERSION=$CHART_VERSION" >> $GITHUB_ENV
+
       - name: Package chart
         run: |
           mkdir -p dist/charts
-          helm package "$CHART_DIR" --destination dist/charts
+          # Package with computed version; also set appVersion to the same value
+          helm package "$CHART_DIR" --destination dist/charts --version "$CHART_VERSION" --app-version "$CHART_VERSION"
           echo "PACKAGED=$(ls dist/charts/${CHART_NAME}-*.tgz)" >> $GITHUB_ENV
 
       - name: Push chart to GHCR (OCI)
@@ -102,5 +137,6 @@ jobs:
           OWNER_LC: ${{ steps.owner.outputs.owner_lc }}
         run: |
           echo "Chart packaged: $PACKAGED" >> $GITHUB_STEP_SUMMARY
+          echo "Version: $CHART_VERSION" >> $GITHUB_STEP_SUMMARY
           echo "Published to: oci://ghcr.io/${OWNER_LC}/${CHART_REPO_PATH}/${CHART_NAME}" >> $GITHUB_STEP_SUMMARY
           echo "Note: If the 'Make public' step fails, create a repo secret GHCR_ADMIN_TOKEN with a classic PAT that has write:packages + repo (and admin:org for orgs), then update the workflow to use it." >> $GITHUB_STEP_SUMMARY
