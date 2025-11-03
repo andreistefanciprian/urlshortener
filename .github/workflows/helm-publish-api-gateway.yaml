@@ -139,4 +139,3 @@ jobs:
           echo "Chart packaged: $PACKAGED" >> $GITHUB_STEP_SUMMARY
           echo "Version: $CHART_VERSION" >> $GITHUB_STEP_SUMMARY
           echo "Published to: oci://ghcr.io/${OWNER_LC}/${CHART_REPO_PATH}/${CHART_NAME}" >> $GITHUB_STEP_SUMMARY
-          echo "Note: If the 'Make public' step fails, create a repo secret GHCR_ADMIN_TOKEN with a classic PAT that has write:packages + repo (and admin:org for orgs), then update the workflow to use it." >> $GITHUB_STEP_SUMMARY
