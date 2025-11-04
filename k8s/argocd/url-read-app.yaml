@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/url-read
     chart: url-read
-    targetRevision: 0.1.1 # set to the chart version you want to deploy
+    targetRevision: 0.1.3 # set to the chart version you want to deploy
     helm:
       values: |
         config:

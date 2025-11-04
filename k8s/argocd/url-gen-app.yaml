@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/url-gen
     chart: url-gen
-    targetRevision: 0.1.2 # update to the chart version you want to deploy
+    targetRevision: 0.1.4 # update to the chart version you want to deploy
     helm:
       # Optional overrides; avoid committing secrets here
       values: |
