@@ -19,7 +19,7 @@
       "description": "Bump container image tag via Helm parameters in Argo CD Applications",
       "fileMatch": ["^k8s/argocd/.*\\.ya?ml$"],
       "matchStrings": [
-        "name:\\s*image\\.repository[\\s\\S]*?value:\\s*(?<depName>[^\\s]+)[\\s\\S]*?name:\\s*image\\.tag[\\s\\S]*?value:\\s*(?<currentValue>[^\\s#]+)"
+        "repository:\\s*(?<depName>[^\\s]+)[\\s\\S]*?tag:\\s*(?<currentValue>[^\\s#]+)"
       ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "semver"
