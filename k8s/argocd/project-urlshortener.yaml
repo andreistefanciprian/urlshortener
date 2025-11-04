@@ -9,6 +9,7 @@ spec:
   sourceRepos:
     - oci://ghcr.io/andreistefanciprian/urlshortener/*
     - https://charts.bitnami.com/bitnami
+    - https://github.com/andreistefanciprian/urlshortener.git
   # Limit where apps can be deployed
   destinations:
     - namespace: argocd
