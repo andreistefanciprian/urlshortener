@@ -15,6 +15,9 @@ spec:
     targetRevision: 0.1.0 # set to the chart version you want to deploy
     helm:
       values: |
+        image:
+          repository: andreistefanciprian/urlshortener-frontend
+          tag: main
         config:
           LOG_LEVEL: DEBUG
           BACKEND_HOST: api-gateway.api-gateway.svc
