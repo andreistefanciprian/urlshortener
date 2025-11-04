@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: url-read
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: urlshortener
+  source:
+    repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/url-read
+    chart: url-read
+    targetRevision: 0.1.1 # set to the chart version you want to deploy
+    helm:
+      values: |
+        config:
+          LOG_LEVEL: DEBUG
+          DB_HOST: postgres-postgresql.postgres.svc
+          REDIS_HOST: redis-master.redis.svc
+          DB_USER: url_gen_user
+          REDIS_PASSWORD: hTzvklFVp7
+          REDIS_DB: "0"
+        secrets:
+          DB_PASSWORD: Auth123
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: url-read
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

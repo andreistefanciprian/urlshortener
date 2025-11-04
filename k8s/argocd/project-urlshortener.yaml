@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: urlshortener
+  namespace: argocd
+spec:
+  description: Project for URL Shortener microservices managed by Argo CD
+  # Limit which repositories/registries can be used as sources
+  sourceRepos:
+    - oci://ghcr.io/andreistefanciprian/urlshortener/*
+    - https://charts.bitnami.com/bitnami
+  # Limit where apps can be deployed
+  destinations:
+    - namespace: argocd
+      server: https://kubernetes.default.svc
+    - namespace: api-gateway
+      server: https://kubernetes.default.svc
+    - namespace: redis
+      server: https://kubernetes.default.svc
+    - namespace: postgres
+      server: https://kubernetes.default.svc
+    - namespace: url-gen
+      server: https://kubernetes.default.svc
+    - namespace: url-read
+      server: https://kubernetes.default.svc
+    - namespace: frontend
+      server: https://kubernetes.default.svc
+  # Allow all cluster-scoped and namespaced resources by default
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'

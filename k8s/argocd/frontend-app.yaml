@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: frontend
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: urlshortener
+  source:
+    repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/frontend
+    chart: frontend
+    targetRevision: 0.1.0 # set to the chart version you want to deploy
+    helm:
+      values: |
+        config:
+          LOG_LEVEL: DEBUG
+          BACKEND_HOST: api-gateway.api-gateway.svc
+          BACKEND_PORT: "8080"
+          FRONTEND_PORT: "8090"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: frontend
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

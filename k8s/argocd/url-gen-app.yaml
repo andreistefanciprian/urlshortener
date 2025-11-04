@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: url-gen
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: urlshortener
+  source:
+    repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/url-gen
+    chart: url-gen
+    targetRevision: 0.1.2 # update to the chart version you want to deploy
+    helm:
+      # Optional overrides; avoid committing secrets here
+      values: |
+        config:
+          LOG_LEVEL: DEBUG
+          LOG_LEVEL: DEBUG
+          DB_HOST: postgres-postgresql.postgres.svc
+          DB_USER: url_gen_user
+          REDIS_HOST: redis-master.redis.svc
+          REDIS_PASSWORD: hTzvklFVp7
+          REDIS_DB: "0"
+        secrets:
+          DB_PASSWORD: Auth123
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: url-gen
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

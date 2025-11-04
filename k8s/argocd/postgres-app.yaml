@@ -1,0 +1,55 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postgres
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: urlshortener
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: postgresql
+    targetRevision: 18.1.1
+    helm:
+      values: |
+        image:
+          # tag: "latest"
+          debug: true
+        auth:
+          enablePostgresUser: true
+          username: url_gen_user
+          replicationUsername: repl_user
+          database: urls
+          existingSecret: "pg-creds"
+          secretKeys:
+            adminPasswordKey: admin-password
+            userPasswordKey: user-password
+            replicationPasswordKey: replication-password
+        primary:
+          persistence:
+            enabled: true
+            size: 1Gi
+          initdb:
+            scripts:
+              init.sql: |
+                -- Connect to urls database
+                \c urls;
+                -- Create table
+                CREATE TABLE IF NOT EXISTS short_links (
+                    code          VARCHAR(16) PRIMARY KEY,
+                    original_url  TEXT        NOT NULL,
+                    created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+                    expires_at    TIMESTAMPTZ NULL
+                );
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: postgres
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
