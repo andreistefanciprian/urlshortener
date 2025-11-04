@@ -34,6 +34,24 @@ kubectl create ns redis --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n redis create secret generic redis-creds \
 	--from-literal=redis-password='hTzvklFVp7' \
 	--dry-run=client -o yaml | kubectl apply -f -
+
+# url-read
+kubectl create ns url-read --dry-run=client -o yaml | kubectl apply -f -
+kubectl -n url-read create secret generic redis-creds \
+	--from-literal=redis-password='hTzvklFVp7' \
+	--dry-run=client -o yaml | kubectl apply -f -
+kubectl -n url-read create secret generic pg-creds \
+	--from-literal=user-password='Auth123' \
+	--dry-run=client -o yaml | kubectl apply -f -
+
+# url-gen
+kubectl create ns url-gen --dry-run=client -o yaml | kubectl apply -f -
+kubectl -n url-gen create secret generic redis-creds \
+	--from-literal=redis-password='hTzvklFVp7' \
+	--dry-run=client -o yaml | kubectl apply -f -
+kubectl -n url-gen create secret generic pg-creds \
+	--from-literal=user-password='Auth123' \
+	--dry-run=client -o yaml | kubectl apply -f -
 ```
 
 ### Delete all

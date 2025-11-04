@@ -15,7 +15,6 @@ spec:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
         {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -46,11 +45,20 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.db.secretName}}
+                  key: {{ .Values.secrets.db.passwordKey}}
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                 name: {{ .Values.secrets.redis.secretName}}
+                  key: {{ .Values.secrets.redis.passwordKey}}
           envFrom:
             - configMapRef:
                 name: {{ include "url-gen.fullname" . }}-config
-            - secretRef:
-                name: {{ include "url-gen.fullname" . }}-secret
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}

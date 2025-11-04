@@ -25,11 +25,13 @@ config:
   URL_GEN_PORT: "50052"
   LOG_LEVEL: "INFO"
 
-# Sensitive configuration that should be in secrets
 secrets:
-  DB_PASSWORD: "Auth123"
-  REDIS_PASSWORD: "redispassword"
-
+  db:
+    secretName: pg-creds
+    passwordKey: user-password
+  redis:
+    secretName: redis-creds
+    passwordKey: redis-password
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
 # This is to override the chart name.
