@@ -18,7 +18,6 @@ spec:
       values: |
         config:
           LOG_LEVEL: DEBUG
-          LOG_LEVEL: DEBUG
           DB_HOST: postgres-postgresql.postgres.svc
           DB_USER: url_gen_user
           REDIS_HOST: redis-master.redis.svc
