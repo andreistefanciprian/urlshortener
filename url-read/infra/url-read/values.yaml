@@ -25,10 +25,13 @@ config:
   URL_READ_PORT: "50053"
   LOG_LEVEL: "INFO"
 
-# Sensitive configuration that should be in secrets
 secrets:
-  DB_PASSWORD: "Auth123"
-  REDIS_PASSWORD: "redispassword"
+  db:
+    secretName: pg-creds
+    passwordKey: user-password
+  redis:
+    secretName: redis-creds
+    passwordKey: redis-password
 
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
