@@ -94,7 +94,7 @@ releases:
         value: pg-postgresql.postgres.svc
       - name: config.REDIS_HOST
         value: redis-master
-      - name: config.REDIS_PASSWORD
+      - name: secrets.REDIS_PASSWORD
         value: redispassword
       - name: config.REDIS_DB
         value: "0"
@@ -130,7 +130,7 @@ releases:
         value: pg-postgresql.postgres.svc
       - name: config.REDIS_HOST
         value: redis-master
-      - name: config.REDIS_PASSWORD
+      - name: secrets.REDIS_PASSWORD
         value: redispassword
       - name: config.REDIS_DB
         value: "0"
