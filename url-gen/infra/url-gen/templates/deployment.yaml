@@ -54,7 +54,7 @@ spec:
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
-                 name: {{ .Values.secrets.redis.secretName}}
+                  name: {{ .Values.secrets.redis.secretName}}
                   key: {{ .Values.secrets.redis.passwordKey}}
           envFrom:
             - configMapRef:
