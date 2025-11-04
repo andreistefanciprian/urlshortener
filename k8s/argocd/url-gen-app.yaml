@@ -21,10 +21,10 @@ spec:
           DB_HOST: postgres-postgresql.postgres.svc
           DB_USER: url_gen_user
           REDIS_HOST: redis-master.redis.svc
-          REDIS_PASSWORD: hTzvklFVp7
           REDIS_DB: "0"
         secrets:
           DB_PASSWORD: Auth123
+          REDIS_PASSWORD: hTzvklFVp7
   destination:
     server: https://kubernetes.default.svc
     namespace: url-gen
