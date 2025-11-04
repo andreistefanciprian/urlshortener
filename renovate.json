@@ -1,0 +1,36 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "enabledManagers": ["regex"],
+  "regexManagers": [
+    {
+      "description": "Bump Helm chart targetRevision in Argo CD Applications (OCI on GHCR)",
+      "fileMatch": ["^k8s/argocd/.*\\.ya?ml$"],
+      "matchStrings": [
+        "repoURL:\\s*oci://ghcr\\.io/(?<owner>[^\\s/]+)/(?<depName>[^\\s]+)[\\s\\S]*?chart:\\s*[^\\s]+[\\s\\S]*?targetRevision:\\s*(?<currentValue>[^\\s#]+)"
+      ],
+      "datasourceTemplate": "helm",
+      "registryUrlsTemplate": ["oci://ghcr.io/{{{owner}}}"],
+      "versioningTemplate": "semver"
+    },
+    {
+      "description": "Bump container image tag via Helm parameters in Argo CD Applications",
+      "fileMatch": ["^k8s/argocd/.*\\.ya?ml$"],
+      "matchStrings": [
+        "name:\\s*image\\.repository[\\s\\S]*?value:\\s*(?<depName>[^\\s]+)[\\s\\S]*?name:\\s*image\\.tag[\\s\\S]*?value:\\s*(?<currentValue>[^\\s#]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "semver"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": ["helm", "docker"],
+      "automerge": false,
+      "prCreation": "immediate",
+      "stabilityDays": 0
+    }
+  ]
+}
