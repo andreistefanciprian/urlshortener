@@ -19,10 +19,11 @@
       "description": "Bump container image tag via Helm parameters in Argo CD Applications",
       "fileMatch": ["^k8s/argocd/.*\\.ya?ml$"],
       "matchStrings": [
-        "repository:\\s*(?<depName>[^\\s]+)[\\s\\S]*?tag:\\s*(?<currentValue>[^\\s#]+)"
+        "(?<block>repository:\\s*(?<depName>[^\\s]+)[\\s\\S]*?tag:\\s*(?<currentValue>[^\\s#]+)(?:@(?<currentDigest>sha256:[^\\s#]+))?)"
       ],
       "datasourceTemplate": "docker",
-      "versioningTemplate": "docker"
+      "versioningTemplate": "docker",
+      "autoReplaceStringTemplate": "          repository: {{{depName}}}\\n          tag: {{{newValue}}}@{{{newDigest}}}"
     }
   ],
   "packageRules": [
