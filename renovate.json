@@ -31,6 +31,28 @@
       "automerge": false,
       "prCreation": "immediate",
       "stabilityDays": 0
+    },
+    {
+      "description": "Custom PR title for GHCR OCI Helm charts",
+      "matchManagers": ["regex"],
+      "matchDatasources": ["docker"],
+      "matchPackagePatterns": ["^ghcr\\.io/andreistefanciprian/urlshortener/"]
+      ,"prTitle": "chore(helm): bump {{depName}} to {{newVersion}}",
+      "commitMessagePrefix": "chore(helm): ",
+      "commitMessageAction": "bump",
+      "commitMessageTopic": "{{depName}}",
+      "commitMessageExtra": "to {{newVersion}}"
+    },
+    {
+      "description": "Custom PR title for container images",
+      "matchManagers": ["regex"],
+      "matchDatasources": ["docker"],
+      "excludePackagePatterns": ["^ghcr\\.io/andreistefanciprian/urlshortener/"]
+      ,"prTitle": "chore(images): bump {{depName}} to {{newVersion}}",
+      "commitMessagePrefix": "chore(images): ",
+      "commitMessageAction": "bump",
+      "commitMessageTopic": "{{depName}}",
+      "commitMessageExtra": "to {{newVersion}}"
     }
   ]
 }
