@@ -6,14 +6,14 @@
   "enabledManagers": ["regex"],
   "regexManagers": [
     {
-      "description": "Bump Helm chart targetRevision in Argo CD Applications (OCI on GHCR)",
+      "description": "Bump Helm chart targetRevision in Argo CD Applications (OCI charts on GHCR via docker tags)",
       "fileMatch": ["^k8s/argocd/.*\\.ya?ml$"],
       "matchStrings": [
-        "repoURL:\\s*oci://ghcr\\.io/(?<owner>[^\\s/]+)/(?<depName>[^\\s]+)[\\s\\S]*?chart:\\s*[^\\s]+[\\s\\S]*?targetRevision:\\s*(?<currentValue>[^\\s#]+)"
+        "repoURL:\\s*oci://ghcr\\.io/(?<path>[^\\s]+)[\\s\\S]*?chart:\\s*[^\\s]+[\\s\\S]*?targetRevision:\\s*(?<currentValue>[^\\s#]+)"
       ],
-  "datasourceTemplate": "helm",
-  "registryUrlTemplate": "oci://ghcr.io/{{{owner}}}",
-  "versioningTemplate": "semver"
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "ghcr.io/{{{path}}}",
+      "versioningTemplate": "semver"
     },
     {
       "description": "Bump container image tag via Helm parameters in Argo CD Applications",
@@ -22,7 +22,7 @@
         "repository:\\s*(?<depName>[^\\s]+)[\\s\\S]*?tag:\\s*(?<currentValue>[^\\s#]+)"
       ],
       "datasourceTemplate": "docker",
-      "versioningTemplate": "semver"
+      "versioningTemplate": "loose"
     }
   ],
   "packageRules": [
