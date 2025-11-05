@@ -16,14 +16,14 @@
       "versioningTemplate": "semver"
     },
     {
-      "description": "Bump container image tag via Helm parameters in Argo CD Applications",
+      "description": "Update image.digest in Argo CD Applications (digest-only, no tag)",
       "fileMatch": ["^k8s/argocd/.*\\.ya?ml$"],
       "matchStrings": [
-        "(?<block>repository:\\s*(?<depName>[^\\s]+)[\\s\\S]*?tag:\\s*(?<currentValue>[^\\s#]+)(?:@(?<currentDigest>sha256:[^\\s#]+))?)"
+        "(?<block>repository:\\s*(?<depName>[^\\s]+)[\\s\\S]*?digest:\\s*(?<currentDigest>sha256:[^\\s#]+))"
       ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker",
-      "autoReplaceStringTemplate": "          repository: {{{depName}}}\\n          tag: {{{newValue}}}@{{{newDigest}}}"
+      "autoReplaceStringTemplate": "          repository: {{{depName}}}\\n          digest: {{{newDigest}}}"
     }
   ],
   "packageRules": [
