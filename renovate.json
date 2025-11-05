@@ -11,9 +11,9 @@
       "matchStrings": [
         "repoURL:\\s*oci://ghcr\\.io/(?<owner>[^\\s/]+)/(?<depName>[^\\s]+)[\\s\\S]*?chart:\\s*[^\\s]+[\\s\\S]*?targetRevision:\\s*(?<currentValue>[^\\s#]+)"
       ],
-      "datasourceTemplate": "helm",
-      "registryUrlsTemplate": ["oci://ghcr.io/{{{owner}}}"],
-      "versioningTemplate": "semver"
+  "datasourceTemplate": "helm",
+  "registryUrlTemplate": "oci://ghcr.io/{{{owner}}}",
+  "versioningTemplate": "semver"
     },
     {
       "description": "Bump container image tag via Helm parameters in Argo CD Applications",
