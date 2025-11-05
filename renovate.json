@@ -33,23 +33,21 @@
       "stabilityDays": 0
     },
     {
-      "description": "Custom PR title for GHCR OCI Helm charts",
+      "description": "Custom commit message for GHCR OCI Helm charts (PR title derived)",
       "matchManagers": ["regex"],
       "matchDatasources": ["docker"],
-      "matchPackagePatterns": ["^ghcr\\.io/andreistefanciprian/urlshortener/"]
-      ,"prTitle": "chore(helm): bump {{depName}} to {{newVersion}}",
-      "commitMessagePrefix": "chore(helm): ",
+      "matchPackagePatterns": ["^ghcr\\.io/andreistefanciprian/urlshortener/"] ,
+      "commitMessagePrefix": "helm",
       "commitMessageAction": "bump",
       "commitMessageTopic": "{{depName}}",
       "commitMessageExtra": "to {{newVersion}}"
     },
     {
-      "description": "Custom PR title for container images",
+      "description": "Custom commit message for container images (PR title derived)",
       "matchManagers": ["regex"],
       "matchDatasources": ["docker"],
-      "excludePackagePatterns": ["^ghcr\\.io/andreistefanciprian/urlshortener/"]
-      ,"prTitle": "chore(images): bump {{depName}} to {{newVersion}}",
-      "commitMessagePrefix": "chore(images): ",
+      "excludePackagePatterns": ["^ghcr\\.io/andreistefanciprian/urlshortener/"] ,
+      "commitMessagePrefix": "image: ",
       "commitMessageAction": "bump",
       "commitMessageTopic": "{{depName}}",
       "commitMessageExtra": "to {{newVersion}}"
