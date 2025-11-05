@@ -22,7 +22,7 @@
         "repository:\\s*(?<depName>[^\\s]+)[\\s\\S]*?tag:\\s*(?<currentValue>[^\\s#]+)"
       ],
       "datasourceTemplate": "docker",
-      "versioningTemplate": "loose"
+      "versioningTemplate": "docker"
     }
   ],
   "packageRules": [
@@ -51,6 +51,12 @@
       "commitMessageAction": "bump",
       "commitMessageTopic": "{{depName}}",
       "commitMessageExtra": "to {{newVersion}}"
+    },
+    {
+      "description": "Pin digests for docker images found by regex manager",
+      "matchManagers": ["regex"],
+      "matchDatasources": ["docker"],
+      "pinDigests": true
     }
   ]
 }
