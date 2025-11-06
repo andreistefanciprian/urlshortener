@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/frontend
     chart: frontend
-    targetRevision: 0.1.1 # set to the chart version you want to deploy
+    targetRevision: 0.1.2 # set to the chart version you want to deploy
     helm:
       values: |
         image:
