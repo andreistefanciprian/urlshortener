@@ -21,7 +21,7 @@
         "(?<indent>\\s*)repository:\\s*(?<depName>(?:docker\\.io|index\\.docker\\.io)/[^\\s#]+)[\\s\\S]*?\\n\\s*digest:\\s*(?<currentDigest>sha256:[^\\s#]+)"
       ],
       "datasourceTemplate": "docker",
-      "versioningTemplate": "docker",
+      "versioningTemplate": "loose",
       "currentValueTemplate": "latest",
       "autoReplaceStringTemplate": "{{{indent}}}repository: {{{depName}}}\\n{{{indent}}}digest: {{{newDigest}}}"
     },
@@ -33,7 +33,7 @@
       ],
       "datasourceTemplate": "docker",
       "depNameTemplate": "docker.io/{{{depName}}}",
-      "versioningTemplate": "docker",
+      "versioningTemplate": "loose",
       "currentValueTemplate": "latest",
       "autoReplaceStringTemplate": "{{{indent}}}repository: {{{depName}}}\\n{{{indent}}}digest: {{{newDigest}}}"
     },
