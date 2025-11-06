@@ -15,27 +15,16 @@
       "versioningTemplate": "semver"
     },
     {
-      "description": "Update image digest for Docker Hub images with explicit registry",
+      "description": "Update image digest for Docker Hub images (with or without docker.io prefix)",
       "fileMatch": ["^k8s/argocd/.*\\.ya?ml$"],
       "matchStrings": [
-        "(?<indent>\\s*)repository:\\s*(?<depName>(?:docker\\.io|index\\.docker\\.io)/[^\\s#]+)[\\s\\S]*?\\n\\s*digest:\\s*(?<currentDigest>sha256:[^\\s#]+)"
-      ],
-      "datasourceTemplate": "docker",
-      "versioningTemplate": "loose",
-      "currentValueTemplate": "latest",
-      "autoReplaceStringTemplate": "{{{indent}}}repository: {{{depName}}}\\n{{{indent}}}digest: {{{newDigest}}}"
-    },
-    {
-      "description": "Update image digest for project images on Docker Hub (no registry prefix)",
-      "fileMatch": ["^k8s/argocd/.*\\.ya?ml$"],
-      "matchStrings": [
-        "(?<indent>\\s*)repository:\\s*(?<depName>andreistefanciprian/[^\\s#]+)[\\s\\S]*?\\n\\s*digest:\\s*(?<currentDigest>sha256:[^\\s#]+)"
+        "(?<indent>\\s*)(?<repoLine>repository:\\s*(?<prefix>(?:docker\\.io/|index\\.docker\\.io/)?)(?<depName>andreistefanciprian/[^\\s#]+).*?)\\n\\s*digest:\\s*(?<currentDigest>sha256:[^\\s#]+)"
       ],
       "datasourceTemplate": "docker",
       "depNameTemplate": "docker.io/{{{depName}}}",
       "versioningTemplate": "loose",
       "currentValueTemplate": "latest",
-      "autoReplaceStringTemplate": "{{{indent}}}repository: {{{depName}}}\\n{{{indent}}}digest: {{{newDigest}}}"
+      "autoReplaceStringTemplate": "{{{indent}}}{{{repoLine}}}\\n{{{indent}}}digest: {{{newDigest}}}"
     },
     {
       "description": "Update image tag in Argo CD Applications when tag is present",
