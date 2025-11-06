@@ -13,7 +13,7 @@ spec:
     repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/api-gateway
     chart: api-gateway
     # Set to the exact chart version you want to deploy (example below).
-    targetRevision: 0.1.8
+    targetRevision: 0.1.10
     helm:
       # Optional overrides to the chart's values.yaml
       values: |
