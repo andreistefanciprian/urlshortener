@@ -1,31 +1,41 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
+  "extends": ["config:recommended"],
   "enabledManagers": ["regex"],
+
   "regexManagers": [
     {
-      "description": "Bump Helm chart targetRevision in Argo CD Applications (OCI charts on GHCR via docker tags)",
+      "description": "Bump Helm chart targetRevision in Argo CD Applications from GHCR OCI charts",
       "fileMatch": ["^k8s/argocd/.*\\.ya?ml$"],
       "matchStrings": [
-        "repoURL:\\s*oci://ghcr\\.io/(?<path>[^\\s]+)[\\s\\S]*?chart:\\s*[^\\s]+[\\s\\S]*?targetRevision:\\s*(?<currentValue>[^\\s#]+)"
+        "repoURL:\\s*oci://ghcr\\.io/(?<path>[^\\s#]+)[\\s\\S]*?\\n\\s*chart:\\s*(?<chart>[^\\s#]+)[\\s\\S]*?\\n\\s*targetRevision:\\s*(?<currentValue>[^\\s#]+)"
       ],
       "datasourceTemplate": "docker",
       "depNameTemplate": "ghcr.io/{{{path}}}",
       "versioningTemplate": "semver"
     },
     {
-      "description": "Update image.digest in Argo CD Applications (digest-only, no tag)",
+      "description": "Update image digest in Argo CD Applications when using digest only",
       "fileMatch": ["^k8s/argocd/.*\\.ya?ml$"],
       "matchStrings": [
-        "(?<block>repository:\\s*(?<depName>[^\\s]+)[\\s\\S]*?digest:\\s*(?<currentDigest>sha256:[^\\s#]+))"
+        "repository:\\s*(?<depName>[^\\s#]+)[\\s\\S]*?\\n\\s*digest:\\s*(?<currentValue>sha256:[^\\s#]+)"
       ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker",
-      "autoReplaceStringTemplate": "          repository: {{{depName}}}\\n          digest: {{{newDigest}}}"
+      "autoReplaceStringTemplate": "        repository: {{{depName}}}\\n        digest: {{{newValue}}}"
+    },
+    {
+      "description": "Update image tag in Argo CD Applications when tag is present",
+      "fileMatch": ["^k8s/argocd/.*\\.ya?ml$"],
+      "matchStrings": [
+        "repository:\\s*(?<depName>[^\\s#]+)[\\s\\S]*?\\n\\s*tag:\\s*(?<currentValue>[^\\s#]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "semver",
+      "autoReplaceStringTemplate": "        repository: {{{depName}}}\\n        tag: {{{newValue}}}"
     }
   ],
+
   "packageRules": [
     {
       "matchDatasources": ["helm", "docker"],
@@ -34,7 +44,7 @@
       "stabilityDays": 0
     },
     {
-      "description": "Custom commit message for GHCR OCI Helm charts (PR title derived)",
+      "description": "Commit messages for GHCR OCI Helm charts",
       "matchManagers": ["regex"],
       "matchDatasources": ["docker"],
       "matchPackagePatterns": ["^ghcr\\.io/andreistefanciprian/urlshortener/"],
@@ -44,17 +54,17 @@
       "commitMessageExtra": "to {{newVersion}}"
     },
     {
-      "description": "Custom commit message for container images (PR title derived)",
+      "description": "Commit messages for other container images",
       "matchManagers": ["regex"],
       "matchDatasources": ["docker"],
       "excludePackagePatterns": ["^ghcr\\.io/andreistefanciprian/urlshortener/"],
-      "commitMessagePrefix": "image: ",
+      "commitMessagePrefix": "image:",
       "commitMessageAction": "bump",
       "commitMessageTopic": "{{depName}}",
       "commitMessageExtra": "to {{newVersion}}"
     },
     {
-      "description": "Pin digests for docker images found by regex manager",
+      "description": "Always pin digests for images handled by regex manager",
       "matchManagers": ["regex"],
       "matchDatasources": ["docker"],
       "pinDigests": true
