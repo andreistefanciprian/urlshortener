@@ -17,7 +17,7 @@ spec:
   sources:
     - repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/api-gateway
       chart: api-gateway
-      targetRevision: 0.1.10
+      targetRevision: 0.1.11
       helm:
         valueFiles:
           - $values/k8s/values/api-gateway.values.yaml
