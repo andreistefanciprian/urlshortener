@@ -7,6 +7,9 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
   annotations:
     argocd.argoproj.io/sync-wave: "1"
+    argocd-image-updater.argoproj.io/image-list: urlread=andreistefanciprian/urlshortener-url-read
+    argocd-image-updater.argoproj.io/urlread.update-strategy: digest
+    argocd-image-updater.argoproj.io/urlread.helm.parameters: "-p image.repository=%(image) -p image.digest=%(digest)"
 spec:
   project: urlshortener
   source:
