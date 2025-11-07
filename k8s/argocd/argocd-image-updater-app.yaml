@@ -19,6 +19,14 @@ spec:
           create: true
         serviceAccount:
           create: true
+        config:
+          logLevel: info
+          registries:
+            - name: Docker Hub
+              api_url: https://registry-1.docker.io
+              prefix: docker.io
+              default: true
+              ping: true
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
