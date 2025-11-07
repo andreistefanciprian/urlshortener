@@ -15,7 +15,7 @@ spec:
   sources:
     - repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/url-read
       chart: url-read
-      targetRevision: 0.1.8
+      targetRevision: 0.1.9
       helm:
         valueFiles:
           - $values/url-read.values.yaml
