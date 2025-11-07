@@ -21,7 +21,7 @@
         "\\n(?<imageIndent>[\\t ]*)image:\\s*\\n[\\t ]*repository:\\s*(?<prefix>(?:docker\\.io/|index\\.docker\\.io/)?)(?<depName>andreistefanciprian/[^\\s#]+)\\s*\\n[\\t ]*digest:\\s*(?<currentDigest>sha256:[^\\s#]+)"
       ],
       "datasourceTemplate": "docker",
-  "depNameTemplate": "{{{depName}}}",
+      "depNameTemplate": "{{{depName}}}",
       "versioningTemplate": "loose",
       "currentValueTemplate": "latest",
       "autoReplaceStringTemplate": "\n{{{imageIndent}}}image:\\n{{{imageIndent}}}  repository: {{{prefix}}}{{{depName}}}\\n{{{imageIndent}}}  digest: {{{newDigest}}}"
