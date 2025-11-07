@@ -12,21 +12,17 @@ metadata:
     argocd-image-updater.argoproj.io/urlread.helm.parameters: "-p image.repository=%(image) -p image.digest=%(digest)"
 spec:
   project: urlshortener
-  source:
-    repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/url-read
-    chart: url-read
-    targetRevision: 0.1.8 # set to the chart version you want to deploy
-    helm:
-      values: |
-        image:
-          repository: andreistefanciprian/urlshortener-url-read
-          digest: sha256:1bf153e3080fd810878f44ef7cd04461c05f3c9046cac732e659f96eab45c96a
-        config:
-          LOG_LEVEL: DEBUG
-          DB_HOST: postgres-postgresql.postgres.svc
-          REDIS_HOST: redis-master.redis.svc
-          DB_USER: url_gen_user
-          REDIS_DB: "0"
+  sources:
+    - repoURL: https://github.com/andreistefanciprian/urlshortener.git
+      targetRevision: main
+      ref: values
+      path: k8s/values
+    - repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/url-read
+      chart: url-read
+      targetRevision: 0.1.8
+      helm:
+        valueFiles:
+          - $values/url-read.values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: url-read

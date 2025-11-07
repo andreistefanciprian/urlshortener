@@ -12,22 +12,17 @@ metadata:
     argocd-image-updater.argoproj.io/urlgen.helm.parameters: "-p image.repository=%(image) -p image.digest=%(digest)"
 spec:
   project: urlshortener
-  source:
-    repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/url-gen
-    chart: url-gen
-    targetRevision: 0.1.7 # update to the chart version you want to deploy
-    helm:
-      # Optional overrides; avoid committing secrets here
-      values: |
-        image:
-          repository: andreistefanciprian/urlshortener-url-gen
-          digest: sha256:bd964b5f5b233001a775bce1064d9ebc5171d6d3db73e77c0cc2d4c52d227023
-        config:
-          LOG_LEVEL: DEBUG
-          DB_HOST: postgres-postgresql.postgres.svc
-          DB_USER: url_gen_user
-          REDIS_HOST: redis-master.redis.svc
-          REDIS_DB: "0"
+  sources:
+    - repoURL: https://github.com/andreistefanciprian/urlshortener.git
+      targetRevision: main
+      ref: values
+      path: k8s/values
+    - repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/url-gen
+      chart: url-gen
+      targetRevision: 0.1.7
+      helm:
+        valueFiles:
+          - $values/url-gen.values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: url-gen
