@@ -7,9 +7,15 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
   annotations:
     argocd.argoproj.io/sync-wave: "2"
-    argocd-image-updater.argoproj.io/image-list: frontend=andreistefanciprian/urlshortener-frontend
-    argocd-image-updater.argoproj.io/frontend.update-strategy: digest
-    argocd-image-updater.argoproj.io/frontend.helm.parameters: "-p image.repository=%(image) -p image.digest=%(digest)"
+  argocd-image-updater.argoproj.io/image-list: andreistefanciprian/urlshortener-frontend:latest
+    argocd-image-updater.argoproj.io/update-strategy: digest
+    argocd-image-updater.argoproj.io/helm.image-name: image.repository
+    argocd-image-updater.argoproj.io/helm.image-tag: image.tag
+    argocd-image-updater.argoproj.io/helm.image-digest: image.digest
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/pull-request: "true"
+    argocd-image-updater.argoproj.io/pull-request.target-branch: main
+    argocd-image-updater.argoproj.io/git-branch: image-updater-{{.SHA256}}
 spec:
   project: urlshortener
   sources:
@@ -19,10 +25,10 @@ spec:
       helm:
         valueFiles:
           - $values/frontend.values.yaml
+        ignoreMissingValueFiles: false
     - repoURL: https://github.com/andreistefanciprian/urlshortener.git
       targetRevision: main
       ref: values
-      path: k8s/values
   destination:
     server: https://kubernetes.default.svc
     namespace: frontend
