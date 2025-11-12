@@ -13,7 +13,7 @@ spec:
   source:
     repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/api-gateway
     chart: api-gateway
-    targetRevision: 0.1.11
+    targetRevision: 0.1.12
     helm:
       values: |
         image:
