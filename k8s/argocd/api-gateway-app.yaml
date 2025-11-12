@@ -7,7 +7,7 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
   annotations:
     argocd.argoproj.io/sync-wave: "2"
-  argocd-image-updater.argoproj.io/image-list: andreistefanciprian/urlshortener-api-gateway:latest
+    argocd-image-updater.argoproj.io/image-list: andreistefanciprian/urlshortener-api-gateway:latest
     argocd-image-updater.argoproj.io/update-strategy: digest
     argocd-image-updater.argoproj.io/pull-policy: Always
     argocd-image-updater.argoproj.io/helm.image-name: image.repository
