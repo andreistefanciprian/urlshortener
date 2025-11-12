@@ -1,0 +1,75 @@
+# Helm repositories
+repositories:
+  - name: cnpg
+    url: https://cloudnative-pg.github.io/charts
+
+# init script not working on this one yet
+  # CloudNative-PG Operator
+  - name: cnpg-operator
+    namespace: postgres
+    chart: cnpg/cloudnative-pg
+    version: 0.21.6
+    createNamespace: true
+    hooks:
+      - events: ["presync"]
+        showlogs: true
+        command: "echo"
+        args: ["Installing CloudNative-PG Operator..."]
+      - events: ["postsync"]
+        showlogs: true
+        command: "echo"
+        args: ["CloudNative-PG Operator installed successfully"]
+
+  # PostgreSQL Database using CloudNative-PG
+  - name: postgresql
+    namespace: postgres
+    chart: cnpg/cluster
+    values:
+      - cluster:
+          name: urls
+          imageName: ghcr.io/cloudnative-pg/postgresql:16
+          instances: 2
+          logLevel: "debug"
+
+          enableSuperuserAccess: true
+          # superuserSecret: db-superuser
+
+          storage:
+            size: 1Gi
+            storageClass: standard
+          walStorage:
+            size: 1Gi
+            storageClass: standard
+          bootstrap:
+            initdb:
+              database: app
+              owner: app
+              # secret: db-appuser
+              postInitApplicationSQLRefs:
+                configMapRefs:
+                  - name: db-init-sql
+                    key: init.sql
+                secretRefs: []
+          monitoring:
+            enablePodMonitor: true
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "250Mi"
+            limits:
+              memory: "1Gi"
+          affinity:
+            enablePodAntiAffinity: true
+    hooks:
+      - events: ["presync"]
+        showlogs: true
+        command: sh
+        args:
+          - -c
+          - |
+            kubectl -n postgres create configmap db-init-sql \
+              --from-file=init.sql=init.sql \
+              --dry-run=client -o yaml | kubectl apply -f -
+    # PostgreSQL depends on the operator being ready
+    needs:
+      - postgres/cnpg-operator
