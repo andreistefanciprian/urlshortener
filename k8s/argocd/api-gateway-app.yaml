@@ -17,7 +17,8 @@ metadata:
     argocd-image-updater.argoproj.io/git-repository: https://github.com/andreistefanciprian/urlshortener.git
     argocd-image-updater.argoproj.io/pull-request: "true"
     argocd-image-updater.argoproj.io/pull-request.target-branch: main
-    argocd-image-updater.argoproj.io/git-branch: image-updater-{{.SHA256}}  
+    argocd-image-updater.argoproj.io/git-branch: image-updater-branch
+    argocd-image-updater.argoproj.io/git-commit-message: "chore(api-gateway): update image to {{new_tag}} ({{new_digest}})"
 spec:
   project: urlshortener
   sources:
