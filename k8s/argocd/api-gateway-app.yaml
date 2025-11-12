@@ -11,8 +11,9 @@ metadata:
     argocd-image-updater.argoproj.io/update-strategy: digest
     argocd-image-updater.argoproj.io/pull-policy: Always
     argocd-image-updater.argoproj.io/helm.image-name: image.repository
+    argocd-image-updater.argoproj.io/helm.image-tag: image.tag
     argocd-image-updater.argoproj.io/helm.image-digest: image.digest
-    argocd-image-updater.argoproj.io/write-back-method: gitargocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
+    argocd-image-updater.argoproj.io/write-back-method: git:secret:git-creds
     argocd-image-updater.argoproj.io/pull-request: "true"
     argocd-image-updater.argoproj.io/pull-request.target-branch: main
     argocd-image-updater.argoproj.io/git-branch: image-updater-{{.SHA256}}
