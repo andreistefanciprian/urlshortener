@@ -21,10 +21,10 @@
       "versioningTemplate": "semver"
     },
     {
-      "description": "Update embedded image tag digests in Argo CD Application helm.values (tag@sha256)",
+      "description": "Update embedded image tag + digest in Argo CD Application helm.values (tag@sha256)",
       "fileMatch": ["^k8s/argocd/.*-app\\.ya?ml$"],
       "matchStrings": [
-        "helm:\\s*[\\s\\S]*?values:\\s*\\|[\\s\\S]*?repository:\\s*(?<repo>andreistefanciprian\\/[a-z0-9-]+)[\\s\\S]*?\\n\\s*tag:\\s*(?<tag>[^@\\s#]+)@(?<currentValue>sha256:[a-f0-9]{64})"
+        "helm:\\s*[\\s\\S]*?values:\\s*\\|[\\s\\S]*?repository:\\s*(?<repo>andreistefanciprian\\/[a-z0-9-]+)[\\s\\S]*?\\n\\s*tag:\\s*(?<currentValue>[^@\\s#]+)@(?<currentDigest>sha256:[a-f0-9]{64})"
       ],
       "depNameTemplate": "{{{repo}}}:{{{tag}}}",
       "datasourceTemplate": "docker",
