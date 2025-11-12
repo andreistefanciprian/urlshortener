@@ -14,7 +14,7 @@
       "description": "Bump Helm chart targetRevision in Argo CD Applications from GHCR OCI charts",
       "fileMatch": ["^k8s/argocd/.*\\.ya?ml$"],
       "matchStrings": [
-        "repoURL:\\s*oci://ghcr\\.io/(?<path>[^\\s#]+)[\\s\\S]*?\\n\\s*chart:\\s*(?<chart>[^\\s#]+)[\\s\\S]*?\\n\\s*targetRevision:\\s*(?<currentValue>[^\\s#]+)"
+        "repoURL:\\s*oci://ghcr\\.io/(?<path>[^\\s]+)[\\s\\S]*?chart:\\s*[^\\s]+[\\s\\S]*?targetRevision:\\s*(?<currentValue>[^\\s#]+)"
       ],
       "datasourceTemplate": "docker",
       "depNameTemplate": "ghcr.io/{{{path}}}",
