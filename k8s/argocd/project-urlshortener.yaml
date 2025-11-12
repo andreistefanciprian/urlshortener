@@ -10,11 +10,8 @@ spec:
     - oci://ghcr.io/andreistefanciprian/urlshortener/*
     - https://charts.bitnami.com/bitnami
     - https://github.com/andreistefanciprian/urlshortener.git
-    - https://argoproj.github.io/argo-helm
   # Limit where apps can be deployed
   destinations:
-    - namespace: argocd
-      server: https://kubernetes.default.svc
     - namespace: api-gateway
       server: https://kubernetes.default.svc
     - namespace: redis
