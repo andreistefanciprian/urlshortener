@@ -10,17 +10,23 @@ metadata:
     # Image updates managed by Renovate (helm-values); no Argo CD Image Updater annotations
 spec:
   project: urlshortener
-  sources:
-    - repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/api-gateway
-      chart: api-gateway
-      targetRevision: 0.1.11
-      helm:
-        valueFiles:
-          - $values/k8s/values/api-gateway.values.yaml
-        ignoreMissingValueFiles: false
-    - repoURL: https://github.com/andreistefanciprian/urlshortener.git
-      targetRevision: main
-      ref: values
+  source:
+    repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/api-gateway
+    chart: api-gateway
+    targetRevision: 0.1.11
+    helm:
+      values: |
+        image:
+          repository: andreistefanciprian/urlshortener-api-gateway
+          tag: latest@sha256:8a6e81a9c48233181c69e7cd5667746b016b798339ff163148eda76d9e09abda
+        config:
+          LOG_LEVEL: DEBUG
+          URL_GEN_HOST: url-gen.url-gen.svc
+          URL_GEN_PORT: "50052"
+          URL_READ_HOST: url-read.url-read.svc
+          URL_READ_PORT: "50053"
+          API_GATEWAY_PORT: "8080"
+          METRICS_PORT: "9090"
   destination:
     server: https://kubernetes.default.svc
     namespace: api-gateway
