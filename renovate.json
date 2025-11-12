@@ -21,10 +21,10 @@
       "versioningTemplate": "semver"
     },
     {
-      "description": "Update image digests in k8s/values/*.values.yaml (tie digest to tag)",
-      "fileMatch": ["^k8s/values/.*\\.values\\.ya?ml$"],
+      "description": "Update embedded image tag digests in Argo CD Application helm.values (tag@sha256)",
+      "fileMatch": ["^k8s/argocd/.*-app\\.ya?ml$"],
       "matchStrings": [
-        "repository:\\s*(?<repo>andreistefanciprian\\/[a-z0-9-]+)[\\s\\S]*?\\n\\s*digest:\\s*sha256:(?<currentValue>[a-f0-9]{64})[\\s\\S]*?\\n\\s*tag:\\s*(?<tag>[^\\s#]+)"
+        "helm:\\s*[\\s\\S]*?values:\\s*\\|[\\s\\S]*?repository:\\s*(?<repo>andreistefanciprian\\/[a-z0-9-]+)[\\s\\S]*?\\n\\s*tag:\\s*(?<tag>[^@\\s#]+)@(?<currentDigest>sha256:[a-f0-9]{64})"
       ],
       "depNameTemplate": "{{{repo}}}:{{{tag}}}",
       "datasourceTemplate": "docker",
@@ -50,10 +50,10 @@
       "commitMessageExtra": "to {{newVersion}}"
     },
     {
-      "description": "Commit messages for image digest updates in k8s/values",
+      "description": "Commit messages for image digest updates in Argo CD Applications",
       "matchManagers": ["regex"],
       "matchPackagePatterns": [
-        "^andreistefanciprian/urlshortener-(api-gateway|frontend|url-gen|url-read)$"
+        "^andreistefanciprian/urlshortener-(api-gateway|frontend|url-gen|url-read)(?::.*)?$"
       ],
       "commitMessagePrefix": "image",
       "commitMessageAction": "pin",
