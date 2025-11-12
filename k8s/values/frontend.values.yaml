@@ -1,7 +1,7 @@
 image:
   repository: andreistefanciprian/urlshortener-frontend
   digest: sha256:a8563c92792c141aa9ed5411ae81020fa602ef9b8261adfe2f5ec08e423bdef5
-  tag: latest@sha256:a8563c92792c141aa9ed5411ae81020fa602ef9b8261adfe2f5ec08e423bdef5
+  tag: latest
 
 config:
   LOG_LEVEL: DEBUG
