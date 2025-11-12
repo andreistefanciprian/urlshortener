@@ -7,16 +7,7 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
   annotations:
     argocd.argoproj.io/sync-wave: "1"
-    argocd-image-updater.argoproj.io/image-list: andreistefanciprian/urlshortener-url-read:latest
-    argocd-image-updater.argoproj.io/update-strategy: digest
-    argocd-image-updater.argoproj.io/helm.image-name: image.repository
-    argocd-image-updater.argoproj.io/helm.image-tag: image.tag
-    argocd-image-updater.argoproj.io/helm.image-digest: image.digest
-    argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
-    argocd-image-updater.argoproj.io/git-repository: https://github.com/andreistefanciprian/urlshortener.git
-    argocd-image-updater.argoproj.io/pull-request: "true"
-    argocd-image-updater.argoproj.io/pull-request.target-branch: main
-    argocd-image-updater.argoproj.io/git-commit-message: "chore(url-read): update image to {{new_tag}} ({{new_digest}})"
+    # Removed Argo CD Image Updater annotations; Renovate will manage image digests
 spec:
   project: urlshortener
   sources:

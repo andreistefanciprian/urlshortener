@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
-  "enabledManagers": ["regex"],
+  "enabledManagers": ["regex", "helm-values"],
 
   "regexManagers": [
     {
@@ -32,6 +32,18 @@
       "commitMessageAction": "bump",
       "commitMessageTopic": "{{depName}}",
       "commitMessageExtra": "to {{newVersion}}"
+    },
+    {
+      "description": "Pin and update image digests in Helm values files",
+      "matchManagers": ["helm-values"],
+      "matchPackagePatterns": [
+        "^andreistefanciprian/urlshortener-(api-gateway|frontend|url-gen|url-read)$"
+      ],
+      "pinDigests": true,
+      "commitMessagePrefix": "image",
+      "commitMessageAction": "pin",
+      "commitMessageTopic": "{{depName}} digest",
+      "commitMessageExtra": "to {{newDigest}}"
     }
   ]
 }

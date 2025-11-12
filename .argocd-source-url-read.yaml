@@ -1,8 +1,1 @@
-helm:
-  parameters:
-  - name: image.name
-    value: andreistefanciprian/urlshortener-url-read
-    forcestring: true
-  - name: image.tag
-    value: latest@sha256:a71c40f5648f50b6a3c1e79412865b59e65a1843797c343782311976aa6d21df
-    forcestring: true
+# Deprecated: Argo CD parameter overrides removed. Image updates are managed via Renovate in k8s/values/url-read.values.yaml.
