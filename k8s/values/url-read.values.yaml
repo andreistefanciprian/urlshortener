@@ -1,6 +1,7 @@
 image:
   repository: andreistefanciprian/urlshortener-url-read
   digest: sha256:1bf153e3080fd810878f44ef7cd04461c05f3c9046cac732e659f96eab45c96a
+  tag: latest@sha256:1bf153e3080fd810878f44ef7cd04461c05f3c9046cac732e659f96eab45c96a
 
 config:
   LOG_LEVEL: DEBUG
