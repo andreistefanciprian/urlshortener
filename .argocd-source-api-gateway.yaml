@@ -1,8 +1,0 @@
-helm:
-  parameters:
-  - name: image.name
-    value: andreistefanciprian/urlshortener-api-gateway
-    forcestring: true
-  - name: image.tag
-    value: latest@sha256:b0c7926d0dadf5c473dd76c18da3805d113944016c0f95040ef72682b79ef702
-    forcestring: true
