@@ -1,1 +1,8 @@
-# Deprecated: Argo CD parameter overrides removed. Image updates are managed via Renovate in k8s/values/url-gen.values.yaml.
+helm:
+  parameters:
+  - name: image.name
+    value: andreistefanciprian/urlshortener-url-gen
+    forcestring: true
+  - name: image.tag
+    value: latest@sha256:73234301bae506e77e1766450c9c055a8863b67db325559db646e2bb395367a6
+    forcestring: true
