@@ -10,17 +10,20 @@ metadata:
     # Image updates managed by Renovate; removed Argo CD Image Updater annotations
 spec:
   project: urlshortener
-  sources:
-    - repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/frontend
-      chart: frontend
-      targetRevision: 0.1.2
-      helm:
-        valueFiles:
-          - $values/k8s/values/frontend.values.yaml
-        ignoreMissingValueFiles: false
-    - repoURL: https://github.com/andreistefanciprian/urlshortener.git
-      targetRevision: main
-      ref: values
+  source:
+    repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/frontend
+    chart: frontend
+    targetRevision: 0.1.2
+    helm:
+      values: |
+        image:
+          repository: andreistefanciprian/urlshortener-frontend
+          tag: latest@sha256:a8563c92792c141aa9ed5411ae81020fa602ef9b8261adfe2f5ec08e423bdef5
+        config:
+          LOG_LEVEL: DEBUG
+          BACKEND_HOST: api-gateway.api-gateway.svc
+          BACKEND_PORT: "8080"
+          FRONTEND_PORT: "8090"
   destination:
     server: https://kubernetes.default.svc
     namespace: frontend
