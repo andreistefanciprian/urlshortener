@@ -7,12 +7,13 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
   annotations:
     argocd.argoproj.io/sync-wave: "1"
-  argocd-image-updater.argoproj.io/image-list: andreistefanciprian/urlshortener-url-gen:latest
+    argocd-image-updater.argoproj.io/image-list: andreistefanciprian/urlshortener-url-gen:latest
     argocd-image-updater.argoproj.io/update-strategy: digest
     argocd-image-updater.argoproj.io/helm.image-name: image.repository
     argocd-image-updater.argoproj.io/helm.image-tag: image.tag
     argocd-image-updater.argoproj.io/helm.image-digest: image.digest
-    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
+    argocd-image-updater.argoproj.io/git-repository: git@github.com:andreistefanciprian/urlshortener.git
     argocd-image-updater.argoproj.io/pull-request: "true"
     argocd-image-updater.argoproj.io/pull-request.target-branch: main
     argocd-image-updater.argoproj.io/git-branch: image-updater-{{.SHA256}}
@@ -24,7 +25,7 @@ spec:
       targetRevision: 0.1.7
       helm:
         valueFiles:
-          - $values/url-gen.values.yaml
+          - $values/k8s/values/url-gen.values.yaml
         ignoreMissingValueFiles: false
     - repoURL: https://github.com/andreistefanciprian/urlshortener.git
       targetRevision: main
