@@ -1,7 +1,13 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
-  "enabledManagers": ["regex", "helm-values"],
+  "enabledManagers": ["regex"],
+  "ignorePaths": [
+    "api-gateway/infra/**",
+    "frontend/infra/**",
+    "url-gen/infra/**",
+    "url-read/infra/**"
+  ],
 
   "regexManagers": [
     {
@@ -13,6 +19,16 @@
       "datasourceTemplate": "docker",
       "depNameTemplate": "ghcr.io/{{{path}}}",
       "versioningTemplate": "semver"
+    },
+    {
+      "description": "Update image digests in k8s/values/*.values.yaml (tie digest to tag)",
+      "fileMatch": ["^k8s/values/.*\\.values\\.ya?ml$"],
+      "matchStrings": [
+        "repository:\\s*(?<repo>andreistefanciprian\\/[a-z0-9-]+)[\\s\\S]*?\\n\\s*digest:\\s*sha256:(?<currentValue>[a-f0-9]{64})[\\s\\S]*?\\n\\s*tag:\\s*(?<tag>[^\\s#]+)"
+      ],
+      "depNameTemplate": "{{{repo}}}:{{{tag}}}",
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
     }
   ],
 
@@ -34,12 +50,11 @@
       "commitMessageExtra": "to {{newVersion}}"
     },
     {
-      "description": "Pin and update image digests in Helm values files",
-      "matchManagers": ["helm-values"],
+      "description": "Commit messages for image digest updates in k8s/values",
+      "matchManagers": ["regex"],
       "matchPackagePatterns": [
         "^andreistefanciprian/urlshortener-(api-gateway|frontend|url-gen|url-read)$"
       ],
-      "pinDigests": true,
       "commitMessagePrefix": "image",
       "commitMessageAction": "pin",
       "commitMessageTopic": "{{depName}} digest",
