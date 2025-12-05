@@ -23,10 +23,6 @@ psql -h pg-postgresql -p 5432 -U postgres
 # cleanup
 helmfile destroy
 
-```
-
-
-
 kubectl -n postgres delete pvc --all
 kubectl -n postgres delete configmap --all
 kubectl -n postgres delete secret --all
@@ -49,3 +45,4 @@ kubectl -n postgres get configmap db-init-sql -o yaml
 
 k -n postgres logs -l app.kubernetes.io/instance=pg -f
 
+```
