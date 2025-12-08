@@ -57,13 +57,14 @@ releases:
 
   # Redis (for caching) - single-node for dev
   - name: redis
-    namespace: default
+    namespace: redis
     chart: bitnami/redis
     values:
       - architecture: standalone
       - auth:
           enabled: true
-          password: "redispassword"
+          existingSecret: redis-creds
+          existingSecretPasswordKey: redis-password
       - master:
           persistence:
             enabled: true
@@ -80,22 +81,19 @@ releases:
 
   # URL Generation Service - gRPC backend service
   - name: url-gen
-    namespace: default
+    namespace: url-gen
+    createNamespace: true
     chart: ./url-gen/infra/url-gen
     values:
       - ./url-gen/infra/url-gen/values.yaml
     set:
       # Override default values if needed
-      - name: secrets.DB_PASSWORD
-        value: Auth123
       - name: config.LOG_LEVEL
         value: DEBUG
       - name: config.DB_HOST
         value: pg-postgresql.postgres.svc
       - name: config.REDIS_HOST
-        value: redis-master
-      - name: secrets.REDIS_PASSWORD
-        value: redispassword
+        value: redis-master.redis
       - name: config.REDIS_DB
         value: "0"
     # Hooks for lifecycle management
@@ -111,27 +109,24 @@ releases:
     # URL Gen depends on PostgreSQL being ready
     needs:
       - postgres/pg
-      - redis
+      - redis/redis
 
   # URL Reading Service - gRPC backend service
   - name: url-read
-    namespace: default
+    namespace: url-read
+    createNamespace: true
     chart: ./url-read/infra/url-read
     values:
       - ./url-read/infra/url-read/values.yaml
     set:
       - name: config.DB_USER
         value: url_gen_user
-      - name: secrets.DB_PASSWORD
-        value: Auth123
       - name: config.LOG_LEVEL
         value: DEBUG
       - name: config.DB_HOST
         value: pg-postgresql.postgres.svc
       - name: config.REDIS_HOST
-        value: redis-master
-      - name: secrets.REDIS_PASSWORD
-        value: redispassword
+        value: redis-master.redis
       - name: config.REDIS_DB
         value: "0"
     hooks:
@@ -145,11 +140,12 @@ releases:
         args: ["URL Reading Service deployed successfully"]
     needs:
       - postgres/pg
-      - redis
+      - redis/redis
 
   # API Gateway Service
   - name: api-gateway
-    namespace: default
+    namespace: api-gateway
+    createNamespace: true
     chart: ./api-gateway/infra/api-gateway
     values:
       - ./api-gateway/infra/api-gateway/values.yaml
@@ -157,6 +153,10 @@ releases:
       # Override default values if needed
       - name: config.LOG_LEVEL
         value: DEBUG
+      - name: config.URL_GEN_HOST
+        value: url-gen.url-gen.svc
+      - name: config.URL_READ_HOST
+        value: url-read.url-read.svc
     # Hooks for lifecycle management
     hooks:
       - events: ["presync"]
@@ -169,12 +169,12 @@ releases:
         args: ["API Gateway deployed successfully"]
     # API Gateway depends on URL Gen and URL Read being ready
     needs:
-      - url-gen
-      - url-read
+      - url-gen/url-gen
+      - url-read/url-read
 
   # Frontend Service
   - name: frontend
-    namespace: default
+    namespace: frontend
     chart: ./frontend/infra/frontend
     values:
       - ./frontend/infra/frontend/values.yaml
@@ -182,6 +182,8 @@ releases:
       # Override default values if needed
       - name: config.LOG_LEVEL
         value: DEBUG
+      - name: config.BACKEND_HOST
+        value: api-gateway.api-gateway.svc
     # Hooks for lifecycle management
     hooks:
       - events: ["presync"]
@@ -194,4 +196,4 @@ releases:
         args: ["Frontend deployed successfully"]
     # Frontend depends on API Gateway being ready
     needs:
-      - api-gateway
+      - api-gateway/api-gateway

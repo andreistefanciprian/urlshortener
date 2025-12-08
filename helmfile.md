@@ -30,6 +30,28 @@ data:
     );
 EOF
 
+kubectl create namespace url-gen --dry-run=client -o yaml | kubectl apply -f -
+kubectl -n url-gen create secret generic redis-creds \
+	--from-literal=redis-password='redispassword' \
+	--dry-run=client -o yaml | kubectl apply -f -
+
+kubectl -n url-gen create secret generic pg-creds \
+--from-literal=user-password='Auth123' \
+--dry-run=client -o yaml | kubectl apply -f -
+
+kubectl -n url-read create secret generic redis-creds \
+	--from-literal=redis-password='redispassword' \
+	--dry-run=client -o yaml | kubectl apply -f -
+
+kubectl create namespace url-read --dry-run=client -o yaml | kubectl apply -f -
+kubectl -n url-read create secret generic pg-creds \
+--from-literal=user-password='Auth123' \
+--dry-run=client -o yaml | kubectl apply -f -
+
+kubectl -n redis create secret generic redis-creds \
+	--from-literal=redis-password='redispassword' \
+	--dry-run=client -o yaml | kubectl apply -f -
+
 # deploy all services
 helmfile sync
 kubectl -n postgres get pods
