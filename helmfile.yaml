@@ -58,6 +58,7 @@ releases:
   # Redis (for caching) - single-node for dev
   - name: redis
     namespace: redis
+    createNamespace: true
     chart: bitnami/redis
     values:
       - architecture: standalone
