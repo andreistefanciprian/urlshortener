@@ -25,6 +25,7 @@ config:
   API_GATEWAY_PORT: "8080"
   METRICS_PORT: "9090"
   LOG_LEVEL: "INFO"
+  DOMAIN_NAME: "l.it"
 
 # Service configuration
 service:

@@ -233,8 +233,12 @@ func (h *URLGateway) GetLongURL(w http.ResponseWriter, r *http.Request) {
 }
 
 const (
-	shortUrlCodeLength     = 7
-	URLShortenerDomainName = "l.it"
+	shortUrlCodeLength = 7
+)
+
+var (
+	// URLShortenerDomainName is the domain used for short URLs, configurable via DOMAIN_NAME env var
+	URLShortenerDomainName = getEnvOrDefault("DOMAIN_NAME", "l.it")
 )
 
 func validateShortURL(shortURL string) error {
