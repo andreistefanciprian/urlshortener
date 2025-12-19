@@ -21,6 +21,9 @@
                 <form action="/" method="POST">
                 <div class="modal-body">
 
+                    <!-- Live alert placeholder for create short link -->
+                    <div id="createAlertPlaceholder" class="mb-2"></div>
+
                     <div class="input-group mb-3">
                     <span class="input-group-text" id="basic-addon1">Long URL</span>
                     <input type="text" class="form-control" placeholder="Long URL required" aria-label="longURL" aria-describedby="basic-addon1" name="longURL" required>
@@ -82,5 +85,60 @@
     </tbody>
     </table>
 </div>
+
+<script>
+    // Utility: create and inject a Bootstrap alert
+    function showCreateAlert(type, message) {
+        const placeholder = document.getElementById('createAlertPlaceholder');
+        if (!placeholder) return;
+        placeholder.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+    }
+
+    // Intercept create form submit to validate and show live alerts
+    (function attachCreateHandler() {
+        const modalEl = document.getElementById('createShortLink');
+        if (!modalEl) return;
+        const form = modalEl.querySelector('form');
+        if (!form) return;
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const submitBtn = form.querySelector('input[type="submit"][name="create"]');
+            const longURLInput = form.querySelector('input[name="longURL"]');
+            const longURL = (longURLInput?.value || '').trim();
+
+            // Submit via fetch to the same endpoint, so the frontend can proxy to the gateway
+            try {
+                submitBtn && (submitBtn.disabled = true);
+                const fd = new FormData(form);
+                fd.set('create', 'Create'); // ensure flag is present
+
+                const res = await fetch('/', {
+                    method: 'POST',
+                    body: fd
+                });
+
+                if (res.ok) {
+                    // Refresh the list and close the modal
+                    window.location.reload();
+                    return;
+                }
+
+                const text = await res.text();
+                // Show gateway error or a generic message
+                showCreateAlert('danger', text || 'Failed to create short link.');
+            } catch (err) {
+                showCreateAlert('danger', 'Network error while creating short link. Please try again.');
+            } finally {
+                submitBtn && (submitBtn.disabled = false);
+            }
+        });
+    })();
+</script>
 
 {{end}}

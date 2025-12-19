@@ -150,11 +150,25 @@ func (app *FrontendApp) home(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "Error: %s", err.Error())
 			return
 		}
+		defer res.Body.Close()
 		if res.StatusCode == 200 {
 			app.logger.Infof("Successfully created short URL for %s", newLongURL.LongUrl)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
+
+		// Propagate backend error back to the client to enable UI alerts
+		body, readErr := io.ReadAll(res.Body)
+		if readErr != nil {
+			app.logger.Errorf("Failed to read backend error response: %v", readErr)
+			http.Error(w, "Failed to process backend response", http.StatusInternalServerError)
+			return
+		}
+		// Write same status code and error message
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.WriteHeader(res.StatusCode)
+		_, _ = w.Write(body)
+		return
 	}
 
 	// Handle DELETE requests (POST with _method=DELETE)
