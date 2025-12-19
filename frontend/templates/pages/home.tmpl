@@ -18,17 +18,15 @@
                 <h5 class="modal-title" id="createShortLinkLabel">Enter your destination URL</h5>
                 </div>
 
-                <form action="/" method="POST">
+                <form id="createShortLinkForm" action="/" method="POST">
                 <div class="modal-body">
 
-                    <!-- Live alert placeholder for create short link -->
-                    <div id="createAlertPlaceholder" class="mb-2"></div>
-
-                    <div class="input-group mb-3">
+                    <div class="input-group has-validation mb-3">
                     <span class="input-group-text" id="basic-addon1">Long URL</span>
-                    <input type="text" class="form-control" placeholder="Long URL required" aria-label="longURL" aria-describedby="basic-addon1" name="longURL" required>
+                    <input id="createLongURL" type="text" class="form-control" placeholder="Long URL required" aria-label="longURL" aria-describedby="basic-addon1" name="longURL" required>
+                    <div class="invalid-feedback" id="createLongUrlFeedback"></div>
                     </div>
-                
+
                 </div>
 
                 <div class="modal-footer">
@@ -87,57 +85,88 @@
 </div>
 
 <script>
-    // Utility: create and inject a Bootstrap alert
-    function showCreateAlert(type, message) {
-        const placeholder = document.getElementById('createAlertPlaceholder');
-        if (!placeholder) return;
-        placeholder.innerHTML = `
-            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        `;
-    }
-
-    // Intercept create form submit to validate and show live alerts
+    // Intercept create form submit to display API-gateway validation messages using invalid-feedback
     (function attachCreateHandler() {
-        const modalEl = document.getElementById('createShortLink');
-        if (!modalEl) return;
-        const form = modalEl.querySelector('form');
+        var form = document.getElementById('createShortLinkForm');
         if (!form) return;
 
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const submitBtn = form.querySelector('input[type="submit"][name="create"]');
-            const longURLInput = form.querySelector('input[name="longURL"]');
-            const longURL = (longURLInput?.value || '').trim();
+        // Helper to clear validation state (do not clear value)
+        function clearCreateValidation() {
+            var input = document.getElementById('createLongURL');
+            var fb = document.getElementById('createLongUrlFeedback');
+            if (input) input.classList.remove('is-invalid');
+            if (fb) { fb.textContent = ''; fb.classList.remove('d-block'); }
+        }
 
-            // Submit via fetch to the same endpoint, so the frontend can proxy to the gateway
+        // Helper to fully reset the form (clear value + validation)
+        function resetCreateForm() {
+            var input = document.getElementById('createLongURL');
+            clearCreateValidation();
+            if (input) input.value = '';
+        }
+
+        // When the modal opens/closes, reset previous state and value
+        var modalEl = document.getElementById('createShortLink');
+        if (modalEl) {
+            modalEl.addEventListener('hidden.bs.modal', resetCreateForm);
+            modalEl.addEventListener('shown.bs.modal', resetCreateForm);
+        }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var submitBtn = form.querySelector('input[type="submit"][name="create"]');
+            var longURLInput = document.getElementById('createLongURL');
+            var feedbackEl = document.getElementById('createLongUrlFeedback');
+
+            // clear previous validation state
+            clearCreateValidation();
+
             try {
-                submitBtn && (submitBtn.disabled = true);
-                const fd = new FormData(form);
+                if (submitBtn) submitBtn.disabled = true;
+                var fd = new FormData(form);
                 fd.set('create', 'Create'); // ensure flag is present
 
-                const res = await fetch('/', {
+                fetch('/', {
                     method: 'POST',
                     body: fd
+                })
+                .then(function (res) {
+                    if (res.redirected || res.status === 303 || res.ok) {
+                        window.location.reload();
+                        return Promise.resolve();
+                    }
+                    return res.text().then(function (text) {
+                        var msg = (text || '').trim() || 'Failed to create short link.';
+                        if (feedbackEl) {
+                            feedbackEl.textContent = msg;
+                            feedbackEl.classList.add('d-block');
+                        }
+                        if (longURLInput) {
+                            longURLInput.classList.add('is-invalid');
+                            longURLInput.focus();
+                        }
+                    });
+                })
+                .catch(function () {
+                    if (feedbackEl) { feedbackEl.textContent = 'Network error while creating short link. Please try again.'; feedbackEl.classList.add('d-block'); }
+                    if (longURLInput) longURLInput.classList.add('is-invalid');
+                })
+                .finally(function () {
+                    if (submitBtn) submitBtn.disabled = false;
                 });
-
-                if (res.ok) {
-                    // Refresh the list and close the modal
-                    window.location.reload();
-                    return;
-                }
-
-                const text = await res.text();
-                // Show gateway error or a generic message
-                showCreateAlert('danger', text || 'Failed to create short link.');
-            } catch (err) {
-                showCreateAlert('danger', 'Network error while creating short link. Please try again.');
-            } finally {
-                submitBtn && (submitBtn.disabled = false);
+            } catch (_) {
+                // As a last resort, fall back to normal form submission
+                form.submit();
             }
         });
+
+        // Clear validation state when user edits input
+        var longURLInput2 = document.getElementById('createLongURL');
+        if (longURLInput2) {
+            longURLInput2.addEventListener('input', function () {
+                clearCreateValidation();
+            });
+        }
     })();
 </script>
 
