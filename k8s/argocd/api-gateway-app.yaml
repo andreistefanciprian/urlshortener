@@ -18,7 +18,7 @@ spec:
       values: |
         image:
           repository: andreistefanciprian/urlshortener-api-gateway
-          tag: latest@sha256:b0c7926d0dadf5c473dd76c18da3805d113944016c0f95040ef72682b79ef702
+          tag: latest@sha256:910245a156361b0d71466005e2af8b0ef0ee3bdbfcb7cf768abe4ad9f9e62a0b
         config:
           LOG_LEVEL: DEBUG
           URL_GEN_HOST: url-gen.url-gen.svc
