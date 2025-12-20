@@ -1,0 +1,53 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ .Values.gateway.name }}
+  namespace: {{ .Values.gateway.namespace }}
+spec:
+  gatewayClassName: {{ .Values.gateway.className | default .Values.gatewayClass.name }}
+  {{- if and .Values.gateway.addresses .Values.gateway.addresses.enabled }}
+  addresses:
+    - type: {{ .Values.gateway.addresses.type | default "IPAddress" }}
+      value: {{ .Values.gateway.addresses.value | quote }}
+  {{- end }}
+  listeners:
+    - name: https-api-gateway
+      protocol: HTTPS
+      port: 443
+      hostname: {{ .Values.gateway.hosts.apiGateway.hostname | quote }}
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: {{ .Values.certificates.apiGateway.name }}
+            namespace: {{ .Values.gateway.namespace }}
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: http-api-gateway
+      protocol: HTTP
+      port: 80
+      hostname: {{ .Values.gateway.hosts.apiGateway.hostname | quote }}
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: https-frontend
+      protocol: HTTPS
+      port: 443
+      hostname: {{ .Values.gateway.hosts.frontend.hostname | quote }}
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: {{ .Values.certificates.frontend.name }}
+            namespace: {{ .Values.gateway.namespace }}
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: http-frontend
+      protocol: HTTP
+      port: 80
+      hostname: {{ .Values.gateway.hosts.frontend.hostname | quote }}
+      allowedRoutes:
+        namespaces:
+          from: All

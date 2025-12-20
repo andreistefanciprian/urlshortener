@@ -1,0 +1,48 @@
+{{- if .Values.routes.apiGateway.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: api-gateway-route-http
+  namespace: {{ .Values.routes.apiGateway.namespace }}
+spec:
+  parentRefs:
+    - name: {{ .Values.gateway.name }}
+      namespace: {{ .Values.gateway.namespace }}
+      sectionName: http-api-gateway
+  hostnames:
+    - {{ .Values.routes.apiGateway.hostname | quote }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            port: 443
+            statusCode: 301
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: api-gateway-route-https
+  namespace: {{ .Values.routes.apiGateway.namespace }}
+spec:
+  parentRefs:
+    - name: {{ .Values.gateway.name }}
+      namespace: {{ .Values.gateway.namespace }}
+      sectionName: https-api-gateway
+  hostnames:
+    - {{ .Values.routes.apiGateway.hostname | quote }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+          method: GET
+      backendRefs:
+        - name: {{ .Values.routes.apiGateway.service.name }}
+          namespace: {{ .Values.routes.apiGateway.service.namespace }}
+          port: {{ .Values.routes.apiGateway.service.port }}
+{{- end }}

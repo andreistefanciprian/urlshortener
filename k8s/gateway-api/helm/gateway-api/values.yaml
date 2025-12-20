@@ -1,0 +1,62 @@
+# Default values for gateway-api chart.
+
+gatewayClass:
+  # name: envoy-gateway
+  # controllerName: gateway.envoyproxy.io/gatewayclass-controller
+  name: istio
+  controllerName: istio.io/gateway-controller
+
+gateway:
+  name: urlshortener-gateway
+  namespace: default
+  className: istio
+  addresses:
+    enabled: true
+    type: IPAddress
+    value: "34.151.140.241"
+  hosts:
+    apiGateway:
+      hostname: netl1.com
+    frontend:
+      hostname: app.netl1.com
+
+routes:
+  frontend:
+    enabled: true
+    namespace: frontend
+    hostname: app.netl1.com
+    service:
+      name: frontend
+      namespace: frontend
+      port: 8090
+  apiGateway:
+    enabled: true
+    namespace: api-gateway
+    hostname: netl1.com
+    service:
+      name: api-gateway
+      namespace: api-gateway
+      port: 8080
+
+certificates:
+  enabled: true
+  issuer:
+    name: googlecasclusterissuer
+    kind: GoogleCASClusterIssuer
+    group: cas-issuer.jetstack.io
+  apiGateway:
+    name: api-gateway-cert
+    dnsNames:
+      - netl1.com
+      - "*.netl1.com"
+  frontend:
+    name: frontend-cert
+    dnsNames:
+      - app.netl1.com
+
+referenceGrants:
+  enabled: true
+  gatewayName: urlshortener-gateway
+  gatewayNamespace: default
+  apiGatewayNamespace: api-gateway
+  frontendNamespace: frontend
