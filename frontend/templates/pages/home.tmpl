@@ -18,14 +18,15 @@
                 <h5 class="modal-title" id="createShortLinkLabel">Enter your destination URL</h5>
                 </div>
 
-                <form action="/" method="POST">
+                <form id="createShortLinkForm" action="/" method="POST">
                 <div class="modal-body">
 
-                    <div class="input-group mb-3">
+                    <div class="input-group has-validation mb-3">
                     <span class="input-group-text" id="basic-addon1">Long URL</span>
-                    <input type="text" class="form-control" placeholder="Long URL required" aria-label="longURL" aria-describedby="basic-addon1" name="longURL" required>
+                    <input id="createLongURL" type="text" class="form-control" placeholder="Long URL required" aria-label="longURL" aria-describedby="basic-addon1 createLongUrlFeedback" name="longURL" required>
+                    <div class="invalid-feedback" id="createLongUrlFeedback"></div>
                     </div>
-                
+
                 </div>
 
                 <div class="modal-footer">
@@ -82,5 +83,89 @@
     </tbody>
     </table>
 </div>
+
+<script>
+    // Intercept create form submit to display API-gateway validation messages using invalid-feedback
+    (function attachCreateHandler() {
+        var form = document.getElementById('createShortLinkForm');
+        if (!form) return;
+
+        // Cache DOM elements once
+        var modalEl = document.getElementById('createShortLink');
+        var longURLInput = document.getElementById('createLongURL');
+        var feedbackEl = document.getElementById('createLongUrlFeedback');
+        var submitBtn = form.querySelector('input[type="submit"][name="create"]');
+
+        // Helper to clear validation state (do not clear value)
+        function clearCreateValidation() {
+            if (longURLInput) longURLInput.classList.remove('is-invalid');
+            if (feedbackEl) { feedbackEl.textContent = ''; feedbackEl.classList.remove('d-block'); }
+        }
+
+        // Helper to fully reset the form (clear value + validation)
+        function resetCreateForm() {
+            clearCreateValidation();
+            if (longURLInput) longURLInput.value = '';
+        }
+
+        // When the modal closes, reset previous state and value
+        if (modalEl) {
+            modalEl.addEventListener('hidden.bs.modal', resetCreateForm);
+        }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // clear previous validation state
+            clearCreateValidation();
+
+            try {
+                if (submitBtn) submitBtn.disabled = true;
+                var fd = new FormData(form);
+                fd.set('create', 'Create'); // ensure flag is present
+
+                fetch('/', {
+                    method: 'POST',
+                    body: fd
+                })
+                .then(function (res) {
+                    // fetch follows redirects by default; res.redirected is sufficient
+                    if (res.redirected || res.ok) {
+                        window.location.reload();
+                        return; // no need to resolve; reload interrupts execution
+                    }
+                    return res.text().then(function (text) {
+                        var msg = (text || '').trim() || 'Failed to create short link.';
+                        if (feedbackEl) {
+                            feedbackEl.textContent = msg;
+                            feedbackEl.classList.add('d-block');
+                        }
+                        if (longURLInput) {
+                            longURLInput.classList.add('is-invalid');
+                            longURLInput.focus();
+                        }
+                    });
+                })
+                .catch(function () {
+                    if (feedbackEl) { feedbackEl.textContent = 'Network error while creating short link. Please try again.'; feedbackEl.classList.add('d-block'); }
+                    if (longURLInput) longURLInput.classList.add('is-invalid');
+                })
+                .finally(function () {
+                    if (submitBtn) submitBtn.disabled = false;
+                });
+            } catch (_) {
+                // As a last resort, fall back to normal form submission
+                if (submitBtn) submitBtn.disabled = false;
+            }
+        });
+
+        // Clear validation state when user edits input
+        if (longURLInput) {
+            longURLInput.addEventListener('input', function () {
+                clearCreateValidation();
+            });
+        }
+    })();
+</script>
 
 {{end}}
