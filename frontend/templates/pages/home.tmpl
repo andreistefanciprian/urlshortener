@@ -23,7 +23,7 @@
 
                     <div class="input-group has-validation mb-3">
                     <span class="input-group-text" id="basic-addon1">Long URL</span>
-                    <input id="createLongURL" type="text" class="form-control" placeholder="Long URL required" aria-label="longURL" aria-describedby="basic-addon1" name="longURL" required>
+                    <input id="createLongURL" type="text" class="form-control" placeholder="Long URL required" aria-label="longURL" aria-describedby="basic-addon1 createLongUrlFeedback" name="longURL" required>
                     <div class="invalid-feedback" id="createLongUrlFeedback"></div>
                     </div>
 
@@ -90,33 +90,31 @@
         var form = document.getElementById('createShortLinkForm');
         if (!form) return;
 
+        // Cache DOM elements once
+        var modalEl = document.getElementById('createShortLink');
+        var longURLInput = document.getElementById('createLongURL');
+        var feedbackEl = document.getElementById('createLongUrlFeedback');
+        var submitBtn = form.querySelector('input[type="submit"][name="create"]');
+
         // Helper to clear validation state (do not clear value)
         function clearCreateValidation() {
-            var input = document.getElementById('createLongURL');
-            var fb = document.getElementById('createLongUrlFeedback');
-            if (input) input.classList.remove('is-invalid');
-            if (fb) { fb.textContent = ''; fb.classList.remove('d-block'); }
+            if (longURLInput) longURLInput.classList.remove('is-invalid');
+            if (feedbackEl) { feedbackEl.textContent = ''; feedbackEl.classList.remove('d-block'); }
         }
 
         // Helper to fully reset the form (clear value + validation)
         function resetCreateForm() {
-            var input = document.getElementById('createLongURL');
             clearCreateValidation();
-            if (input) input.value = '';
+            if (longURLInput) longURLInput.value = '';
         }
 
-        // When the modal opens/closes, reset previous state and value
-        var modalEl = document.getElementById('createShortLink');
+        // When the modal closes, reset previous state and value
         if (modalEl) {
             modalEl.addEventListener('hidden.bs.modal', resetCreateForm);
-            modalEl.addEventListener('shown.bs.modal', resetCreateForm);
         }
 
         form.addEventListener('submit', function (e) {
             e.preventDefault();
-            var submitBtn = form.querySelector('input[type="submit"][name="create"]');
-            var longURLInput = document.getElementById('createLongURL');
-            var feedbackEl = document.getElementById('createLongUrlFeedback');
 
             // clear previous validation state
             clearCreateValidation();
@@ -131,9 +129,10 @@
                     body: fd
                 })
                 .then(function (res) {
-                    if (res.redirected || res.status === 303 || res.ok) {
+                    // fetch follows redirects by default; res.redirected is sufficient
+                    if (res.redirected || res.ok) {
                         window.location.reload();
-                        return Promise.resolve();
+                        return; // no need to resolve; reload interrupts execution
                     }
                     return res.text().then(function (text) {
                         var msg = (text || '').trim() || 'Failed to create short link.';
@@ -156,14 +155,13 @@
                 });
             } catch (_) {
                 // As a last resort, fall back to normal form submission
-                form.submit();
+                if (submitBtn) submitBtn.disabled = false;
             }
         });
 
         // Clear validation state when user edits input
-        var longURLInput2 = document.getElementById('createLongURL');
-        if (longURLInput2) {
-            longURLInput2.addEventListener('input', function () {
+        if (longURLInput) {
+            longURLInput.addEventListener('input', function () {
                 clearCreateValidation();
             });
         }
