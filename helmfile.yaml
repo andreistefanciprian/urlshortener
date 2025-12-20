@@ -154,6 +154,8 @@ releases:
       # Override default values if needed
       - name: config.LOG_LEVEL
         value: DEBUG
+      - name: config.DOMAIN_NAME
+        value: "netl1.com"
       - name: config.URL_GEN_HOST
         value: url-gen.url-gen.svc
       - name: config.URL_READ_HOST

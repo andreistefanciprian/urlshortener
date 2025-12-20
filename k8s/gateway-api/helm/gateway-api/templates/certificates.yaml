@@ -1,0 +1,29 @@
+{{- if .Values.certificates.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.certificates.apiGateway.name }}
+  namespace: {{ .Values.gateway.namespace }}
+spec:
+  secretName: {{ .Values.certificates.apiGateway.name }}
+  issuerRef:
+    name: {{ .Values.certificates.issuer.name }}
+    kind: {{ .Values.certificates.issuer.kind }}
+    group: {{ .Values.certificates.issuer.group }}
+  dnsNames:
+{{ toYaml .Values.certificates.apiGateway.dnsNames | indent 2 }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.certificates.frontend.name }}
+  namespace: {{ .Values.gateway.namespace }}
+spec:
+  secretName: {{ .Values.certificates.frontend.name }}
+  issuerRef:
+    name: {{ .Values.certificates.issuer.name }}
+    kind: {{ .Values.certificates.issuer.kind }}
+    group: {{ .Values.certificates.issuer.group }}
+  dnsNames:
+{{ toYaml .Values.certificates.frontend.dnsNames | indent 2 }}
+{{- end }}

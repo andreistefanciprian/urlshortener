@@ -1,0 +1,6 @@
+apiVersion: v2
+name: gateway-api
+description: Helm chart for Kubernetes Gateway API resources (GatewayClass, Gateway, HTTPRoutes, Certificates, ReferenceGrants)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

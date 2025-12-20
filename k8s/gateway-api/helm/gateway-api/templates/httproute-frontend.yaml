@@ -1,0 +1,47 @@
+{{- if .Values.routes.frontend.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: frontend-route-http
+  namespace: {{ .Values.routes.frontend.namespace }}
+spec:
+  parentRefs:
+    - name: {{ .Values.gateway.name }}
+      namespace: {{ .Values.gateway.namespace }}
+      sectionName: http-frontend
+  hostnames:
+    - {{ .Values.routes.frontend.hostname | quote }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            port: 443
+            statusCode: 301
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: frontend-route-https
+  namespace: {{ .Values.routes.frontend.namespace }}
+spec:
+  parentRefs:
+    - name: {{ .Values.gateway.name }}
+      namespace: {{ .Values.gateway.namespace }}
+      sectionName: https-frontend
+  hostnames:
+    - {{ .Values.routes.frontend.hostname | quote }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: {{ .Values.routes.frontend.service.name }}
+          namespace: {{ .Values.routes.frontend.service.namespace }}
+          port: {{ .Values.routes.frontend.service.port }}
+{{- end }}
