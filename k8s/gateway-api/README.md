@@ -22,11 +22,12 @@ kubectl get gateway urlshortener-gateway -n default -o yaml | yq '.status.addres
 - Optional: update Route 53 DNS:
 ```
 # Get public IP address of the Gateway
-kubectl  get gateway
+kubectl get gateway
 
+# Example: replace 1.2.3.4 with your Gateway's public IP
 NEW_IP=<1.2.3.4> bash k8s/gateway-api/update-route53.sh
 ```
-	- Requires AWS CLI configured; you can override `HOSTED_ZONE_ID`, `ROOT_DOMAIN`, and `APP_DOMAIN` if needed.
+- Requires AWS CLI configured; set `HOSTED_ZONE_ID`, `ROOT_DOMAIN`, and `APP_DOMAIN` environment variables.
 
 ## Prerequisites
 
