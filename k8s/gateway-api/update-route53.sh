@@ -8,7 +8,7 @@ set -euo pipefail
 
 # ----- Config -----
 HOSTED_ZONE_ID=${HOSTED_ZONE_ID:-"Z01644512M7PVAKK2E83U"}
-NEW_IP=${NEW_IP:-"34.40.158.236"}
+NEW_IP=${NEW_IP:-"1.2.3.4"}
 ROOT_DOMAIN=${ROOT_DOMAIN:-"netl1.com"}
 APP_DOMAIN=${APP_DOMAIN:-"app.netl1.com"}
 TTL=${TTL:-60}
