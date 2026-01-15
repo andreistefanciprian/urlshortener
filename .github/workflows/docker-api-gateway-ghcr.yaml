@@ -39,16 +39,7 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: '1.25.1'
-
-      - name: Cache Go modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('api-gateway/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+          cache-dependency-path: api-gateway/go.sum
 
       - name: Install dependencies
         working-directory: ./api-gateway
