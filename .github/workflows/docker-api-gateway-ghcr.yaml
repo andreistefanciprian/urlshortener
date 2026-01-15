@@ -1,5 +1,6 @@
-name: api-gateway image build and push to GHCR
+name: API Gateway - Build & Push to GHCR
 
+# Trigger conditions
 on:
   push:
     tags:
@@ -11,23 +12,27 @@ on:
       - 'api-gateway/**/*.go'
       - 'api-gateway/infra/Dockerfile'
       - '.github/workflows/docker-api-gateway-ghcr.yaml'
+  
   pull_request:
-    branches: [ 'main' ]
+    branches:
+      - 'main'
     paths:
       - 'api-gateway/go.*'
       - 'api-gateway/**/*.go'
       - 'api-gateway/infra/Dockerfile'
       - '.github/workflows/docker-api-gateway-ghcr.yaml'
+  
   workflow_dispatch:
-  
-permissions:
-  contents: read
-  id-token: write
-  attestations: write
-  packages: write
-  
-jobs:
 
+# Required permissions
+permissions:
+  contents: read        # Read repository contents
+  id-token: write       # Generate OIDC tokens
+  attestations: write   # Create attestations
+  packages: write       # Push to GHCR
+
+jobs:
+  # Run unit tests
   unit-tests:
     runs-on: ubuntu-latest
     steps:
@@ -48,6 +53,7 @@ jobs:
         working-directory: ./api-gateway
         run: go test -v ./cmd
 
+  # Generate unique build identifier
   generate-build-id:
     needs: [unit-tests]
     runs-on: ubuntu-latest
@@ -65,17 +71,25 @@ jobs:
           ts=$(date +%s)
           echo "BUILD_ID=${branch}-${sha}-${ts}" >> $GITHUB_OUTPUT
 
+  # Build, scan, sign, and push Docker image to GHCR
   docker:
     needs: [generate-build-id]
     uses: andreistefanciprian/gh-reusable-workflows/.github/workflows/build_and_push_docker_image_to_ghcr.yaml@ghcr_attest_and_sbom
     with:
+      # Image configuration
       image_name: ghcr.io/andreistefanciprian/api-gateway
       image_tag: ${{ needs.generate-build-id.outputs.BUILD_ID }}
       file: api-gateway/infra/Dockerfile
       context: ./api-gateway
+      
+      # Tagging options
       push_latest: ${{ github.ref == 'refs/heads/main' }}
+      
+      # Security scanning
       scan_severity: CRITICAL,HIGH
       ignore_unfixed: true
+      
+      # Signing and attestation
       cosign_sign: true
       cosign_attest_sbom: true
     secrets: inherit
