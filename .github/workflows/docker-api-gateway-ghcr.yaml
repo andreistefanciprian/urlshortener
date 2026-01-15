@@ -10,14 +10,14 @@ on:
       - 'api-gateway/go.*'
       - 'api-gateway/**/*.go'
       - 'api-gateway/infra/Dockerfile'
-      - '.github/workflows/docker-api-gateway.yaml'
+      - '.github/workflows/docker-api-gateway-ghcr.yaml'
   pull_request:
     branches: [ 'main' ]
     paths:
       - 'api-gateway/go.*'
       - 'api-gateway/**/*.go'
       - 'api-gateway/infra/Dockerfile'
-      - '.github/workflows/docker-api-gateway.yaml'
+      - '.github/workflows/docker-api-gateway-ghcr.yaml'
   workflow_dispatch:
   
 permissions:
