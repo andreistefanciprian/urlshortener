@@ -1,10 +1,10 @@
 module github.com/andreistefanciprian/urlshortener/frontend
 
-go 1.25.1
+go 1.25.5
 
 require (
-	github.com/sirupsen/logrus v1.9.3
-	google.golang.org/protobuf v1.36.10
+	github.com/sirupsen/logrus v1.9.4
+	google.golang.org/protobuf v1.36.11
 )
 
-require golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
+require golang.org/x/sys v0.13.0 // indirect
