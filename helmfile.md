@@ -1,101 +1,82 @@
-# URL Shortener — Helmfile for manual deployment only (short notes)
+# URL Shortener - Helmfile Deployment
 
-## Deploy
+## Setup
+
+### 1. Create Kind Cluster
 ```bash
-# deploy db secrets prior to db creation
-kubectl create namespace postgres --dry-run=client -o yaml | kubectl apply -f -
-
-kubectl -n postgres create secret generic pg-creds \
---from-literal=admin-password='postgres' \
---from-literal=user-password='Auth123' \
---from-literal=replication-password='postgres' \
---dry-run=client -o yaml | kubectl apply -f -
-
-kubectl -n postgres create -f- <<EOF
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: db-init-sql-2
-data:
-  init.sql: |
-    -- Connect to urls database
-    \c urls;
-
-    -- Create table
-    CREATE TABLE IF NOT EXISTS short_links (
-        code          VARCHAR(16) PRIMARY KEY,
-        original_url  TEXT        NOT NULL,
-        created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
-        expires_at    TIMESTAMPTZ NULL
-    );
+kind create cluster --name urlshortener --config - <<EOF
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+- role: worker
 EOF
 
-kubectl create namespace url-gen --dry-run=client -o yaml | kubectl apply -f -
-kubectl -n url-gen create secret generic redis-creds \
-	--from-literal=redis-password='redispassword' \
-	--dry-run=client -o yaml | kubectl apply -f -
-
-kubectl -n url-gen create secret generic pg-creds \
---from-literal=user-password='Auth123' \
---dry-run=client -o yaml | kubectl apply -f -
-
-kubectl create namespace url-read --dry-run=client -o yaml | kubectl apply -f -
-kubectl -n url-read create secret generic redis-creds \
-	--from-literal=redis-password='redispassword' \
-	--dry-run=client -o yaml | kubectl apply -f -
-
-kubectl create namespace url-read --dry-run=client -o yaml | kubectl apply -f -
-kubectl -n url-read create secret generic pg-creds \
---from-literal=user-password='Auth123' \
---dry-run=client -o yaml | kubectl apply -f -
-
-kubectl create namespace redis --dry-run=client -o yaml | kubectl apply -f -
-kubectl -n redis create secret generic redis-creds \
-	--from-literal=redis-password='redispassword' \
-	--dry-run=client -o yaml | kubectl apply -f -
-
-# deploy all services
-helmfile sync
-kubectl -n postgres get pods
-kubectl -n default  get pods
+kubectl cluster-info && kubectl get nodes
 ```
 
-## Db commands
+### 2. Configure Local DNS
 ```bash
-# one command
-kubectl run pg-client --namespace default --image=postgres:18-alpine --restart=Never --rm -it --env PGPASSWORD=postgres -- psql -h pg-postgresql.postgres.svc -p 5432 -U postgres -d urls -c "SELECT * FROM short_links;"
-
-# or interactive prompt
-kubectl run pg-client --namespace default --image=postgres:18-alpine --restart=Never --rm -it --env PGPASSWORD=postgres -- bash
-psql -h pg-postgresql -p 5432 -U postgres
-# other postgresql commands
-\l
-\du
-\c urls
-\dt
-\q
-exit
-
+# Add to /etc/hosts for l.it domain resolution
+echo "127.0.0.1 l.it" | sudo tee -a /etc/hosts
 ```
 
-## Port-forward
+### 3. Deploy Services
 ```bash
-kubectl -n default port-forward svc/api-gateway 8080:8080
-kubectl -n default port-forward svc/frontend    8090:8090
-# UI: http://localhost:8090 (short URLs resolve via :8080)
+# Create secrets
+bash helmfile-secrets.sh
+
+# Deploy all
+helmfile sync && kubectl -A get pods
+
+# Deploy single service
+helmfile -l name=api-gateway apply
+
+# Check status
+helmfile list
+helmfile -l name=api-gateway status
 ```
 
-## Logs & status
+## Operations
+
+### Port Forward
 ```bash
-kubectl -n default  get pods,svc
-kubectl -n postgres get pods,svc
-kubectl -n default logs -l app.kubernetes.io/name=api-gateway -f
-kubectl -n default logs -l app.kubernetes.io/name=frontend -f
-kubectl -n default logs -l app.kubernetes.io/name=url-read -f
-kubectl -n default logs -l app.kubernetes.io/name=url-gen -f
+sudo kubectl -n api-gateway port-forward svc/api-gateway 80:8080
+kubectl -n frontend port-forward svc/frontend 8090:8090
+# Access: http://localhost:8090
 ```
 
-## Destroy
+### Restart Service
+```bash
+# Via Helmfile
+helmfile -l name=api-gateway destroy && helmfile -l name=api-gateway apply
+
+# Via kubectl
+kubectl rollout restart deployment api-gateway -n api-gateway
+```
+
+### Database Access
+```bash
+# Quick query
+kubectl run pg-client --rm -it --image=postgres:18-alpine --env PGPASSWORD=postgres -- \
+  psql -h pg-postgresql.postgres.svc -U postgres -d urls -c "SELECT * FROM short_links;"
+
+# Interactive session
+kubectl run pg-client --rm -it --image=postgres:18-alpine --env PGPASSWORD=postgres -- bash
+# Then: psql -h pg-postgresql.postgres.svc -U postgres -d urls
+```
+
+### Logs
+```bash
+kubectl -A get pods,svc
+kubectl -n api-gateway logs -l app.kubernetes.io/name=api-gateway -f
+kubectl -n frontend logs -l app.kubernetes.io/name=frontend -f
+kubectl -n url-gen logs -l app.kubernetes.io/name=url-gen -f
+kubectl -n url-read logs -l app.kubernetes.io/name=url-read -f
+```
+
+## Cleanup
 ```bash
 helmfile destroy
+kind delete cluster --name urlshortener
 ```

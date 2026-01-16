@@ -89,6 +89,10 @@ releases:
       - ./url-gen/infra/url-gen/values.yaml
     set:
       # Override default values if needed
+      - name: image.repository
+        value: ghcr.io/andreistefanciprian/url-gen
+      - name: image.tag
+        value: latest
       - name: config.LOG_LEVEL
         value: DEBUG
       - name: config.DB_HOST
@@ -120,6 +124,10 @@ releases:
     values:
       - ./url-read/infra/url-read/values.yaml
     set:
+      - name: image.repository
+        value: ghcr.io/andreistefanciprian/url-read
+      - name: image.tag
+        value: latest
       - name: config.DB_USER
         value: url_gen_user
       - name: config.LOG_LEVEL
@@ -152,10 +160,14 @@ releases:
       - ./api-gateway/infra/api-gateway/values.yaml
     set:
       # Override default values if needed
+      - name: image.repository
+        value: ghcr.io/andreistefanciprian/api-gateway
+      - name: image.tag
+        value: latest
       - name: config.LOG_LEVEL
         value: DEBUG
       - name: config.DOMAIN_NAME
-        value: "netl1.com"
+        value: "l.it"
       - name: config.URL_GEN_HOST
         value: url-gen.url-gen.svc
       - name: config.URL_READ_HOST
@@ -183,6 +195,10 @@ releases:
       - ./frontend/infra/frontend/values.yaml
     set:
       # Override default values if needed
+      - name: image.repository
+        value: ghcr.io/andreistefanciprian/frontend
+      - name: image.tag
+        value: latest
       - name: config.LOG_LEVEL
         value: DEBUG
       - name: config.BACKEND_HOST
