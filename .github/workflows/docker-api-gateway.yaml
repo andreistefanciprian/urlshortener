@@ -76,7 +76,7 @@ jobs:
 
   docker:
     needs: [generate-build-id]
-    uses: andreistefanciprian/gh-reusable-workflows/.github/workflows/build_and_push_docker_image_to_dockerhub.yaml@main
+    uses: andreistefanciprian/gh-reusable-workflows/.github/workflows/build_and_push_docker_image_to_dockerhub.yaml@improve_signed_images
     with:
       image_name: andreistefanciprian/urlshortener-api-gateway
       image_tag: ${{ needs.generate-build-id.outputs.BUILD_ID }}
