@@ -11,7 +11,7 @@ on:
       - 'api-gateway/go.*'
       - 'api-gateway/**/*.go'
       - 'api-gateway/infra/Dockerfile'
-      - '.github/workflows/docker-api-gateway-ghcr.yaml'
+      - '.github/workflows/ghcr-api-gateway.yaml'
   
   pull_request:
     branches:
@@ -20,7 +20,7 @@ on:
       - 'api-gateway/go.*'
       - 'api-gateway/**/*.go'
       - 'api-gateway/infra/Dockerfile'
-      - '.github/workflows/docker-api-gateway-ghcr.yaml'
+      - '.github/workflows/ghcr-api-gateway.yaml'
   
   workflow_dispatch:
 
