@@ -1,0 +1,44 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: verify-api-gateway-signature
+  annotations:
+    policies.kyverno.io/title: Verify api gateway image signature
+    policies.kyverno.io/category: Software Supply Chain Security
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/subject: Pod
+
+spec:
+  validationFailureAction: Audit
+  background: false
+  webhookTimeoutSeconds: 30
+  failurePolicy: Fail
+  rules:
+    - name: verify-api-gateway
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - api-gateway
+      verifyImages:
+      - imageReferences:
+        - "ghcr.io/andreistefanciprian/*"
+        verifyDigest: false
+        required: false
+        mutateDigest: false
+        repository: "ghcr.io/andreistefanciprian/cosign-signatures"
+        imageRegistryCredentials:
+          allowInsecureRegistry: false
+          secrets:
+            - ghcr-credentials
+        attestors:
+        - entries:
+          - keyless:
+              issuer: "https://token.actions.githubusercontent.com"
+              # subjectRegExp: "https://github.com/andreistefanciprian/urlshortener/.github/workflows/ghcr-api-gateway.yaml@.+"
+              # subjectRegExp: "andreistefanciprian/gh-reusable-workflows/.github/workflows/build_and_push_docker_image_to_ghcr.yaml@76189204fa61d11700e243d207bcf2f11a10a9c6"
+              subjectRegExp: https://github\.com/.+
+              rekor:
+                url: https://rekor.sigstore.dev
