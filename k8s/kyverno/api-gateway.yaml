@@ -1,0 +1,130 @@
+# API Gateway Kubernetes Manifests
+---
+# Source: api-gateway/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: api-gateway
+  labels:
+    helm.sh/chart: api-gateway-0.1.0
+    app.kubernetes.io/name: api-gateway
+    app.kubernetes.io/instance: api-gateway
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: api-gateway
+      app.kubernetes.io/instance: api-gateway
+  template:
+    metadata:
+      annotations:
+        # Force restart on config changes
+        checksum/config: efd11ae93495e25e11324324334b3696fca37334ceafd08e5b237b02f4d2ba1d
+      labels:
+        app.kubernetes.io/name: api-gateway
+        app.kubernetes.io/instance: api-gateway
+    spec:
+      serviceAccountName: api-gateway
+      imagePullSecrets:
+        - name: ghcr-credentials
+      securityContext: {}
+      containers:
+        - name: api-gateway
+          securityContext: {}
+          image: "ghcr.io/andreistefanciprian/api-gateway@sha256:85e8cac56373c239db87cb5279501f4479781411f54928b85c72a488c57bc558"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+          
+          # Load configuration from ConfigMap
+          envFrom:
+            - configMapRef:
+                name: api-gateway-config
+          
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources: {}
+# ---
+# # Source: api-gateway/templates/serviceaccount.yaml
+# apiVersion: v1
+# kind: ServiceAccount
+# metadata:
+#   name: api-gateway
+#   namespace: api-gateway
+#   labels:
+#     helm.sh/chart: api-gateway-0.1.0
+#     app.kubernetes.io/name: api-gateway
+#     app.kubernetes.io/instance: api-gateway
+#     app.kubernetes.io/version: "1.16.0"
+#     app.kubernetes.io/managed-by: Helm
+
+# ---
+# # Source: api-gateway/templates/configmap.yaml
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: api-gateway-config
+#   namespace: api-gateway
+#   labels:
+#     helm.sh/chart: api-gateway-0.1.0
+#     app.kubernetes.io/name: api-gateway
+#     app.kubernetes.io/instance: api-gateway
+#     app.kubernetes.io/version: "1.16.0"
+#     app.kubernetes.io/managed-by: Helm
+# data:
+#   API_GATEWAY_PORT: "8080"
+#   DOMAIN_NAME: "l.it"
+#   LOG_LEVEL: "DEBUG"
+#   METRICS_PORT: "9090"
+#   URL_GEN_HOST: "url-gen.url-gen.svc"
+#   URL_GEN_PORT: "50052"
+#   URL_READ_HOST: "url-read.url-read.svc"
+#   URL_READ_PORT: "50053"
+
+# ---
+# # Source: api-gateway/templates/service.yaml
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: api-gateway
+#   namespace: api-gateway
+#   labels:
+#     helm.sh/chart: api-gateway-0.1.0
+#     app.kubernetes.io/name: api-gateway
+#     app.kubernetes.io/instance: api-gateway
+#     app.kubernetes.io/version: "1.16.0"
+#     app.kubernetes.io/managed-by: Helm
+# spec:
+#   type: ClusterIP
+#   ports:
+#     - port: 8080
+#       targetPort: http
+#       protocol: TCP
+#       name: http
+#     - port: 9090
+#       targetPort: metrics
+#       protocol: TCP
+#       name: metrics
+#   selector:
+#     app.kubernetes.io/name: api-gateway
+#     app.kubernetes.io/instance: api-gateway
+
+
