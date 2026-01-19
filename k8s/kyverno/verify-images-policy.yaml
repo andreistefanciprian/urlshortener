@@ -8,6 +8,8 @@ metadata:
     policies.kyverno.io/severity: high
     policies.kyverno.io/subject: Pod
 spec:
+  # For the policy to actually block unsigned images as documented, this should be set to Enforce
+  # validationFailureAction: Enforce
   validationFailureAction: Audit
   background: false
   webhookTimeoutSeconds: 30
@@ -21,6 +23,9 @@ spec:
                 - Pod
               namespaces:
                 - api-gateway
+                - frontend
+                - url-gen
+                - url-read
       verifyImages:
       - imageReferences:
         - "ghcr.io/andreistefanciprian/api-gateway*"
