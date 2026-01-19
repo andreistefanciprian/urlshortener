@@ -45,6 +45,6 @@ spec:
           - keyless:
               issuer: "https://token.actions.githubusercontent.com"
               # subjectRegExp: https://github\.com/andreistefanciprian/.+
-              subject: "https://github.com/andreistefanciprian/gh-reusable-workflows/.github/workflows/build_and_push_docker_image_to_ghcr.yaml@main"
+              subject: "https://github.com/andreistefanciprian/gh-reusable-workflows/.github/workflows/build_and_push_docker_image_to_ghcr.yaml@4edccbae4a1d9429acaf5face1acb5126d0d96c1"
               rekor:
                 url: https://rekor.sigstore.dev
