@@ -10,7 +10,7 @@ metadata:
 spec:
   # For the policy to actually block unsigned images as documented, this should be set to Enforce
   # validationFailureAction: Enforce
-  validationFailureAction: Audit
+  validationFailureAction: Audit  # only logs violations
   background: false
   webhookTimeoutSeconds: 30
   failurePolicy: Fail

@@ -45,10 +45,10 @@ kubectl get policyreport -A
 
 ```bash
 # Try deploying unsigned image (should fail)
-kubectl run test --image=ghcr.io/andreistefanciprian/api-gateway:<SHA256_DIGEST> -n api-gateway
+kubectl run test --image=ghcr.io/andreistefanciprian/api-gateway:<UNSIGNED_SHA256_DIGEST> -n api-gateway
 
 # Deploy signed image (should succeed)
-kubectl run test --image=ghcr.io/andreistefanciprian/api-gateway:<SHA256_DIGEST> -n api-gateway
+kubectl run test --image=ghcr.io/andreistefanciprian/api-gateway:<SIGNED_SHA256_DIGEST> -n api-gateway
 # or
 helmfile -l name=api-gateway apply
 ```
@@ -67,11 +67,11 @@ kubectl logs -n kyverno -l app.kubernetes.io/name=kyverno -f
 
 # Verify with cosign cli
 export COSIGN_REPOSITORY=ghcr.io/andreistefanciprian/cosign-signatures
-cosign triangulate ghcr.io/andreistefanciprian/api-gateway@sha256:<SHA256_DIGEST>
+cosign triangulate ghcr.io/andreistefanciprian/api-gateway@sha256:<SIGNED_SHA256_DIGEST>
 cosign verify \
 --certificate-identity-regexp "https://github.com/andreistefanciprian/.+" \
 --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-ghcr.io/andreistefanciprian/api-gateway:latest@sha256:<SHA256_DIGEST>
+ghcr.io/andreistefanciprian/api-gateway:latest@sha256:<SIGNED_SHA256_DIGEST>
 ```
 
 ## Notes
