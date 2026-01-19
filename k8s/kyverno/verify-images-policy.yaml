@@ -33,7 +33,7 @@ spec:
         - "ghcr.io/andreistefanciprian/url-read*"
         - "ghcr.io/andreistefanciprian/frontend*"
         verifyDigest: false
-        required: false
+        required: true
         mutateDigest: false
         repository: "ghcr.io/andreistefanciprian/cosign-signatures"
         imageRegistryCredentials:
