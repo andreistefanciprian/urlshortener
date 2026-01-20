@@ -1,16 +1,16 @@
 # Kyverno Image Verification Policies
 
-This directory contains Kyverno policies to enforce image signature verification for the URL Shortener microservices.
+This directory contains Kyverno policy to enforce image signature and SBOM attestation verification for the URL Shortener microservices.
 
 ## Policies
 
 ### verify-images-policy.yaml
-Verifies that all container images from `ghcr.io/andreistefanciprian` are signed with cosign using keyless signing (GitHub Actions OIDC).
+Verifies that all container images from `ghcr.io/andreistefanciprian` are:
+- **Signed** with cosign using keyless signing (GitHub Actions OIDC)
+- **Attested** with SBOM (SPDX format) using keyless attestation
 
 **Enforcement**: 
 - Blocks unsigned images from being deployed
-- Validates signatures against Sigstore/Rekor transparency log
-- Verifies GitHub Actions as the trusted issuer
 
 **Namespaces covered**:
 - `api-gateway`
@@ -36,9 +36,6 @@ kubectl apply -f k8s/kyverno/verify-images-policy.yaml
 
 # Verify policy is active
 kubectl get clusterpolicy verify-urlshortener-images
-
-# Check policy reports
-kubectl get policyreport -A
 ```
 
 ## Testing
@@ -49,34 +46,29 @@ kubectl run test --image=ghcr.io/andreistefanciprian/api-gateway:<UNSIGNED_SHA25
 
 # Deploy signed image (should succeed)
 kubectl run test --image=ghcr.io/andreistefanciprian/api-gateway:<SIGNED_SHA256_DIGEST> -n api-gateway
-# or
-helmfile -l name=api-gateway apply
-```
 
-## Troubleshooting
-
-```bash
-# Check policy status
-kubectl describe clusterpolicy verify-urlshortener-images
-
-# View admission events
-kubectl get events -A --sort-by='.lastTimestamp' | grep -i kyverno
+# Check policy reports and events
+kubectl get policyreport -A
+kubectl describe clusterpolicy verify-api-gateway-signature | grep Events -A 10
 
 # Check Kyverno logs
 kubectl logs -n kyverno -l app.kubernetes.io/name=kyverno -f
+```
 
-# Verify with cosign cli
+## Check image via cosign cli
+
+```bash
+# Verify signature with cosign cli
 export COSIGN_REPOSITORY=ghcr.io/andreistefanciprian/cosign-signatures
 cosign triangulate ghcr.io/andreistefanciprian/api-gateway@sha256:<SIGNED_SHA256_DIGEST>
 cosign verify \
 --certificate-identity-regexp "https://github.com/andreistefanciprian/.+" \
 --certificate-oidc-issuer https://token.actions.githubusercontent.com \
 ghcr.io/andreistefanciprian/api-gateway:latest@sha256:<SIGNED_SHA256_DIGEST>
+
+# Verify SBOM attestation
+cosign verify-attestation --type spdxjson \
+--certificate-identity-regexp "https://github.com/andreistefanciprian/.+" \
+--certificate-oidc-issuer https://token.actions.githubusercontent.com \
+ghcr.io/andreistefanciprian/api-gateway@sha256:<SIGNED_SHA256_DIGEST>
 ```
-
-## Notes
-
-- Uses **keyless signing** with GitHub Actions OIDC tokens
-- Validates against **Sigstore Rekor** transparency log
-- **No keys required** - verification based on OIDC identity
-- Failure policy is set to **Fail** - unsigned images are rejected
