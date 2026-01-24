@@ -23,6 +23,11 @@ func main() {
 	frontend := http.NewServeMux()
 	frontend.HandleFunc("GET /", frontendApp.home)
 	frontend.HandleFunc("POST /", frontendApp.home)
+	// Add healthcheck endpoint for Kubernetes probes
+	frontend.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
+		logger.Debug("Health check: system is healthy")
+		w.WriteHeader(http.StatusOK)
+	})
 	// Add favicon handler to prevent unnecessary requests
 	frontend.HandleFunc("GET /favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)

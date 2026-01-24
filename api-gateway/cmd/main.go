@@ -77,6 +77,11 @@ func main() {
 	// Set up main server
 	apiPort := getEnvAsIntOrDefault("API_GATEWAY_PORT", 8080)
 	api := http.NewServeMux()
+	// Add healthcheck endpoint for Kubernetes probes (must be before /{shortCode} catch-all)
+	api.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
+		logger.Debug("Health check: system is healthy")
+		w.WriteHeader(http.StatusOK)
+	})
 	api.HandleFunc("POST /create", urlGateway.CreateShortURL)
 	api.HandleFunc("GET /{shortCode}", urlGateway.GetLongURL)
 	api.HandleFunc("DELETE /{shortCode}", urlGateway.DeleteShortURL)

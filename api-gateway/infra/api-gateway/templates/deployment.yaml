@@ -51,19 +51,18 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "api-gateway.fullname" . }}-config
-          
+          {{- with .Values.livenessProbe }}
           livenessProbe:
-            httpGet:
-              path: /metrics
-              port: metrics
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
           readinessProbe:
-            httpGet:
-              path: /metrics
-              port: metrics
-            initialDelaySeconds: 5
-            periodSeconds: 5
+            {{- toYaml . | nindent 12 }}
+          {{- end }}          
+          {{- with .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
