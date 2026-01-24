@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -201,5 +202,41 @@ func (app *FrontendApp) home(w http.ResponseWriter, r *http.Request) {
 		}
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
+	}
+}
+
+// health is an HTTP handler for Kubernetes liveness probes.
+// A liveness probe checks if the pod is alive and should be restarted if failing.
+// This handler only verifies that the frontend service itself is running.
+func (app *FrontendApp) health(w http.ResponseWriter, r *http.Request) {
+	app.logger.Debug("Liveness probe: frontend is healthy")
+	w.WriteHeader(http.StatusOK)
+}
+
+// ready is an HTTP handler for Kubernetes readiness probes.
+// A readiness probe checks if the pod is ready to accept traffic.
+// This handler verifies that the API Gateway backend is accessible and responsive.
+func (app *FrontendApp) ready(w http.ResponseWriter, r *http.Request) {
+	// Create a client with timeout for readiness check
+	client := &http.Client{
+		Timeout: 2 * time.Second,
+	}
+
+	// Check if backend health endpoint is reachable
+	resp, err := client.Get(app.backendUrl + "/health")
+	if err != nil {
+		app.logger.Warnf("Readiness probe failed: unable to reach backend at %s: %v", app.backendUrl, err)
+		w.WriteHeader(http.StatusServiceUnavailable)
+		return
+	}
+	defer resp.Body.Close()
+
+	// Only consider 2xx status codes as ready
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		app.logger.Debug("Readiness probe: backend is ready")
+		w.WriteHeader(http.StatusOK)
+	} else {
+		app.logger.Warnf("Readiness probe failed: backend returned status %d", resp.StatusCode)
+		w.WriteHeader(http.StatusServiceUnavailable)
 	}
 }
