@@ -14,6 +14,8 @@ import (
 	redis "github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
 var logger = logrus.New()
@@ -71,6 +73,12 @@ func main() {
 	grpcServer := grpc.NewServer()
 	urlGenService := urlgen.NewURLGenService(logger, urlRepo, urlCache)
 	proto.RegisterURLGeneratorServer(grpcServer, urlGenService)
+
+	// Register health check service
+	healthServer := health.NewServer()
+	grpc_health_v1.RegisterHealthServer(grpcServer, healthServer)
+	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
+	logger.Info("gRPC health check service registered")
 
 	// Start listening for gRPC requests
 	serverPort := os.Getenv("URL_GEN_PORT")
