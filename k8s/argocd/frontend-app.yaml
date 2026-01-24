@@ -18,7 +18,7 @@ spec:
       values: |
         image:
           repository: andreistefanciprian/urlshortener-frontend
-          tag: latest@sha256:113a343e7594cca7b034976da06a27efb9ecd92a4fffb8ef367ff6b9864e6444
+          tag: latest@sha256:deee7bec4cd87f630649bcfe2316d61398ec3aa583e3de9822be969acc4eaf47
         config:
           LOG_LEVEL: DEBUG
           BACKEND_HOST: api-gateway.api-gateway.svc
