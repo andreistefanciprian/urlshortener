@@ -231,6 +231,9 @@ func (app *FrontendApp) ready(w http.ResponseWriter, r *http.Request) {
 	}
 	defer resp.Body.Close()
 
+	// Drain and discard the response body to enable connection reuse
+	_, _ = io.Copy(io.Discard, resp.Body)
+
 	// Only consider 2xx status codes as ready
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		app.logger.Debug("Readiness probe: backend is ready")
