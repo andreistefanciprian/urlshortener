@@ -11,7 +11,7 @@ spec:
     kind: {{ .Values.certificates.issuer.kind }}
     group: {{ .Values.certificates.issuer.group }}
   dnsNames:
-{{ toYaml .Values.certificates.apiGateway.dnsNames | indent 2 }}
+{{ toYaml .Values.certificates.apiGateway.dnsNames | indent 4 }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -25,5 +25,5 @@ spec:
     kind: {{ .Values.certificates.issuer.kind }}
     group: {{ .Values.certificates.issuer.group }}
   dnsNames:
-{{ toYaml .Values.certificates.frontend.dnsNames | indent 2 }}
+{{ toYaml .Values.certificates.frontend.dnsNames | indent 4 }}
 {{- end }}
