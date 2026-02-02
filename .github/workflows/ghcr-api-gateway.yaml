@@ -74,7 +74,7 @@ jobs:
   # Build, scan, sign, and push Docker image to GHCR
   docker:
     needs: [generate-build-id]
-    uses: andreistefanciprian/gh-reusable-workflows/.github/workflows/build_and_push_docker_image_to_ghcr.yaml@bump_cosign_v3
+    uses: andreistefanciprian/gh-reusable-workflows/.github/workflows/build_and_push_docker_image_to_ghcr.yaml@f589c2ea471136594b0fb35f27bdd3a14024755e
     with:
       # Image configuration
       image_name: ghcr.io/andreistefanciprian/api-gateway
