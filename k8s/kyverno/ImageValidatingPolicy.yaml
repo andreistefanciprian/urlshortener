@@ -1,0 +1,58 @@
+apiVersion: policies.kyverno.io/v1alpha1
+kind: ImageValidatingPolicy
+metadata:
+  name: verify-urlshortener-images
+  annotations:
+    policies.kyverno.io/title: Verify urlshortener images
+    policies.kyverno.io/category: Software Supply Chain Security
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/subject: Pod
+spec:
+  validationActions: [Audit]
+  webhookConfiguration:
+    timeoutSeconds: 30
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+        operations: ["CREATE", "UPDATE"]
+    namespaceSelector:
+      matchExpressions:
+        - key: name
+          operator: In
+          values:
+            - api-gateway
+            - frontend
+            - url-gen
+            - url-read
+  matchImageReferences:
+    - glob: "ghcr.io/andreistefanciprian/*"
+  credentials:
+    allowInsecureRegistry: false  # Deny insecure access to registries
+    providers:
+      - "github"
+    secrets:
+      - "ghcr-credentials"
+  attestors:
+  - name: cosign
+    cosign:
+      keyless:
+        identities:
+          - subject: "https://github.com/andreistefanciprian/gh-reusable-workflows/.github/workflows/build_and_push_docker_image_to_ghcr.yaml@f589c2ea471136594b0fb35f27bdd3a14024755e"
+            issuer: "https://token.actions.githubusercontent.com"
+      ctlog:
+        url: "https://rekor.sigstore.dev"
+      source:
+        repository: "ghcr.io/andreistefanciprian/cosign-signatures"
+        PullSecrets:
+          - name: ghcr-credentials
+  attestations:
+    - name: sbom
+      intoto:
+        type: https://spdx.dev/Document
+  validations:
+    - expression: >-
+        images.containers.map(image, verifyImageSignatures(image, [attestors.cosign])).all(e, e > 0)
+      message: "Failed to verify image signature with Cosign keyless"
