@@ -11,7 +11,7 @@ spec:
   validationActions: [Warn]
   webhookConfiguration:
     timeoutSeconds: 30
-  failurePolicy: Fail
+  # failurePolicy: Fail
   matchConstraints:
     resourceRules:
       - apiGroups: [""]
@@ -40,7 +40,7 @@ spec:
     cosign:
       keyless:
         identities:
-          - subject: "https://github.com/andreistefanciprian/gh-reusable-workflows/.github/workflows/build_and_push_docker_image_to_ghcr.yaml@main"
+          - subject: "https://github.com/andreistefanciprian/gh-reusable-workflows/.github/workflows/build_and_push_docker_image_to_ghcr.yaml@refs/heads/main"
             issuer: "https://token.actions.githubusercontent.com"
       ctlog:
         url: "https://rekor.sigstore.dev"
