@@ -22,20 +22,23 @@ Verifies that all container images from `ghcr.io/andreistefanciprian` are:
 
 ```bash
 # Install Kyverno
-helm install kyverno kyverno/kyverno -n kyverno --create-namespace
+helm install kyverno kyverno/kyverno -n kyverno --create-namespace --version=3.7.0 --set features.logging.verbosity=4
 
 # Provide GHCR credentials to kyverno
 kubectl -n kyverno create secret docker-registry ghcr-credentials \
   --docker-server=ghcr.io \
   --docker-username=andreistefanciprian \
-  --docker-password=<GITHUB_PAT_WITH_PACKAGES_WRITE_PERMISSION> \
+  --docker-password=$GITHUB_TOKEN \
   --docker-email='andreistefanciprian@gmail.com'
 
+# Allow kyverno SAs to read secrets in cluster
+kubectl apply -f k8s/kyverno/rbac.yaml
+
 # Apply the policy
-kubectl apply -f k8s/kyverno/verify-images-policy.yaml
+kubectl apply -f k8s/kyverno/imagevalidatingpolicy.yaml
 
 # Verify policy is active
-kubectl get clusterpolicy verify-urlshortener-images
+kubectl get imagevalidatingpolicy
 ```
 
 ## Testing
@@ -49,7 +52,7 @@ kubectl run test --image=ghcr.io/andreistefanciprian/api-gateway:<SIGNED_SHA256_
 
 # Check policy reports and events
 kubectl get policyreport -A
-kubectl describe clusterpolicy verify-api-gateway-signature | grep Events -A 10
+kubectl describe imagevalidatingpolicy verify-urlshortener-images | grep Events -A 10
 
 # Check Kyverno logs
 kubectl logs -n kyverno -l app.kubernetes.io/name=kyverno -f
