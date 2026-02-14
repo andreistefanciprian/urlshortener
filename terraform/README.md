@@ -67,7 +67,13 @@ docker compose run terraform -chdir=tf_bucket init
 docker compose run terraform -chdir=tf_bucket apply -auto-approve
 ```
 
-After bucket creation, update `TF_VAR_tfstate_bucket` in your `.env` file with the bucket name.
+After bucket creation, get the bucket name from the terraform output:
+
+```bash
+docker compose run terraform -chdir=tf_bucket output -raw bucket_name
+```
+
+Then update `TF_VAR_tfstate_bucket` in your `.env` file with this value.
 
 ### Step 2: Deploy Networking
 
