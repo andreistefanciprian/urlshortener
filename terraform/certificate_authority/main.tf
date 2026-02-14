@@ -84,7 +84,7 @@ resource "google_privateca_certificate_authority" "main" {
 
 # Create a dedicated Google Service Account (SA) to be used by the CAS Issuer to access the Google Cloud CAS APIs
 resource "google_service_account" "cas-issuer" {
-  account_id   = "${var.project_name}-cas-issuer"
+  account_id   = "cas-issuer"
   display_name = "This SA will be impersonated by a CAS K8s SA to issue certificates."
 }
 
