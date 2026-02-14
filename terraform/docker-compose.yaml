@@ -7,5 +7,5 @@ services:
     # entrypoint: [ "/bin/sh", "-c", "sleep 3600"]
     working_dir: /var/tmp/code
     volumes:
-    # - ./terraform_code:/var/tmp/code
-    - .:/var/tmp/code
+      # - ./terraform_code:/var/tmp/code
+      - .:/var/tmp/code
