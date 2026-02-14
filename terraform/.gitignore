@@ -1,0 +1,13 @@
+*.json
+*.yaml
+!docker-compose.yaml
+*/.terraform
+*/.terraform.lock.hcl
+*/.terraform
+*/terraform.tfstate.backup
+*/*.tfstate
+*/*.tfplan
+.env
+!.env.example
+.*
+!/.gitignore
