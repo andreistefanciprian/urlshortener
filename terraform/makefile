@@ -34,7 +34,7 @@ plan: init-upgrade
 	$(TF_EXEC) -chdir=$(TF_TARGET) plan -input=false -out=$(TF_PLAN_FILE)
 
 deploy: plan
-	$(TF_EXEC) apply $(TF_PLAN_FILE) && rm $(TF_PLAN_FILE)
+	$(TF_EXEC) -chdir=$(TF_TARGET) apply $(TF_PLAN_FILE) && rm $(TF_TARGET)/$(TF_PLAN_FILE)
 
 deploy-auto-approve: init-upgrade
 	$(TF_EXEC) -chdir=$(TF_TARGET) apply -input=false -auto-approve
