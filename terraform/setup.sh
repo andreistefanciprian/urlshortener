@@ -39,10 +39,6 @@ gcloud iam service-accounts list
 # Grant the necessary roles to the service account
 gcloud projects add-iam-policy-binding $GCP_PROJECT \
 --member="serviceAccount:terraform@${GCP_PROJECT}.iam.gserviceaccount.com" \
---role="roles/container.admin" \
---role="roles/storage.admin" \
---role="roles/compute.admin" \
---role="roles/storage.legacyBucketWriter" \
 --role="roles/owner"
 
 # Describe service account
