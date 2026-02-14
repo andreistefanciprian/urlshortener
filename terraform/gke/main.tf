@@ -18,6 +18,15 @@ resource "google_project_service" "compute" {
   disable_on_destroy         = false
 }
 
+# Wait for APIs to propagate after enablement
+resource "time_sleep" "wait_for_apis" {
+  create_duration = "30s"
+  depends_on = [
+    google_project_service.container,
+    google_project_service.compute,
+  ]
+}
+
 resource "google_container_cluster" "primary" {
   provider           = google-beta
   name               = var.project_name
@@ -106,7 +115,10 @@ resource "google_container_cluster" "primary" {
     update = "40m"
   }
 
-  depends_on = [google_service_account.cluster]
+  depends_on = [
+    google_service_account.cluster,
+    time_sleep.wait_for_apis,
+  ]
 }
 
 # Separately managed node pool
