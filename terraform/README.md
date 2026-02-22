@@ -14,6 +14,9 @@ The infrastructure is split into independent Terraform modules:
 | `networking` | VPC, subnets, Cloud NAT, firewall rules | Ready |
 | `gke` | GKE cluster, node pool, service accounts | Ready |
 | `certificate_authority` | Google CAS for internal TLS certificates issued by cert-manager | Ready |
+| `secrets` | Secret Manager secrets and IAM for cloudflared | Ready |
+| `cloudflare` | Cloudflare Tunnel and private network route | Ready |
+| `cloudflared-vm` | VM running cloudflared tunnel connector | Ready |
 
 Once infrastructure is deployed, Kubernetes applications are deployed via FluxCD from the `flux/` folder in this repo.
 
@@ -87,22 +90,54 @@ make plan TF_TARGET=networking
 make deploy-auto-approve TF_TARGET=networking
 ```
 
-### Step 3: Deploy GKE Cluster
+### Step 3: Deploy Secrets
+
+```bash
+make plan TF_TARGET=secrets
+make deploy-auto-approve TF_TARGET=secrets
+```
+
+### Step 4: Deploy GKE Cluster
 
 ```bash
 make plan TF_TARGET=gke
 make deploy-auto-approve TF_TARGET=gke
 
 # Configure kubectl
-gcloud container clusters get-credentials home --region $GCP_REGION --project $GCP_PROJECT
+gcloud container clusters get-credentials home --region $GCP_REGION --project $GCP_PROJECT --internal-ip
 kubectl cluster-info
 ```
 
-### Step 4: Deploy Certificate Authority
+> **Private cluster access:** The GKE cluster has a private endpoint only. To connect from your local machine you need:
+> 1. **Cloudflare WARP client** installed on your machine
+> 2. **Device enrollment** configured in Cloudflare One dashboard (Team & Resources > Users)
+> 3. **Split tunneling** configured to route `10.100.0.0/18` through WARP (deployed via the `cloudflare` Terraform layer)
+>
+> Without WARP connected, `kubectl` commands will not reach the cluster API server.
+
+### Step 5: Deploy Certificate Authority
 
 ```bash
 make plan TF_TARGET=certificate_authority
 make deploy-auto-approve TF_TARGET=certificate_authority
+```
+
+### Step 6: Deploy Cloudflare Tunnel
+
+Add `TF_VAR_cloudflare_account_id` and `TF_VAR_cloudflare_api_token` to your `.env` file.
+
+```bash
+make plan TF_TARGET=cloudflare
+make deploy-auto-approve TF_TARGET=cloudflare
+```
+
+### Step 7: Deploy Cloudflared VM
+
+Add `TF_VAR_gcp_zone` to your `.env` file.
+
+```bash
+make plan TF_TARGET=cloudflared-vm
+make deploy-auto-approve TF_TARGET=cloudflared-vm
 ```
 
 ## Next Steps: Deploy Applications
@@ -115,8 +150,11 @@ Once infrastructure is deployed, use FluxCD to deploy Kubernetes applications fr
 
 ```bash
 # Destroy in reverse order
+make destroy-auto-approve TF_TARGET=cloudflared-vm
+make destroy-auto-approve TF_TARGET=cloudflare
 make destroy-auto-approve TF_TARGET=certificate_authority
 make destroy-auto-approve TF_TARGET=gke
+make destroy-auto-approve TF_TARGET=secrets
 make destroy-auto-approve TF_TARGET=networking
 
 # Destroy state bucket
@@ -126,8 +164,10 @@ docker compose run terraform -chdir=tf_bucket destroy -auto-approve
 ### Clean Local Terraform Files
 
 ```bash
-make clean TF_TARGET=tf_bucket
 make clean TF_TARGET=networking
+make clean TF_TARGET=secrets
 make clean TF_TARGET=gke
 make clean TF_TARGET=certificate_authority
+make clean TF_TARGET=cloudflare
+make clean TF_TARGET=cloudflared-vm
 ```
