@@ -12,13 +12,13 @@ The infrastructure is split into independent Terraform modules:
 |---|---|---|
 | `tf_bucket` | GCS bucket for Terraform remote state | Ready |
 | `networking` | VPC, subnets, Cloud NAT, firewall rules | Ready |
+| `secrets` | Secret Manager secrets and IAM for cloudflared | Ready |
 | `gke` | GKE cluster, node pool, service accounts | Ready |
 | `certificate_authority` | Google CAS for internal TLS certificates issued by cert-manager | Ready |
-| `secrets` | Secret Manager secrets and IAM for cloudflared | Ready |
 | `cloudflare` | Cloudflare Tunnel and private network route | Ready |
 | `cloudflared-vm` | VM running cloudflared tunnel connector | Ready |
 
-Once infrastructure is deployed, Kubernetes applications are deployed via FluxCD from the `flux/` folder in this repo.
+Once infrastructure is deployed, Kubernetes applications are deployed via FluxCD from the [urlshortener-gitops](https://github.com/andreistefanciprian/urlshortener-gitops) repo.
 
 ### Network CIDR Allocation
 
@@ -143,7 +143,7 @@ kubectl cluster-info
 
 ## Next Steps: Deploy Applications
 
-Once infrastructure is deployed, use FluxCD to deploy Kubernetes applications from the `flux/` folder in this repo.
+Once infrastructure is deployed, use FluxCD to deploy Kubernetes applications from the [urlshortener-gitops](https://github.com/andreistefanciprian/urlshortener-gitops) repo.
 
 ## Cleanup
 
