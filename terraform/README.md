@@ -22,7 +22,7 @@ Once infrastructure is deployed, Kubernetes applications are deployed via FluxCD
 
 ### Network CIDR Allocation
 
-All subnets fit under `10.100.0.0/18` for simple Cloudflare Zero Trust CIDR routing.
+All subnets fit under `10.100.0.0/18` for simple [Cloudflare Tunnel CIDR routing](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/private-net/cloudflared/connect-cidr/). 
 
 | Resource | CIDR | IPs |
 |---|---|---|
