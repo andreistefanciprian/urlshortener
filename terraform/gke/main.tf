@@ -43,15 +43,15 @@ resource "google_container_cluster" "primary" {
   deletion_protection = false
 
   private_cluster_config {
-    enable_private_endpoint = false
+    enable_private_endpoint = true
     enable_private_nodes    = true
-    master_ipv4_cidr_block  = var.gke_master_cidr
+    master_ipv4_cidr_block  = var.gke_master_cidr # 10.100.48.0/28
   }
 
   # https://cloud.google.com/kubernetes-engine/docs/how-to/alias-ips
   ip_allocation_policy {
-    cluster_ipv4_cidr_block  = "" # Let GCP choose
-    services_ipv4_cidr_block = "" # Let GCP choose
+    cluster_secondary_range_name  = "gke-pods"     # 10.100.16.0/20
+    services_secondary_range_name = "gke-services" # 10.100.32.0/24
   }
 
   master_auth {

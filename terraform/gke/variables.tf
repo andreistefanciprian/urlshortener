@@ -50,5 +50,5 @@ variable "labels" {
 variable "gke_master_cidr" {
   type        = string
   description = "Private IP subnet for GKE control plane"
-  default     = "172.16.0.0/28"
+  default     = "10.100.48.0/28"
 }

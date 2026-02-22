@@ -13,9 +13,20 @@ The infrastructure is split into independent Terraform modules:
 | `tf_bucket` | GCS bucket for Terraform remote state | Ready |
 | `networking` | VPC, subnets, Cloud NAT, firewall rules | Ready |
 | `gke` | GKE cluster, node pool, service accounts | Ready |
-| `certificate_authority` | Google CAS for TLS certificates via cert-manager | Ready |
+| `certificate_authority` | Google CAS for internal TLS certificates issued by cert-manager | Ready |
 
 Once infrastructure is deployed, Kubernetes applications are deployed via FluxCD from the `flux/` folder in this repo.
+
+### Network CIDR Allocation
+
+All subnets fit under `10.100.0.0/18` for simple Cloudflare Zero Trust CIDR routing.
+
+| Resource | CIDR | IPs |
+|---|---|---|
+| Nodes | `10.100.0.0/24` | 254 |
+| Pods | `10.100.16.0/20` | 4,096 |
+| Services | `10.100.32.0/24` | 256 |
+| GKE Master | `10.100.48.0/28` | 16 |
 
 ## Prerequisites
 

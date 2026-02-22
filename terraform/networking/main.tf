@@ -9,7 +9,17 @@ resource "google_compute_subnetwork" "subnet" {
   name          = "${var.project_name}-subnet"
   region        = var.gcp_region
   network       = google_compute_network.vpc.self_link
-  ip_cidr_range = "10.10.0.0/24"
+  ip_cidr_range = "10.100.0.0/24" # Nodes
+
+  secondary_ip_range {
+    range_name    = "gke-pods"
+    ip_cidr_range = "10.100.16.0/20" # 4096 pod IPs
+  }
+
+  secondary_ip_range {
+    range_name    = "gke-services"
+    ip_cidr_range = "10.100.32.0/24" # 256 service IPs
+  }
 }
 
 
