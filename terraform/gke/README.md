@@ -24,7 +24,7 @@ This Terraform code provisions a GKE cluster intended for **demo and development
 
 | Item | Current (demo) | Production recommendation |
 |---|---|---|
-| Master authorised networks | Not configured | Restrict API server access to known CIDRs using `master_authorized_networks_config` |
+| Master authorised networks | Configured to allow access from VPC subnet `10.100.0.0/24` | Restrict API server access to known CIDRs using `master_authorized_networks_config` |
 
 ## Apply order
 
