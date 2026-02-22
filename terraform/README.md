@@ -133,8 +133,7 @@ make deploy-auto-approve TF_TARGET=cloudflared-vm
 
 The GKE cluster has a private endpoint only. Before running `kubectl`, ensure:
 1. **Cloudflare WARP client** installed on your machine
-2. **Device enrollment** configured in Cloudflare One dashboard (Team & Resources > Users)
-3. **Split tunneling** configured to route `10.100.0.0/18` through WARP (deployed in Step 6)
+2. **Device enrollment profile** configured in Cloudflare One dashboard (Team & Resources): both Traffic and DNS proxy enable and split tuneling to include internal GCP CIDR
 
 ```bash
 gcloud container clusters get-credentials home --region $GCP_REGION --project $GCP_PROJECT --internal-ip
