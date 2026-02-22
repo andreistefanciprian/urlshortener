@@ -25,3 +25,14 @@ This Terraform code provisions a GKE cluster intended for **demo and development
 | Item | Current (demo) | Production recommendation |
 |---|---|---|
 | Master authorised networks | Not configured | Restrict API server access to known CIDRs using `master_authorized_networks_config` |
+
+## Apply order
+
+```
+1. terraform/networking/
+2. terraform/secrets/
+3. terraform/gke/               ← this layer
+4. terraform/certificate_authority/
+5. terraform/cloudflare/
+6. terraform/cloudflared-vm/
+```

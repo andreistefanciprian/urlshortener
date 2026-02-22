@@ -48,6 +48,13 @@ resource "google_container_cluster" "primary" {
     master_ipv4_cidr_block  = var.gke_master_cidr # 10.100.48.0/28
   }
 
+  master_authorized_networks_config {
+    cidr_blocks {
+      cidr_block   = data.terraform_remote_state.networking.outputs.subnet_ip_cidr_range # 10.100.0.0/24
+      display_name = "VPC subnet"
+    }
+  }
+
   # https://cloud.google.com/kubernetes-engine/docs/how-to/alias-ips
   ip_allocation_policy {
     cluster_secondary_range_name  = "gke-pods"     # 10.100.16.0/20
