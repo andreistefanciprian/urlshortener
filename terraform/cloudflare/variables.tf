@@ -32,6 +32,23 @@ variable "cloudflare_api_token" {
   sensitive   = true
 }
 
+variable "cloudflare_zone_id" {
+  type        = string
+  description = "Cloudflare zone ID for the domain (e.g. example.com)"
+  sensitive   = true
+}
+
+variable "cloudflare_domain" {
+  type        = string
+  description = "Cloudflare domain name (e.g. example.com)"
+}
+
+variable "ingress_lb_ip" {
+  type        = string
+  description = "Internal Load Balancer IP of the k8s ingress controller"
+  default     = "10.100.0.8"
+}
+
 variable "tunnel_route_cidr" {
   type        = string
   description = "CIDR range to route through the Cloudflare tunnel (covers nodes, pods, services, and GKE master)"

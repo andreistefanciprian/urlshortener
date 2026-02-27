@@ -35,6 +35,40 @@ resource "cloudflare_zero_trust_device_default_profile" "gke" {
   ]
 }
 
+# Expose internal K8s ingress via Cloudflare Tunnel and DNS
+# Public DNS record — route foo.example.com through the tunnel
+resource "cloudflare_dns_record" "foo" {
+  zone_id = var.cloudflare_zone_id
+  name    = "foo"
+  type    = "CNAME"
+  content = "${cloudflare_zero_trust_tunnel_cloudflared.gke.id}.cfargotunnel.com"
+  proxied = true
+  ttl     = 1 # Auto TTL (required when proxied)
+}
+
+# Tunnel ingress — tell cloudflared where to forward public hostname traffic
+resource "cloudflare_zero_trust_tunnel_cloudflared_config" "gke" {
+  account_id = var.cloudflare_account_id
+  tunnel_id  = cloudflare_zero_trust_tunnel_cloudflared.gke.id
+
+  config = {
+    ingress = [
+      {
+        hostname = "foo.${var.cloudflare_domain}"
+        path     = "^/webhook"
+        service  = "http://${var.ingress_lb_ip}"
+      },
+      {
+        hostname = "foo.${var.cloudflare_domain}"
+        service  = "http_status:404"
+      },
+      {
+        service = "http_status:404"
+      },
+    ]
+  }
+}
+
 # Fetch tunnel token via data source (tunnel_token attribute removed in v5)
 data "cloudflare_zero_trust_tunnel_cloudflared_token" "gke" {
   account_id = var.cloudflare_account_id
