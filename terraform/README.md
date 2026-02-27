@@ -6,6 +6,10 @@ This directory provisions the core GCP infrastructure for the [urlshortener](htt
 
 ## Architecture
 
+The GKE cluster is **private** — it has no public endpoint. Access to the cluster and internal services requires the **[Cloudflare WARP client](https://developers.cloudflare.com/cloudflare-one/connections/connect-devices/warp/)** installed and enrolled in Cloudflare Zero Trust, which routes traffic through the Cloudflare Tunnel into the private GCP network.
+
+![Infrastructure Diagram](infra-diagram.jpg)
+
 The infrastructure is split into independent Terraform modules:
 
 | Module | Description | Status |
