@@ -65,7 +65,7 @@ resource "google_secret_manager_secret_iam_member" "cloudflared_accessor" {
 
 # Dedicated service account for External Secrets Operator
 resource "google_service_account" "external_secrets" {
-  account_id   = "external-secrets"
+  account_id   = "${var.project_name}-external-secrets"
   display_name = "Service account for External Secrets Operator"
   project      = var.gcp_project
   depends_on   = [google_project_service.iam]
