@@ -5,9 +5,13 @@ Central secrets management layer. Creates Secret Manager secret shells and IAM b
 ## What it creates
 
 - Secret Manager API enablement
-- A `google_secret_manager_secret` shell for the cloudflared tunnel token
-- A dedicated GCP service account (`home-cloudflared`) for the cloudflared VM
-- IAM binding granting the service account `roles/secretmanager.secretAccessor` scoped to the cloudflared secret only
+- Secret shells (values written by downstream layers or manually):
+  - `home-cloudflared-tunnel-token` — cloudflared VM tunnel token
+  - `home-cloudflare-api-token` — Cloudflare API token for External Secrets Operator
+- `home-cloudflared` GCP SA for the cloudflared VM, with `secretAccessor` on its tunnel token secret
+- `home-external-secrets` GCP SA for ESO, with:
+  - `secretAccessor` on the `cloudflare-api-token` secret
+  - Workload Identity binding for k8s SA `external-secrets/external-secrets`
 
 ## Adding new secrets
 
