@@ -9,6 +9,9 @@ locals {
     cloudflared-tunnel-token = {
       description = "Cloudflare Tunnel token for cloudflared VM"
     }
+    cloudflare-api-token = {
+      description = "Cloudflare API token for External Secrets Operator"
+    }
   }
 }
 
@@ -58,4 +61,26 @@ resource "google_secret_manager_secret_iam_member" "cloudflared_accessor" {
   secret_id = google_secret_manager_secret.secrets["cloudflared-tunnel-token"].id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.cloudflared.email}"
+}
+
+# Dedicated service account for External Secrets Operator
+resource "google_service_account" "external_secrets" {
+  account_id   = "external-secrets"
+  display_name = "Service account for External Secrets Operator"
+  project      = var.gcp_project
+  depends_on   = [google_project_service.iam]
+}
+
+# Grant ESO SA access to the Cloudflare API token secret
+resource "google_secret_manager_secret_iam_member" "external_secrets_cloudflare_accessor" {
+  secret_id = google_secret_manager_secret.secrets["cloudflare-api-token"].id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.external_secrets.email}"
+}
+
+# Allow the k8s ESO service account to impersonate the GCP SA via Workload Identity
+resource "google_service_account_iam_member" "external_secrets_workload_identity" {
+  service_account_id = google_service_account.external_secrets.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "serviceAccount:${var.gcp_project}.svc.id.goog[external-secrets/external-secrets]"
 }
