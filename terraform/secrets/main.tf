@@ -12,6 +12,18 @@ locals {
     cloudflare-api-token = {
       description = "Cloudflare API token for External Secrets Operator"
     }
+    redis-password = {
+      description = "Redis password for External Secrets Operator"
+    }
+    db-admin-password = {
+      description = "Database admin password for External Secrets Operator"
+    }
+    db-user-password = {
+      description = "Database user password for External Secrets Operator"
+    }
+    db-replication-password = {
+      description = "Database replication password for External Secrets Operator"
+    }
   }
 }
 
@@ -74,6 +86,32 @@ resource "google_service_account" "external_secrets" {
 # Grant ESO SA access to the Cloudflare API token secret
 resource "google_secret_manager_secret_iam_member" "external_secrets_cloudflare_accessor" {
   secret_id = google_secret_manager_secret.secrets["cloudflare-api-token"].id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.external_secrets.email}"
+}
+
+# Grant ESO SA access to the Redis password secret
+resource "google_secret_manager_secret_iam_member" "external_secrets_redis_accessor" {
+  secret_id = google_secret_manager_secret.secrets["redis-password"].id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.external_secrets.email}"
+}
+
+# Grant ESO SA access to the DB secrets
+resource "google_secret_manager_secret_iam_member" "external_secrets_db_admin_accessor" {
+  secret_id = google_secret_manager_secret.secrets["db-admin-password"].id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.external_secrets.email}"
+}
+
+resource "google_secret_manager_secret_iam_member" "external_secrets_db_user_accessor" {
+  secret_id = google_secret_manager_secret.secrets["db-user-password"].id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.external_secrets.email}"
+}
+
+resource "google_secret_manager_secret_iam_member" "external_secrets_db_replication_accessor" {
+  secret_id = google_secret_manager_secret.secrets["db-replication-password"].id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.external_secrets.email}"
 }
