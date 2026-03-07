@@ -246,9 +246,13 @@ var (
 
 // mustURLScheme normalizes and validates the URL scheme, fatal on invalid value.
 func mustURLScheme(s string) string {
+	original := s
 	s = strings.ToLower(strings.TrimRight(s, ":/"))
 	if s != "http" && s != "https" {
-		logrus.WithField("value", s).Fatal("invalid URL_SCHEME: must be \"http\" or \"https\"")
+		logrus.WithFields(logrus.Fields{
+			"configured": original,
+			"normalized": s,
+		}).Fatal("invalid URL_SCHEME: must be \"http\" or \"https\"")
 	}
 	return s
 }
