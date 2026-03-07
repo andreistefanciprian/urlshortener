@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -239,10 +240,19 @@ const (
 var (
 	// URLShortenerDomainName is the domain used for short URLs, configurable via DOMAIN_NAME env var
 	URLShortenerDomainName = getEnvOrDefault("DOMAIN_NAME", "l.it")
-	// URLScheme is the scheme used for short URLs, configurable via URL_SCHEME env var
-	// Use "http" for local development, "https" for k8s deployments
-	URLScheme = getEnvOrDefault("URL_SCHEME", "http")
+	// URLScheme is the scheme used for short URLs, configurable via URL_SCHEME env var.
+	// Use "http" for local development, "https" for k8s deployments.
+	URLScheme = mustURLScheme(getEnvOrDefault("URL_SCHEME", "http"))
 )
+
+// mustURLScheme normalizes and validates the URL scheme, fatal on invalid value.
+func mustURLScheme(s string) string {
+	s = strings.ToLower(strings.TrimRight(s, ":/"))
+	if s != "http" && s != "https" {
+		log.Fatalf("invalid URL_SCHEME %q: must be \"http\" or \"https\"", s)
+	}
+	return s
+}
 
 func validateShortURL(shortURL string) error {
 	// Basic validation: check if the short URL is not empty and has a valid format
