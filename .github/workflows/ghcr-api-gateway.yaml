@@ -42,12 +42,16 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.25.6'
+          go-version: '1.26.1'
           cache-dependency-path: api-gateway/go.sum
 
       - name: Install dependencies
         working-directory: ./api-gateway
         run: go mod download
+
+      - name: Run go vet
+        working-directory: ./api-gateway
+        run: go vet ./cmd/...
 
       - name: Run unit tests
         working-directory: ./api-gateway
