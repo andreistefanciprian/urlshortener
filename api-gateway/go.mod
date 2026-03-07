@@ -1,6 +1,6 @@
 module github.com/andreistefanciprian/urlshortener/api-gateway
 
-go 1.25.6
+go 1.26.1
 
 require (
 	github.com/prometheus/client_golang v1.23.2
