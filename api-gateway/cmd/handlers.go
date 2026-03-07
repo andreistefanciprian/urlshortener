@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -249,7 +248,7 @@ var (
 func mustURLScheme(s string) string {
 	s = strings.ToLower(strings.TrimRight(s, ":/"))
 	if s != "http" && s != "https" {
-		log.Fatalf("invalid URL_SCHEME %q: must be \"http\" or \"https\"", s)
+		logrus.WithField("value", s).Fatal("invalid URL_SCHEME: must be \"http\" or \"https\"")
 	}
 	return s
 }
