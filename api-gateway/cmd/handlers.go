@@ -63,7 +63,7 @@ func (h *URLGateway) GetAllURLs(w http.ResponseWriter, r *http.Request) {
 	var urls []URLInfo
 	for _, urlRecord := range response.Urls {
 		urls = append(urls, URLInfo{
-			ShortUrl:   "http://" + URLShortenerDomainName + "/" + urlRecord.ShortUrlCode,
+			ShortUrl:   URLScheme + "://" + URLShortenerDomainName + "/" + urlRecord.ShortUrlCode,
 			LongUrl:    urlRecord.OriginalUrl,
 			CreatedAt:  urlRecord.CreatedAt,
 			Expiration: urlRecord.ExpireTime,
@@ -239,6 +239,9 @@ const (
 var (
 	// URLShortenerDomainName is the domain used for short URLs, configurable via DOMAIN_NAME env var
 	URLShortenerDomainName = getEnvOrDefault("DOMAIN_NAME", "l.it")
+	// URLScheme is the scheme used for short URLs, configurable via URL_SCHEME env var
+	// Use "http" for local development, "https" for k8s deployments
+	URLScheme = getEnvOrDefault("URL_SCHEME", "http")
 )
 
 func validateShortURL(shortURL string) error {
@@ -355,7 +358,7 @@ func (h *URLGateway) CreateShortURL(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Prepend domain to the short URL code
-	response.ShortUrl = "http://" + URLShortenerDomainName + "/" + response.ShortUrl
+	response.ShortUrl = URLScheme + "://" + URLShortenerDomainName + "/" + response.ShortUrl
 
 	// Respond with the short URL
 	responseJSON, err := json.Marshal(response)
