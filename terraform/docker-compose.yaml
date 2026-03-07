@@ -1,11 +1,14 @@
 
 services:
   terraform: 
-    image: hashicorp/terraform:1.14.5
+    image: hashicorp/terraform:1.14.6
     env_file: .env
     entrypoint: terraform
     # entrypoint: [ "/bin/sh", "-c", "sleep 3600"]
     working_dir: /var/tmp/code
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/root/.config/gcloud/application_default_credentials.json
     volumes:
       # - ./terraform_code:/var/tmp/code
       - .:/var/tmp/code
+      - ${HOME}/.config/gcloud:/root/.config/gcloud:ro

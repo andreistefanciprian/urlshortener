@@ -26,13 +26,4 @@ This Terraform code provisions a GKE cluster intended for **demo and development
 |---|---|---|
 | Master authorised networks | Configured to allow access from VPC subnet `10.100.0.0/24` | Restrict API server access to known CIDRs using `master_authorized_networks_config` |
 
-## Apply order
-
-```
-1. terraform/networking/
-2. terraform/secrets/
-3. terraform/gke/               ← this layer
-4. terraform/certificate_authority/
-5. terraform/cloudflare/
-6. terraform/cloudflared-vm/
-```
+See [terraform/README.md](../README.md) for the full deployment order.

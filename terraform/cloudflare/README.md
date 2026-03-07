@@ -6,6 +6,7 @@ Creates a Cloudflare Tunnel and writes the tunnel token into GCP Secret Manager.
 
 - A Cloudflare Tunnel (`home-gke-tunnel`)
 - A tunnel route for `10.100.0.0/18` (covers nodes, pods, services, and GKE master)
+- A WARP device default profile: WARP mode (traffic + DNS proxy), split tunnel include `10.100.0.0/18`
 - A Secret Manager secret version containing the tunnel token
 
 ## Dependencies
@@ -24,13 +25,12 @@ Creates a Cloudflare Tunnel and writes the tunnel token into GCP Secret Manager.
 
 Add `TF_VAR_cloudflare_account_id` and `TF_VAR_cloudflare_api_token` to your `.env` file.
 
-## Apply order
+## Device Profile vs Device Enrollment
 
-```
-1. terraform/networking/
-2. terraform/secrets/
-3. terraform/gke/
-4. terraform/certificate_authority/
-5. terraform/cloudflare/         ← this layer
-6. terraform/cloudflared-vm/
-```
+This layer provisions `cloudflare_zero_trust_device_default_profile` which configures:
+- **WARP mode** (proxies both traffic and DNS)
+- **Split tunnel include**: `10.100.0.0/18` (GKE nodes, pods, services, master)
+
+**Device enrollment** (the step where a user logs into the WARP client with a team name and receives a one-time code via email) cannot be terraformed — there is no Cloudflare provider resource for it. Users must enroll manually after this layer is applied.
+
+See [terraform/README.md](../README.md) for the full deployment order.

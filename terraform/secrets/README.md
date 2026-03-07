@@ -28,13 +28,4 @@ Add entries to the `secrets` local map in `main.tf`. Each entry creates a secret
 | `gcp_region` | `TF_VAR_gcp_region` |
 | `gcp_project` | `TF_VAR_gcp_project` |
 
-## Apply order
-
-```
-1. terraform/networking/
-2. terraform/secrets/            ← this layer
-3. terraform/gke/
-4. terraform/certificate_authority/
-5. terraform/cloudflare/
-6. terraform/cloudflared-vm/
-```
+See [terraform/README.md](../README.md) for the full deployment order.

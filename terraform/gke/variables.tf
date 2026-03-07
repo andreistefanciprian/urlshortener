@@ -52,3 +52,9 @@ variable "gke_master_cidr" {
   description = "Private IP subnet for GKE control plane"
   default     = "10.100.48.0/28"
 }
+
+variable "use_default_node_pool" {
+  type        = bool
+  description = "Use the default node pool instead of a separately managed node pool. Note: autoscaling is not supported for the default node pool."
+  default     = false
+}

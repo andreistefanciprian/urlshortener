@@ -26,13 +26,4 @@ Deploys a GCP VM running cloudflared as a tunnel connector in the same VPC as th
 
 Add `TF_VAR_gcp_zone` to your `.env` file (e.g., `TF_VAR_gcp_zone=us-central1-a`).
 
-## Apply order
-
-```
-1. terraform/networking/
-2. terraform/secrets/
-3. terraform/gke/
-4. terraform/certificate_authority/
-5. terraform/cloudflare/
-6. terraform/cloudflared-vm/     ← this layer
-```
+See [terraform/README.md](../README.md) for the full deployment order.

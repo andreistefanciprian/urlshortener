@@ -20,7 +20,7 @@ The infrastructure is split into independent Terraform modules:
 | `gke` | GKE cluster, node pool, service accounts | Ready |
 | `certificate_authority` | Google CAS for internal TLS certificates issued by cert-manager | Ready |
 | `cloudflare` | Cloudflare Tunnel and private network route | Ready |
-| `cloudflared-vm` | VM running cloudflared tunnel connector | Ready |
+| `cloudflared_vm` | VM running cloudflared tunnel connector | Ready |
 
 Once infrastructure is deployed, Kubernetes applications are deployed via FluxCD from the [urlshortener-gitops](https://github.com/andreistefanciprian/urlshortener-gitops) repo.
 
@@ -94,18 +94,20 @@ make plan TF_TARGET=networking
 make deploy-auto-approve TF_TARGET=networking
 ```
 
-### Step 3: Deploy Secrets
-
-```bash
-make plan TF_TARGET=secrets
-make deploy-auto-approve TF_TARGET=secrets
-```
-
-### Step 4: Deploy GKE Cluster
+### Step 3: Deploy GKE Cluster
 
 ```bash
 make plan TF_TARGET=gke
 make deploy-auto-approve TF_TARGET=gke
+```
+
+### Step 4: Deploy Secrets
+
+> **Note:** Secrets must be deployed after GKE because the ESO service account uses Workload Identity, which requires the GKE Workload Identity pool (`<project>.svc.id.goog`) to exist first.
+
+```bash
+make plan TF_TARGET=secrets
+make deploy-auto-approve TF_TARGET=secrets
 ```
 
 ### Step 5: Deploy Certificate Authority
@@ -129,15 +131,19 @@ make deploy-auto-approve TF_TARGET=cloudflare
 Add `TF_VAR_gcp_zone` to your `.env` file.
 
 ```bash
-make plan TF_TARGET=cloudflared-vm
-make deploy-auto-approve TF_TARGET=cloudflared-vm
+make plan TF_TARGET=cloudflared_vm
+make deploy-auto-approve TF_TARGET=cloudflared_vm
 ```
 
 ### Step 8: Configure kubectl
 
 The GKE cluster has a private endpoint only. Before running `kubectl`, ensure:
 1. **Cloudflare WARP client** installed on your machine
-2. **Device enrollment profile** configured in Cloudflare One dashboard (Team & Resources): both Traffic and DNS proxy enabled and split tuneling to include internal GCP CIDR (This is already in the tf code)
+2. **Enroll your device** in Cloudflare Zero Trust:
+   - Open the WARP client → click the gear icon → **Preferences** → **Account** → **Login with Cloudflare Zero Trust**
+   - Enter your team name, then authenticate — a one-time code will be sent to your email
+   - Once connected, WARP routes internal GCP traffic (`10.100.0.0/18`) through the Cloudflare Tunnel to the private GCP network
+   - See [cloudflare/README.md](cloudflare/README.md) for device enrollment profile requirements
 
 ![Cloudflare Zero Trust](zero-trust-cloudflare.png)
 
@@ -156,11 +162,11 @@ Once infrastructure is deployed, use FluxCD to deploy Kubernetes applications fr
 
 ```bash
 # Destroy in reverse order
-make destroy-auto-approve TF_TARGET=cloudflared-vm
+make destroy-auto-approve TF_TARGET=cloudflared_vm
 make destroy-auto-approve TF_TARGET=cloudflare
 make destroy-auto-approve TF_TARGET=certificate_authority
-make destroy-auto-approve TF_TARGET=gke
 make destroy-auto-approve TF_TARGET=secrets
+make destroy-auto-approve TF_TARGET=gke
 make destroy-auto-approve TF_TARGET=networking
 
 # Destroy state bucket
@@ -175,5 +181,5 @@ make clean TF_TARGET=secrets
 make clean TF_TARGET=gke
 make clean TF_TARGET=certificate_authority
 make clean TF_TARGET=cloudflare
-make clean TF_TARGET=cloudflared-vm
+make clean TF_TARGET=cloudflared_vm
 ```
