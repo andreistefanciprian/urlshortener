@@ -30,7 +30,10 @@ init: clean get clean-orphan-containers
 init-upgrade: clean get clean-orphan-containers
 	$(TF_EXEC) -chdir=$(TF_TARGET) init -upgrade -backend-config 'bucket=$(TFSTATE_BUCKET)' -backend-config 'prefix=$(TFSTATE_DIR)' -input=false
 
-plan: init-upgrade
+validate: init
+	$(TF_EXEC) -chdir=$(TF_TARGET) validate
+
+plan: init-upgrade validate
 	$(TF_EXEC) -chdir=$(TF_TARGET) plan -input=false -out=$(TF_PLAN_FILE)
 
 deploy: plan

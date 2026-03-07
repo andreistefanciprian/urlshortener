@@ -86,12 +86,30 @@ resource "google_container_cluster" "primary" {
     channel = "REGULAR"
   }
 
-  # We can't create a cluster with no node pool defined, but we want to only use
-  # separately managed node pools. So we create the smallest possible default
-  # node pool and immediately delete it.
-  remove_default_node_pool = true
+  # When use_default_node_pool=false: remove the default pool immediately (replaced by separately managed pool).
+  # When use_default_node_pool=true: keep the default pool and configure it with the same node settings.
+  remove_default_node_pool = !var.use_default_node_pool
 
   initial_node_count = 1
+
+  dynamic "node_config" {
+    for_each = var.use_default_node_pool ? [1] : []
+    content {
+      machine_type = var.node_type
+      spot         = true
+      disk_size_gb = var.node_disk_size
+      disk_type    = var.node_disk_type
+
+      service_account = google_service_account.cluster.email
+      oauth_scopes = [
+        "https://www.googleapis.com/auth/cloud-platform"
+      ]
+
+      labels = local.labels
+
+      tags = ["gke-node", var.project_name]
+    }
+  }
 
   addons_config {
 
@@ -128,8 +146,9 @@ resource "google_container_cluster" "primary" {
   ]
 }
 
-# Separately managed node pool
+# Separately managed node pool (not used when use_default_node_pool=true)
 resource "google_container_node_pool" "primary_nodes" {
+  count    = var.use_default_node_pool ? 0 : 1
   name     = var.project_name
   location = var.gcp_region
   cluster  = google_container_cluster.primary.name

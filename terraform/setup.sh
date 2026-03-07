@@ -1,52 +1,85 @@
 
 set -e
 
-# Set gcloud to use your project and region
-gcloud config set project $GCP_PROJECT
+# ── Config ──────────────────────────────────────────────────────────────────
 gcloud config set account $GCP_EMAIL
-
-# Enable necessary GCP APIs
-gcloud services enable --project $GCP_PROJECT \
-cloudresourcemanager.googleapis.com \
-servicenetworking.googleapis.com \
-servicemanagement.googleapis.com \
-iamcredentials.googleapis.com \
-compute.googleapis.com \
-cloudkms.googleapis.com \
-secretmanager.googleapis.com \
-container.googleapis.com
-
-# Set gcloud to use your region and zone
+gcloud config set project $GCP_PROJECT
 gcloud config set compute/region $GCP_REGION
 gcloud config set compute/zone ${GCP_REGION}-a
 
-# Check gcloud config
 gcloud config list
 
-# Create and set up Terraform service account
-if ! gcloud iam service-accounts describe terraform@${GCP_PROJECT}.iam.gserviceaccount.com >/dev/null 2>&1; then
-  gcloud iam service-accounts create terraform \
-  --description="Used by Terraform" \
-  --display-name="Terraform"
-  echo "Terraform service account created."
+ADMIN_SA="terraform-admin@${GCP_PROJECT}.iam.gserviceaccount.com"
+
+# ── Enable GCP APIs ──────────────────────────────────────────────────────────
+gcloud services enable --project $GCP_PROJECT \
+  cloudresourcemanager.googleapis.com \
+  servicenetworking.googleapis.com \
+  servicemanagement.googleapis.com \
+  iamcredentials.googleapis.com \
+  compute.googleapis.com \
+  cloudkms.googleapis.com \
+  secretmanager.googleapis.com \
+  container.googleapis.com
+
+# ── terraform-admin SA ───────────────────────────────────────────────────────
+# Full infra permissions. Never used directly — impersonated by your user account.
+# No key is ever downloaded for this SA.
+if ! gcloud iam service-accounts describe $ADMIN_SA >/dev/null 2>&1; then
+  gcloud iam service-accounts create terraform-admin \
+    --description="Terraform admin — full infra permissions, impersonated only" \
+    --display-name="Terraform Admin"
+  echo "terraform-admin SA created."
 else
-  echo "Terraform service account already exists."
+  echo "terraform-admin SA already exists."
 fi
 
-# Verify service account was created
-gcloud iam service-accounts list
+# Roles scoped to what each terraform layer actually provisions:
+#   networking/            → compute.networkAdmin (VPC, subnet, router, NAT, firewall)
+#   cloudflared_vm/        → compute.instanceAdmin.v1 (VM instance)
+#   gke/                   → container.admin
+#   secrets/               → secretmanager.admin, iam.serviceAccountAdmin
+#   certificate_authority/ → privateca.admin
+#   tf_bucket/             → storage.admin
+#   all layers             → serviceusage.serviceUsageAdmin (enable APIs)
+#                            resourcemanager.projectIamAdmin (grant roles to created SAs)
+ADMIN_ROLES=(
+  "roles/compute.networkAdmin"
+  "roles/compute.instanceAdmin.v1"
+  "roles/container.admin"
+  "roles/secretmanager.admin"
+  "roles/iam.serviceAccountAdmin"
+  "roles/iam.serviceAccountKeyAdmin"
+  "roles/iam.serviceAccountUser"
+  "roles/resourcemanager.projectIamAdmin"
+  "roles/privateca.admin"
+  "roles/storage.admin"
+  "roles/serviceusage.serviceUsageAdmin"
+  "roles/compute.securityAdmin"  # grants compute.firewalls.create and related firewall permissions
+)
 
-# Grant the necessary roles to the service account
-gcloud projects add-iam-policy-binding $GCP_PROJECT \
---member="serviceAccount:terraform@${GCP_PROJECT}.iam.gserviceaccount.com" \
---role="roles/owner"
+for role in "${ADMIN_ROLES[@]}"; do
+  gcloud projects add-iam-policy-binding $GCP_PROJECT \
+    --member="serviceAccount:${ADMIN_SA}" \
+    --role="$role"
+done
 
-# Describe service account
-gcloud iam service-accounts describe terraform@${GCP_PROJECT}.iam.gserviceaccount.com
+# Allow your personal account to impersonate terraform-admin
+gcloud iam service-accounts add-iam-policy-binding $ADMIN_SA \
+  --member="user:${GCP_EMAIL}" \
+  --role="roles/iam.serviceAccountTokenCreator"
 
-# Generate and download a service account key
-gcloud iam service-accounts keys create gcp_sa_key.json \
---iam-account=terraform@${GCP_PROJECT}.iam.gserviceaccount.com
+echo ""
+echo "Verifying roles assigned to $ADMIN_SA:"
+gcloud projects get-iam-policy $GCP_PROJECT \
+  --flatten="bindings[].members" \
+  --filter="bindings.members:${ADMIN_SA}" \
+  --format="table(bindings.role)"
 
-# Verify service account key was created
-cat gcp_sa_key.json | grep project_id
+echo ""
+echo "Setup complete."
+echo "  Admin SA: $ADMIN_SA (no key — impersonated only)"
+echo ""
+echo "To run Terraform locally:"
+echo "  gcloud auth application-default login"
+echo "  export GOOGLE_IMPERSONATE_SERVICE_ACCOUNT=$ADMIN_SA"

@@ -34,13 +34,4 @@ Key usage is scoped to TLS server certificate issuance only (`digital_signature`
 | CA Pool tier | `ENTERPRISE` | Keep `ENTERPRISE` for audit logging and finer controls, or use `DEVOPS` if cost is a concern and audit logs are not required |
 | Region | Single region | Consider the CA's availability requirements — CAS is a global service but the CA Pool is regional |
 
-## Apply order
-
-```
-1. terraform/networking/
-2. terraform/secrets/
-3. terraform/gke/
-4. terraform/certificate_authority/ ← this layer
-5. terraform/cloudflare/
-6. terraform/cloudflared-vm/
-```
+See [terraform/README.md](../README.md) for the full deployment order.
