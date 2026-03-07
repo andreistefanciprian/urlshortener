@@ -34,8 +34,30 @@ permissions:
   packages: write       # Push to GHCR
 
 jobs:
+  # Run go vet
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.26.1'
+          cache-dependency-path: frontend/go.sum
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: go mod download
+
+      - name: Run go vet
+        working-directory: ./frontend
+        run: go vet ./...
+
   # Generate unique build identifier
   generate-build-id:
+    needs: [unit-tests]
     runs-on: ubuntu-latest
     outputs:
       BUILD_ID: ${{ steps.prep.outputs.BUILD_ID }}
