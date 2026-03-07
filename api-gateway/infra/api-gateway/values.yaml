@@ -26,6 +26,7 @@ config:
   METRICS_PORT: "9090"
   LOG_LEVEL: "INFO"
   DOMAIN_NAME: "l.it"
+  URL_SCHEME: "https"
 
 # Service configuration
 service:
