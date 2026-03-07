@@ -1,10 +1,53 @@
 package main
 
 import (
+	"os"
+	"os/exec"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestMustURLScheme_Valid(t *testing.T) {
+	testCases := []struct {
+		input    string
+		expected string
+	}{
+		{"http", "http"},
+		{"https", "https"},
+		{"HTTP", "http"},
+		{"HTTPS", "https"},
+		{"https://", "https"},
+		{"http://", "http"},
+		{"HTTPS://", "https"},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.input, func(t *testing.T) {
+			assert.Equal(t, tc.expected, mustURLScheme(tc.input))
+		})
+	}
+}
+
+func TestMustURLScheme_Invalid(t *testing.T) {
+	// mustURLScheme calls log.Fatalf (os.Exit) on invalid input.
+	// Use subprocess pattern to test without killing the test process.
+	if os.Getenv("TEST_FATAL_SCHEME") == "1" {
+		mustURLScheme(os.Getenv("TEST_FATAL_INPUT"))
+		return
+	}
+
+	invalidInputs := []string{"ftp", "ws", "javascript", "", "://", "http:/extra"}
+	for _, input := range invalidInputs {
+		t.Run(input, func(t *testing.T) {
+			cmd := exec.Command(os.Args[0], "-test.run=TestMustURLScheme_Invalid")
+			cmd.Env = append(os.Environ(), "TEST_FATAL_SCHEME=1", "TEST_FATAL_INPUT="+input)
+			err := cmd.Run()
+			var exitErr *exec.ExitError
+			assert.ErrorAs(t, err, &exitErr, "expected non-zero exit for input %q", input)
+		})
+	}
+}
 
 func TestValidateExpiration_ValidExpiration(t *testing.T) {
 
