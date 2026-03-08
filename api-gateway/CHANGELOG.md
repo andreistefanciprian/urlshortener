@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.8](https://github.com/andreistefanciprian/urlshortener/compare/api-gateway-v1.0.7...api-gateway-v1.0.8) (2026-03-08)
+
+
+### Bug Fixes
+
+* **api-gateway:** fix gofmt issue in fake code change ([9fb6a3c](https://github.com/andreistefanciprian/urlshortener/commit/9fb6a3c563c7ef72565c5a82064c6ff0766f712f))
+* **api-gateway:** update GHCR workflow inputs and fake code change ([c7dcda5](https://github.com/andreistefanciprian/urlshortener/commit/c7dcda5978a8bd95b63106d255525590d4e5554d))
+
 ## [1.0.7](https://github.com/andreistefanciprian/urlshortener/compare/api-gateway-v1.0.6...api-gateway-v1.0.7) (2026-03-08)
 
 
