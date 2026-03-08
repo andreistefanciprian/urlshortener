@@ -56,6 +56,10 @@ jobs:
         working-directory: ./url-read
         run: go vet ./...
 
+      - name: Run gofmt
+        working-directory: ./url-read
+        run: test -z "$(gofmt -l .)"
+
       - name: Run integration unit tests
         working-directory: ./url-read
         run: go test -v ./internal/implementation/

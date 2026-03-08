@@ -55,6 +55,10 @@ jobs:
         working-directory: ./frontend
         run: go vet ./...
 
+      - name: Run gofmt
+        working-directory: ./frontend
+        run: test -z "$(gofmt -l .)"
+
   # Generate unique build identifier
   generate-build-id:
     needs: [unit-tests]

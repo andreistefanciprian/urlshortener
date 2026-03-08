@@ -53,6 +53,10 @@ jobs:
         working-directory: ./url-gen
         run: go vet ./...
 
+      - name: Run gofmt
+        working-directory: ./url-gen
+        run: test -z "$(gofmt -l .)"
+
       - name: Run integration unit tests
         working-directory: ./url-gen
         run: go test -v ./internal/implementation/
