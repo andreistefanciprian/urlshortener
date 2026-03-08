@@ -78,6 +78,10 @@ jobs:
         run: |
           if [[ "$GITHUB_REF" == refs/tags/* ]]; then
             echo "BUILD_ID=${GITHUB_REF_NAME#api-gateway-v}" >> $GITHUB_OUTPUT
+          elif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            pr_number=${GITHUB_REF_NAME%/merge}
+            sha=${GITHUB_SHA::8}
+            echo "BUILD_ID=pr-${pr_number}-${sha}" >> $GITHUB_OUTPUT
           else
             branch=${GITHUB_REF##*/}
             sha=${GITHUB_SHA::8}
@@ -100,9 +104,10 @@ jobs:
       push_latest: ${{ github.ref == 'refs/heads/main' }}
       
       # Security scanning
-      scan_severity: CRITICAL,HIGH
-      ignore_unfixed: true
-      
+      trivy_scan: true
+      trivy_scan_severity: CRITICAL,HIGH
+      trivy_ignore_unfixed: true
+
       # Signing and attestation
       cosign_sign: true
       cosign_attest_sbom: true
