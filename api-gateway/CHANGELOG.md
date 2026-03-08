@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.5](https://github.com/andreistefanciprian/urlshortener/compare/api-gateway-v1.0.4...api-gateway-v1.0.5) (2026-03-08)
+
+
+### Bug Fixes
+
+* **api-gateway:** hyphenate health-check in package comment ([2e9f77b](https://github.com/andreistefanciprian/urlshortener/commit/2e9f77b279821d1ac6c76b3df7cba961bb6b2bc8))
+
 ## [1.0.4](https://github.com/andreistefanciprian/urlshortener/compare/api-gateway-v1.0.3...api-gateway-v1.0.4) (2026-03-08)
 
 
