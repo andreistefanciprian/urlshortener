@@ -80,7 +80,7 @@ jobs:
         id: prep
         run: |
           if [[ "$GITHUB_REF" == refs/tags/* ]]; then
-            echo "BUILD_ID=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+            echo "BUILD_ID=${GITHUB_REF_NAME#api-gateway-v}" >> $GITHUB_OUTPUT
           else
             branch=${GITHUB_REF##*/}
             sha=${GITHUB_SHA::8}
