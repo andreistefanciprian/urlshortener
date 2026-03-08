@@ -1,4 +1,4 @@
-// api-gateway handles URL shortening, redirection, and liveness/readiness requests.
+// api-gateway handles URL shortening, redirection, and health requests.
 package main
 
 import (
