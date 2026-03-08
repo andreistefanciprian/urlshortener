@@ -1,6 +1,6 @@
 # URL Shortener Microservices
 
-![URL Shortener Logo](urlshortener_logo.png)
+<p align="center"><img src="urlshortener_logo.png" width="200" /></p>
 
 A distributed URL shortener built with Go microservice architecture (gRPC, Redis, PostgreSQL, Kafka).
 
