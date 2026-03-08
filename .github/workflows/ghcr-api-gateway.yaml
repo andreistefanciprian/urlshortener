@@ -28,7 +28,7 @@ on:
 
 # Required permissions
 permissions:
-  contents: read        # Read repository contents
+  contents: write       # Read repo contents + upload SBOM to releases
   id-token: write       # Generate OIDC tokens
   attestations: write   # Create attestations
   packages: write       # Push to GHCR
