@@ -6,7 +6,7 @@
       "component": "api-gateway",
       "tag-name": "api-gateway-v${version}",
       "version-file": "api-gateway/version.txt",
-      "changelog-path": "api-gateway/CHANGELOG.md"
+      "changelog-path": "CHANGELOG.md"
     }
   }
 }
