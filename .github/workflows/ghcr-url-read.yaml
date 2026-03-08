@@ -3,8 +3,6 @@ name: URL Read - Build & Push to GHCR
 # Trigger conditions
 on:
   push:
-    tags:
-      - '*'
     branches:
       - 'main'
     paths:
