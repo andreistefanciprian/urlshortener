@@ -12,6 +12,7 @@ on:
       - 'api-gateway/infra/Dockerfile'
       - '.github/workflows/docker-api-gateway.yaml'
       - 'api-gateway/version.txt'
+      - 'api-gateway/CHANGELOG.md'
   pull_request:
     branches: [ 'main' ]
     paths:
