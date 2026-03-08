@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/andreistefanciprian/urlshortener/compare/api-gateway-v1.0.1...api-gateway-v1.0.2) (2026-03-08)
+
+
+### Bug Fixes
+
+* merge changelogs and fix version-file path in release-please config ([ed92b20](https://github.com/andreistefanciprian/urlshortener/commit/ed92b2058c11b01387842f199319d280181c1a15))
+
 ## [1.0.1](https://github.com/andreistefanciprian/urlshortener/compare/api-gateway-v1.0.0...api-gateway-v1.0.1) (2026-03-08)
 
 
