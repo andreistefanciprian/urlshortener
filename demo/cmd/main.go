@@ -11,6 +11,6 @@ func main() {
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "ok")
 	})
-	log.Println("demo server listening on :8080") // fake change
+	log.Println("demo: server listening on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
