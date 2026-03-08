@@ -53,6 +53,10 @@ jobs:
         working-directory: ./api-gateway
         run: go vet ./cmd/...
 
+      - name: Run gofmt
+        working-directory: ./api-gateway
+        run: test -z "$(gofmt -l .)"
+
       - name: Run unit tests
         working-directory: ./api-gateway
         run: go test -v ./cmd
