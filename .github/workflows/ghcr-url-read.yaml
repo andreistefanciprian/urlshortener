@@ -24,7 +24,7 @@ on:
 
 # Required permissions
 permissions:
-  contents: read        # Read repository contents
+  contents: write       # Read repo contents + upload SBOM to releases
   id-token: write       # Generate OIDC tokens
   attestations: write   # Create attestations
   packages: write       # Push to GHCR
@@ -72,29 +72,36 @@ jobs:
       - name: Generate build ID
         id: prep
         run: |
-          branch=${GITHUB_REF##*/}
-          sha=${GITHUB_SHA::8}
-          ts=$(date +%s)
-          echo "BUILD_ID=${branch}-${sha}-${ts}" >> $GITHUB_OUTPUT
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            pr_number=${GITHUB_REF_NAME%/merge}
+            sha=${GITHUB_SHA::8}
+            echo "BUILD_ID=pr-${pr_number}-${sha}" >> $GITHUB_OUTPUT
+          else
+            branch=${GITHUB_REF##*/}
+            sha=${GITHUB_SHA::8}
+            ts=$(date +%s)
+            echo "BUILD_ID=${branch}-${sha}-${ts}" >> $GITHUB_OUTPUT
+          fi
 
   # Build, scan, sign, and push Docker image to GHCR
   docker:
     needs: [generate-build-id]
-    uses: andreistefanciprian/gh-reusable-workflows/.github/workflows/build_and_push_docker_image_to_ghcr.yaml@4edccbae4a1d9429acaf5face1acb5126d0d96c1
+    uses: andreistefanciprian/gh-reusable-workflows/.github/workflows/build_and_push_docker_image_to_ghcr.yaml@main
     with:
       # Image configuration
       image_name: ghcr.io/andreistefanciprian/url-read
       image_tag: ${{ needs.generate-build-id.outputs.BUILD_ID }}
       file: url-read/infra/Dockerfile
       context: ./url-read
-      
+
       # Tagging options
       push_latest: ${{ github.ref == 'refs/heads/main' }}
-      
+
       # Security scanning
-      scan_severity: CRITICAL,HIGH
-      ignore_unfixed: true
-      
+      trivy_scan: true
+      trivy_scan_severity: CRITICAL,HIGH
+      trivy_ignore_unfixed: true
+
       # Signing and attestation
       cosign_sign: true
       cosign_attest_sbom: true

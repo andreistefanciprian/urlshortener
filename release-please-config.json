@@ -16,6 +16,27 @@
       "tag-name": "demo-v${version}",
       "version-file": "version.txt",
       "changelog-path": "CHANGELOG.md"
+    },
+    "url-read": {
+      "release-type": "simple",
+      "component": "url-read",
+      "tag-name": "url-read-v${version}",
+      "version-file": "version.txt",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "url-gen": {
+      "release-type": "simple",
+      "component": "url-gen",
+      "tag-name": "url-gen-v${version}",
+      "version-file": "version.txt",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "frontend": {
+      "release-type": "simple",
+      "component": "frontend",
+      "tag-name": "frontend-v${version}",
+      "version-file": "version.txt",
+      "changelog-path": "CHANGELOG.md"
     }
   }
 }
