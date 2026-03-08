@@ -5,7 +5,7 @@
       "release-type": "simple",
       "component": "api-gateway",
       "tag-name": "api-gateway-v${version}",
-      "version-file": "api-gateway/version.txt",
+      "version-file": "version.txt",
       "changelog-path": "CHANGELOG.md"
     }
   }
