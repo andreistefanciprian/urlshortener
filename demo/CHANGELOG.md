@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/andreistefanciprian/urlshortener/compare/demo-v1.0.1...demo-v1.0.2) (2026-03-08)
+
+
+### Bug Fixes
+
+* **ci:** set pull-request-title-pattern for consistent release PR titles ([828ad3d](https://github.com/andreistefanciprian/urlshortener/commit/828ad3db7338cb1396bd437804088041b39d28c0))
+
 ## [1.0.1](https://github.com/andreistefanciprian/urlshortener/compare/demo-v1.0.0...demo-v1.0.1) (2026-03-08)
 
 
