@@ -1,0 +1,9 @@
+image:
+  repository: ghcr.io/andreistefanciprian/demo
+  tag: latest
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+service:
+  port: 8080
