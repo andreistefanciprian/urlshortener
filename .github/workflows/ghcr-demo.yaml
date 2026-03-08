@@ -70,6 +70,10 @@ jobs:
         run: |
           if [[ "$GITHUB_REF" == refs/tags/* ]]; then
             echo "BUILD_ID=${GITHUB_REF_NAME#demo-v}" >> $GITHUB_OUTPUT
+          elif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            pr_number=${GITHUB_REF_NAME%/merge}
+            sha=${GITHUB_SHA::8}
+            echo "BUILD_ID=pr-${pr_number}-${sha}" >> $GITHUB_OUTPUT
           else
             branch=${GITHUB_REF##*/}
             sha=${GITHUB_SHA::8}
