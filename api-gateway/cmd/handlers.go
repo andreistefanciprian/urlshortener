@@ -1,3 +1,4 @@
+// api-gateway handles URL shortening requests.
 package main
 
 import (
