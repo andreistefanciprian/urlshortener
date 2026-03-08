@@ -13,7 +13,7 @@ spec:
   source:
     repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/frontend
     chart: frontend
-    targetRevision: 0.1.2
+    targetRevision: 0.1.4
     helm:
       values: |
         image:
