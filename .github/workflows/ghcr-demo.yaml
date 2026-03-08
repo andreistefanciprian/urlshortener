@@ -90,9 +90,9 @@ jobs:
       file: demo/infra/Dockerfile
       context: ./demo
       push_latest: ${{ github.ref == 'refs/heads/main' }}
-      trivy_scan: false
+      trivy_scan: true
       trivy_scan_severity: CRITICAL,HIGH
       trivy_ignore_unfixed: true
-      cosign_sign: false
-      cosign_attest_sbom: false
+      cosign_sign: true
+      cosign_attest_sbom: true
     secrets: inherit
