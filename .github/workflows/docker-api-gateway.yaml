@@ -11,6 +11,7 @@ on:
       - 'api-gateway/**/*.go'
       - 'api-gateway/infra/Dockerfile'
       - '.github/workflows/docker-api-gateway.yaml'
+      - 'api-gateway/version.txt'
   pull_request:
     branches: [ 'main' ]
     paths:

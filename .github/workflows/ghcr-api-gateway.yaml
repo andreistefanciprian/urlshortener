@@ -12,6 +12,7 @@ on:
       - 'api-gateway/**/*.go'
       - 'api-gateway/infra/Dockerfile'
       - '.github/workflows/ghcr-api-gateway.yaml'
+      - 'api-gateway/version.txt'
   
   pull_request:
     branches:
