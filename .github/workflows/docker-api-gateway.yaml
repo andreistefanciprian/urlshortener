@@ -3,7 +3,7 @@ name: api-gateway image build and push to DockerHub
 on:
   push:
     tags:
-      - '*'
+      - 'api-gateway-v*'
     branches:
       - 'main'
     paths:
@@ -77,10 +77,14 @@ jobs:
       - name: Generate build ID
         id: prep
         run: |
-          branch=${GITHUB_REF##*/}
-          sha=${GITHUB_SHA::8}
-          ts=$(date +%s)
-          echo "BUILD_ID=${branch}-${sha}-${ts}" >> $GITHUB_OUTPUT
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "BUILD_ID=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+          else
+            branch=${GITHUB_REF##*/}
+            sha=${GITHUB_SHA::8}
+            ts=$(date +%s)
+            echo "BUILD_ID=${branch}-${sha}-${ts}" >> $GITHUB_OUTPUT
+          fi
 
   docker:
     needs: [generate-build-id]
