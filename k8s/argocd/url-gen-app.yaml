@@ -18,7 +18,7 @@ spec:
       values: |
         image:
           repository: andreistefanciprian/urlshortener-url-gen
-          tag: latest@sha256:1b85150dcef1b31bfd17b2663570613d788a008e2e6986c40c6c61f1e296319f
+          tag: latest@sha256:57c3ec2a0c9ebf5df36b0ce66decb0053aec739046774bac7709ba6f5812b041
         config:
           LOG_LEVEL: DEBUG
           DB_HOST: postgres-postgresql.postgres.svc
