@@ -132,3 +132,8 @@ func (r *RedisURLCache) Set(ctx context.Context, shortURLCode string, cacheEntry
 func (r *RedisURLCache) Close() error {
 	return r.client.Close()
 }
+
+// HealthCheck verifies the Redis connection is alive
+func (r *RedisURLCache) HealthCheck(ctx context.Context) error {
+	return r.client.Ping(ctx).Err()
+}

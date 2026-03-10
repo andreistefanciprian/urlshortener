@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/andreistefanciprian/urlshortener/url-read/internal/cache"
@@ -13,8 +16,8 @@ import (
 	redis "github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/reflection"
 )
 
 var logger = logrus.New()
@@ -34,6 +37,43 @@ func initLogger() {
 		PadLevelText:  true,
 	})
 	logger.Infof("Logger initialized with log level: %s", logLevel)
+}
+
+// healthServer implements grpc_health_v1.HealthServer.
+// Liveness (service="") always returns SERVING.
+// Readiness (any named service) checks Postgres and Redis on each probe call.
+type healthServer struct {
+	grpc_health_v1.UnimplementedHealthServer
+	logger   *logrus.Logger
+	urlRepo  *db.PostgresURLStore
+	urlCache *cache.RedisURLCache
+}
+
+func (h *healthServer) Check(ctx context.Context, req *grpc_health_v1.HealthCheckRequest) (*grpc_health_v1.HealthCheckResponse, error) {
+	// Liveness probe uses empty service name — always report serving
+	if req.Service == "" {
+		h.logger.Debug("Liveness probe hit")
+		return &grpc_health_v1.HealthCheckResponse{Status: grpc_health_v1.HealthCheckResponse_SERVING}, nil
+	}
+
+	// Readiness probe — check actual dependencies
+	h.logger.Debugf("Readiness probe hit for service: %s", req.Service)
+	checkCtx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel()
+
+	pgErr := h.urlRepo.HealthCheck(checkCtx)
+	redisErr := h.urlCache.HealthCheck(checkCtx)
+
+	if redisErr != nil {
+		h.logger.Warnf("Redis unavailable, serving in degraded mode: %v", redisErr)
+	}
+	if pgErr != nil {
+		h.logger.Warnf("Readiness check failed - postgres: %v", pgErr)
+		return &grpc_health_v1.HealthCheckResponse{Status: grpc_health_v1.HealthCheckResponse_NOT_SERVING}, nil
+	}
+
+	h.logger.Debug("Readiness probe passed")
+	return &grpc_health_v1.HealthCheckResponse{Status: grpc_health_v1.HealthCheckResponse_SERVING}, nil
 }
 
 func main() {
@@ -74,11 +114,21 @@ func main() {
 	urlReadService := urlread.NewURLReadService(logger, urlRepo, urlCache)
 	proto.RegisterURLReaderServer(grpcServer, urlReadService)
 
-	// Register health check service
-	healthServer := health.NewServer()
-	grpc_health_v1.RegisterHealthServer(grpcServer, healthServer)
-	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
+	// Register gRPC health service (used by both liveness and readiness probes)
+	grpc_health_v1.RegisterHealthServer(grpcServer, &healthServer{
+		logger:   logger,
+		urlRepo:  urlRepo,
+		urlCache: urlCache,
+	})
 	logger.Info("gRPC health check service registered")
+	if os.Getenv("GRPC_REFLECTION") == "true" {
+		reflection.Register(grpcServer)
+		logger.Info("gRPC reflection enabled")
+	}
+
+	// Set up context that cancels on SIGTERM/SIGINT for graceful shutdown
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
+	defer cancel()
 
 	// Start listening for gRPC requests
 	serverPort := os.Getenv("URL_READ_PORT")
@@ -87,6 +137,14 @@ func main() {
 		logger.WithError(err).Fatal("Failed to start gRPC listener")
 	}
 	logger.Infof("gRPC server listening at %v", listener.Addr())
+
+	// Shut down gRPC server gracefully when context is cancelled
+	go func() {
+		<-ctx.Done()
+		logger.Info("Shutting down gRPC server")
+		grpcServer.GracefulStop()
+	}()
+
 	if err := grpcServer.Serve(listener); err != nil {
 		logger.WithError(err).Fatal("Failed to serve gRPC server")
 	}

@@ -108,8 +108,11 @@ livenessProbe:
 readinessProbe:
   grpc:
     port: 50053
+    service: URLReader
   initialDelaySeconds: 5
   periodSeconds: 5
+  timeoutSeconds: 2
+  failureThreshold: 3
 startupProbe: {}
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
