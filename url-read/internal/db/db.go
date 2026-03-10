@@ -40,6 +40,11 @@ func (r *PostgresURLStore) Close() error {
 	return nil
 }
 
+// HealthCheck verifies the database connection is alive
+func (r *PostgresURLStore) HealthCheck(ctx context.Context) error {
+	return r.db.Ping(ctx)
+}
+
 type URLRecord struct {
 	OriginalURL string
 	ExpiresAt   *time.Time
