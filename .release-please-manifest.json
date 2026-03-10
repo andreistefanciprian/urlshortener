@@ -3,5 +3,5 @@
   "api-gateway": "1.0.8",
   "frontend": "1.1.0",
   "url-read": "1.1.0",
-  "url-gen": "1.1.0"
+  "url-gen": "1.1.1"
 }
