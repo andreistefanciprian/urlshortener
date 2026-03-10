@@ -26,7 +26,7 @@ Creates a new short URL from a long URL.
 
 **Flow:** Client → API Gateway → URL-Gen Service → PostgreSQL → Return short URL
 
-```json
+```shell
 # Request
 {
   "longUrl": "https://example.com/very/long/url",
@@ -45,7 +45,7 @@ Retrieves and redirects to the original long URL.
 
 **Flow:** Client → API Gateway → URL-Read Service → Redis/PostgreSQL → 302 Redirect
 
-```
+```shell
 # Request
 GET /gt0PFD8
 
@@ -60,7 +60,7 @@ Deletes a short URL and removes it from both database and cache.
 
 **Flow:** Client → API Gateway → URL-Gen Service → Redis/PostgreSQL → Confirmation
 
-```
+```shell
 # Request
 DELETE /gt0PFD8
 
