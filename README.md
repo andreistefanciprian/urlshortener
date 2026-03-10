@@ -10,10 +10,10 @@ FluxCD deployment manifests: [andreistefanciprian/urlshortener-gitops](https://g
 
 ## Architecture
 
-- **frontend**: Web UI service (port 8090) - Bootstrap based admin interface for managing URLs with create/delete functionality
-- **api-gateway**: REST API server (port 8080) - handles HTTP requests and routes to gRPC services
-- **url-gen**: gRPC URL generation service (port 50052) - creates short URLs
-- **url-read**: gRPC URL reading service (port 50053) - resolves short URLs and tracks clicks
+- **frontend**: Web UI service - CSS Bootstrap based admin interface for managing URLs with create/delete functionality
+- **api-gateway**: REST API server - handles HTTP requests and routes to gRPC services
+- **url-gen**: gRPC URL generation service - creates short URLs
+- **url-read**: gRPC URL reading service - resolves short URLs
 - **redis**: Cache layer for fast URL lookups and reduced database load
 - **postgresql**: Primary database for persistent URL storage and metadata 
 
@@ -21,24 +21,26 @@ FluxCD deployment manifests: [andreistefanciprian/urlshortener-gitops](https://g
 
 The API Gateway exposes three main REST endpoints:
 
-### POST /create
+#### POST /create
 Creates a new short URL from a long URL.
 
 **Flow:** Client → API Gateway → URL-Gen Service → PostgreSQL → Return short URL
 
 ```json
+# Request
 {
   "longUrl": "https://example.com/very/long/url",
   "expiresIn": 7
 }
 
+# Response
 {
   "shortUrl": "l.it/gt0PFD8",
   "expiration": "2025-10-10T12:00:00Z"
 }
 ```
 
-### GET /{shortCode}
+#### GET /{shortCode}
 Retrieves and redirects to the original long URL.
 
 **Flow:** Client → API Gateway → URL-Read Service → Redis/PostgreSQL → 302 Redirect
@@ -53,7 +55,7 @@ GET /gt0PFD8
 410 Gone: Short URL has expired
 ```
 
-### DELETE /{shortCode}
+#### DELETE /{shortCode}
 Deletes a short URL and removes it from both database and cache.
 
 **Flow:** Client → API Gateway → URL-Gen Service → Redis/PostgreSQL → Confirmation
@@ -97,6 +99,7 @@ Cache-first architecture for optimal performance:
 Requirements:
 - Docker
 - Docker Compose
+- Makefile
 
 ```
 # Start all services
