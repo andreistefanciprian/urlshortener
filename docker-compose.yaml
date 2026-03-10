@@ -58,6 +58,8 @@ services:
       - REDIS_PASSWORD=redispassword
       - REDIS_DB=0
       - URL_GEN_PORT=50052
+      - GRPC_REFLECTION=true
+      - LOG_LEVEL=DEBUG
     depends_on:
       url-gen-db:
         condition: service_healthy

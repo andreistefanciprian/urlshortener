@@ -40,6 +40,11 @@ func (r *PostgresURLStore) Close() error {
 	return nil
 }
 
+// HealthCheck verifies the database connection is alive
+func (r *PostgresURLStore) HealthCheck(ctx context.Context) error {
+	return r.db.Ping(ctx)
+}
+
 const insertShortURLQuery = `
 		INSERT INTO short_links (code, original_url, expires_at) 
 		VALUES ($1, $2, $3)`
