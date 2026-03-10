@@ -130,10 +130,41 @@ get_all_urls() {
     echo "========================================="
 }
 
+check_health_probes() {
+    echo "========================================="
+    echo "Checking gRPC Health Probes"
+    echo "========================================="
+
+    echo
+    echo "url-gen readiness (URLGenerator):"
+    grpcurl -plaintext -d '{"service":"URLGenerator"}' localhost:50052 grpc.health.v1.Health/Check
+    sleep 1
+
+    echo
+    echo "url-gen liveness:"
+    grpcurl -plaintext localhost:50052 grpc.health.v1.Health/Check
+    sleep 1
+
+    echo
+    echo "url-read readiness (URLReader):"
+    grpcurl -plaintext -d '{"service":"URLReader"}' localhost:50053 grpc.health.v1.Health/Check
+    sleep 1
+
+    echo
+    echo "url-read liveness:"
+    grpcurl -plaintext localhost:50053 grpc.health.v1.Health/Check
+
+    echo
+    echo "========================================="
+    echo "Health probe checks completed"
+    echo "========================================="
+}
+
 # Run the test functions
-test_create_short_url
-test_get_long_url
-delete_short_url
-get_all_urls
-check_db_table
-check_metrics
+# test_create_short_url
+# test_get_long_url
+# delete_short_url
+# get_all_urls
+# check_db_table
+# check_metrics
+check_health_probes

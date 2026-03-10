@@ -3,6 +3,8 @@ package cache
 import (
 	"context"
 	"fmt"
+	"io"
+	"log"
 	"os"
 	"strconv"
 	"time"
@@ -20,6 +22,8 @@ type CacheConfig struct {
 
 // initCache collects cache parameters from environment variables and creates Redis connection
 func initCache(redisOptions *redis.Options) (*redis.Client, error) {
+	// Suppress the Redis client's internal connection pool logs
+	redis.SetLogger(log.New(io.Discard, "", 0))
 
 	// Create Redis client
 	rdb := redis.NewClient(redisOptions)
