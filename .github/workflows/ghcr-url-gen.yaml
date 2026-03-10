@@ -3,6 +3,8 @@ name: URL Gen - Build & Push to GHCR
 # Trigger conditions
 on:
   push:
+    tags:
+      - 'url-gen-v*'
     branches:
       - 'main'
     paths:
@@ -10,7 +12,9 @@ on:
       - 'url-gen/**/*.go'
       - 'url-gen/infra/Dockerfile'
       - '.github/workflows/ghcr-url-gen.yaml'
-  
+      - 'url-gen/version.txt'
+      - 'url-gen/CHANGELOG.md'
+
   pull_request:
     branches:
       - 'main'
