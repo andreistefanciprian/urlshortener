@@ -3,6 +3,8 @@ name: URL Read - Build & Push to GHCR
 # Trigger conditions
 on:
   push:
+    tags:
+      - 'url-read-v*'
     branches:
       - 'main'
     paths:
@@ -10,7 +12,9 @@ on:
       - 'url-read/**/*.go'
       - 'url-read/infra/Dockerfile'
       - '.github/workflows/ghcr-url-read.yaml'
-  
+      - 'url-read/version.txt'
+      - 'url-read/CHANGELOG.md'
+
   pull_request:
     branches:
       - 'main'

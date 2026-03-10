@@ -3,6 +3,8 @@ name: Frontend - Build & Push to GHCR
 # Trigger conditions
 on:
   push:
+    tags:
+      - 'frontend-v*'
     branches:
       - 'main'
     paths:
@@ -11,7 +13,9 @@ on:
       - 'frontend/**/*.tmpl'
       - 'frontend/infra/Dockerfile'
       - '.github/workflows/ghcr-frontend.yaml'
-  
+      - 'frontend/version.txt'
+      - 'frontend/CHANGELOG.md'
+
   pull_request:
     branches:
       - 'main'
