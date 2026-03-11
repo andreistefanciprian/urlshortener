@@ -146,7 +146,7 @@ func main() {
 	}()
 
 	if err := grpcServer.Serve(listener); err != nil && ctx.Err() == nil {
-		logger.WithError(err).Fatal("Failed to serve gRPC server")
+		logger.WithError(err).Error("gRPC server exited unexpectedly")
 	}
 	logger.Info("gRPC server stopped")
 }
