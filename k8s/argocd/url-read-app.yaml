@@ -13,7 +13,7 @@ spec:
   source:
     repoURL: oci://ghcr.io/andreistefanciprian/urlshortener/url-read
     chart: url-read
-    targetRevision: 0.1.10
+    targetRevision: 0.1.11
     helm:
       values: |
         image:
