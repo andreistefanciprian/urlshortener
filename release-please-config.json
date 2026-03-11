@@ -4,35 +4,35 @@
   "separate-pull-requests": true,
   "packages": {
     "api-gateway": {
-      "release-type": "golang",
+      "release-type": "simple",
       "component": "api-gateway",
       "tag-name": "api-gateway-v${version}",
       "version-file": "version.txt",
       "changelog-path": "CHANGELOG.md"
     },
     "demo": {
-      "release-type": "golang",
+      "release-type": "simple",
       "component": "demo",
       "tag-name": "demo-v${version}",
       "version-file": "version.txt",
       "changelog-path": "CHANGELOG.md"
     },
     "url-read": {
-      "release-type": "golang",
+      "release-type": "simple",
       "component": "url-read",
       "tag-name": "url-read-v${version}",
       "version-file": "version.txt",
       "changelog-path": "CHANGELOG.md"
     },
     "url-gen": {
-      "release-type": "golang",
+      "release-type": "simple",
       "component": "url-gen",
       "tag-name": "url-gen-v${version}",
       "version-file": "version.txt",
       "changelog-path": "CHANGELOG.md"
     },
     "frontend": {
-      "release-type": "golang",
+      "release-type": "simple",
       "component": "frontend",
       "tag-name": "frontend-v${version}",
       "version-file": "version.txt",
