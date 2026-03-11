@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.2](https://github.com/andreistefanciprian/urlshortener/compare/url-gen-v1.1.1...url-gen-v1.1.2) (2026-03-11)
+
+
+### Bug Fixes
+
+* grpc health probe improvements for url-gen and url-read ([4de7f55](https://github.com/andreistefanciprian/urlshortener/commit/4de7f5570ba7c017877c4b55a7477f49f314d762))
+* replace log.Fatal/log.Printf with logrus; use Error on Serve failure ([e76b2c8](https://github.com/andreistefanciprian/urlshortener/commit/e76b2c84031f75ca97c3c1f493a3e6e38cd8bd63))
+* **url-gen:** grpc health probe improvements for url-gen and url-read ([#166](https://github.com/andreistefanciprian/urlshortener/issues/166)) ([b02a0b7](https://github.com/andreistefanciprian/urlshortener/commit/b02a0b7e26fed9fde2a3c139623f0c1be27407ea))
+* use custom no-op logger for redis.SetLogger (v9 interface fix) ([ebd9516](https://github.com/andreistefanciprian/urlshortener/commit/ebd9516fcf6062c3ebcb0ae8fbfec6e512ad1428))
+
 ## [1.1.1](https://github.com/andreistefanciprian/urlshortener/compare/url-gen-v1.1.0...url-gen-v1.1.1) (2026-03-10)
 
 
