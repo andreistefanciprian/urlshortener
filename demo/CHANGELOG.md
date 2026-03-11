@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/andreistefanciprian/urlshortener/compare/demo-v1.0.2...demo-v1.0.3) (2026-03-11)
+
+
+### Bug Fixes
+
+* **url-gen:** improve grpc health probes for kubernetes readiness ([2864c9a](https://github.com/andreistefanciprian/urlshortener/commit/2864c9a34e268983dfb15ce2780437d875f7d405))
+
 ## [1.0.2](https://github.com/andreistefanciprian/urlshortener/compare/demo-v1.0.1...demo-v1.0.2) (2026-03-08)
 
 
