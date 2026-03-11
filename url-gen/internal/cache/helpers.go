@@ -10,6 +10,11 @@ import (
 	redis "github.com/redis/go-redis/v9"
 )
 
+// discardLogger is a no-op logger satisfying redis/v9's internal.Logging interface
+type discardLogger struct{}
+
+func (discardLogger) Printf(_ context.Context, _ string, _ ...interface{}) {}
+
 // CacheConfig holds Redis cache configuration parameters
 type CacheConfig struct {
 	Host     string
@@ -20,6 +25,8 @@ type CacheConfig struct {
 
 // initCache collects cache parameters from environment variables and creates Redis connection
 func initCache(redisOptions *redis.Options) (*redis.Client, error) {
+	// Suppress the Redis client's internal connection pool logs
+	redis.SetLogger(discardLogger{})
 
 	// Create Redis client
 	rdb := redis.NewClient(redisOptions)

@@ -102,7 +102,7 @@ livenessProbe:
 readinessProbe:
   grpc:
     port: 50052
-    service: urlshortener.urlgen.URLGenerator
+    service: URLGenerator
   initialDelaySeconds: 5
   periodSeconds: 5
   timeoutSeconds: 2

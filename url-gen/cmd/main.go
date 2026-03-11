@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net"
 	"os"
 	"os/signal"
@@ -134,9 +133,9 @@ func main() {
 	serverPort := os.Getenv("URL_GEN_PORT")
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", serverPort))
 	if err != nil {
-		log.Fatalf("Failed to listen: %v", err)
+		logger.WithError(err).Fatal("Failed to start gRPC listener")
 	}
-	log.Printf("gRPC server listening at %v", listener.Addr())
+	logger.Infof("gRPC server listening at %v", listener.Addr())
 
 	// Shut down gRPC server gracefully when context is cancelled
 	go func() {
@@ -145,7 +144,8 @@ func main() {
 		grpcServer.GracefulStop()
 	}()
 
-	if err := grpcServer.Serve(listener); err != nil {
-		log.Fatalf("Failed to serve gRPC server: %v", err)
+	if err := grpcServer.Serve(listener); err != nil && ctx.Err() == nil {
+		logger.WithError(err).Error("gRPC server exited unexpectedly")
 	}
+	logger.Info("gRPC server stopped")
 }
