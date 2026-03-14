@@ -76,7 +76,9 @@ jobs:
       - name: Generate build ID
         id: prep
         run: |
-          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "BUILD_ID=${GITHUB_REF_NAME#url-read-v}" >> $GITHUB_OUTPUT
+          elif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
             pr_number=${GITHUB_REF_NAME%/merge}
             sha=${GITHUB_SHA::8}
             echo "BUILD_ID=pr-${pr_number}-${sha}" >> $GITHUB_OUTPUT
