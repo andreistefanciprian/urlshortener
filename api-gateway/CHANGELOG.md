@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.0](https://github.com/andreistefanciprian/urlshortener/compare/api-gateway-v1.0.9...api-gateway-v1.1.0) (2026-03-14)
+
+
+### Features
+
+* **api-gateway:** add HTTPRoute template support ([42cf852](https://github.com/andreistefanciprian/urlshortener/commit/42cf852c34df42a8a411ca1069d32f71fdf3c68a))
+* **api-gateway:** add HTTPRoute template support ([#190](https://github.com/andreistefanciprian/urlshortener/issues/190)) ([3b5178c](https://github.com/andreistefanciprian/urlshortener/commit/3b5178c9b522c4ce8aa388e42489e19c200e0bbb))
+
 ## [1.0.9](https://github.com/andreistefanciprian/urlshortener/compare/api-gateway-v1.0.8...api-gateway-v1.0.9) (2026-03-14)
 
 
