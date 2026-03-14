@@ -1,3 +1,4 @@
+// Package main is the entry point for the url-read gRPC service.
 package main
 
 import (
