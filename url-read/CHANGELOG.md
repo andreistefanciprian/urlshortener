@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.2](https://github.com/andreistefanciprian/urlshortener/compare/url-read-v1.2.1...url-read-v1.2.2) (2026-03-14)
+
+
+### Bug Fixes
+
+* **url-read:** add package doc comment to main ([f49d158](https://github.com/andreistefanciprian/urlshortener/commit/f49d1586cfa48bfac2a4613f9bd3c354f6fe64b3))
+* **url-read:** add package doc comment to main ([#182](https://github.com/andreistefanciprian/urlshortener/issues/182)) ([5203929](https://github.com/andreistefanciprian/urlshortener/commit/52039290154cebad216811108752a529d914522c))
+
 ## [1.2.1](https://github.com/andreistefanciprian/urlshortener/compare/url-read-v1.2.0...url-read-v1.2.1) (2026-03-11)
 
 
