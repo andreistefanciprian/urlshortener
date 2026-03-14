@@ -4,15 +4,6 @@ on:
   push:
     tags:
       - 'demo-v*'
-    branches:
-      - 'main'
-    paths:
-      - 'demo/go.*'
-      - 'demo/**/*.go'
-      - 'demo/infra/Dockerfile'
-      - '.github/workflows/ghcr-demo.yaml'
-      - 'demo/version.txt'
-      - 'demo/CHANGELOG.md'
 
   pull_request:
     branches:
@@ -93,7 +84,7 @@ jobs:
       image_tag: ${{ needs.generate-build-id.outputs.BUILD_ID }}
       file: demo/infra/Dockerfile
       context: ./demo
-      push_latest: ${{ github.ref == 'refs/heads/main' }}
+      push_latest: ${{ startsWith(github.ref, 'refs/tags/demo-v') }}
       trivy_scan: true
       trivy_scan_severity: CRITICAL,HIGH
       trivy_ignore_unfixed: true
