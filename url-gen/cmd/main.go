@@ -40,6 +40,9 @@ func initLogger() {
 	logger.Infof("Logger initialized with log level: %s", logLevel)
 }
 
+// healthCheckTimeout is the timeout for dependency health checks during readiness probes.
+const healthCheckTimeout = 2 * time.Second
+
 // healthServer implements grpc_health_v1.HealthServer.
 // Liveness (service="") always returns SERVING.
 // Readiness (any named service) checks Postgres and Redis on each probe call.
@@ -59,7 +62,7 @@ func (h *healthServer) Check(ctx context.Context, req *grpc_health_v1.HealthChec
 
 	// Readiness probe — check actual dependencies
 	h.logger.Debugf("Readiness probe hit for service: %s", req.Service)
-	checkCtx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	checkCtx, cancel := context.WithTimeout(ctx, healthCheckTimeout)
 	defer cancel()
 
 	pgErr := h.urlRepo.HealthCheck(checkCtx)
