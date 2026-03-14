@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.4](https://github.com/andreistefanciprian/urlshortener/compare/url-gen-v1.1.3...url-gen-v1.1.4) (2026-03-14)
+
+
+### Bug Fixes
+
+* **url-gen:** extract health check timeout into named constant ([7547596](https://github.com/andreistefanciprian/urlshortener/commit/75475968987b4ed151e31d3837f080f6d6bc6696))
+* **url-gen:** extract health check timeout into named constant ([#188](https://github.com/andreistefanciprian/urlshortener/issues/188)) ([e80aa90](https://github.com/andreistefanciprian/urlshortener/commit/e80aa901a55696fb4d6397ea988993bef967f7c4))
+
 ## [1.1.3](https://github.com/andreistefanciprian/urlshortener/compare/url-gen-v1.1.2...url-gen-v1.1.3) (2026-03-14)
 
 
