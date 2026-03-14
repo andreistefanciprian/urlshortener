@@ -88,7 +88,7 @@ The API Gateway includes built-in Prometheus metrics for observability. See [MON
 
 Cache-first architecture for optimal performance:
 
-![GetLongURL Flow](get_long_url_flow.png)
+![GetLongURL Flow](get_long_url_flow.jpg)
 
 **Flow:** Client → API Gateway → URL-Read Service (Redis Cache HIT → 302 Redirect | Cache MISS → PostgreSQL → 302 Redirect)
 
