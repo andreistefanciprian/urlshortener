@@ -96,7 +96,7 @@ jobs:
       context: ./url-read
 
       # Tagging options
-      push_latest: false
+      push_latest: ${{ startsWith(github.ref, 'refs/tags/url-read-v') }}
 
       # Security scanning
       trivy_scan: true

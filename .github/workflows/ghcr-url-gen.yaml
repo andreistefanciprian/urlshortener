@@ -96,7 +96,7 @@ jobs:
       context: ./url-gen
 
       # Tagging options
-      push_latest: false
+      push_latest: ${{ startsWith(github.ref, 'refs/tags/url-gen-v') }}
 
       # Security scanning
       trivy_scan: true

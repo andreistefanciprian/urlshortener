@@ -93,7 +93,7 @@ jobs:
       context: ./frontend
 
       # Tagging options
-      push_latest: false
+      push_latest: ${{ startsWith(github.ref, 'refs/tags/frontend-v') }}
 
       # Security scanning
       trivy_scan: true
