@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.3](https://github.com/andreistefanciprian/urlshortener/compare/url-gen-v1.1.2...url-gen-v1.1.3) (2026-03-14)
+
+
+### Bug Fixes
+
+* **url-gen:** add package doc comment to main ([01653ef](https://github.com/andreistefanciprian/urlshortener/commit/01653efbe50b8e564536393e109b10a6f45b5c61))
+* **url-gen:** add package doc comment to main ([#177](https://github.com/andreistefanciprian/urlshortener/issues/177)) ([4ab5fe3](https://github.com/andreistefanciprian/urlshortener/commit/4ab5fe30bfb1584ed53213afc079caf4b8442c29))
+
 ## [1.1.2](https://github.com/andreistefanciprian/urlshortener/compare/url-gen-v1.1.1...url-gen-v1.1.2) (2026-03-11)
 
 
