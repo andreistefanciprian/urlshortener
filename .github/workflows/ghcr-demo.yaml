@@ -81,6 +81,10 @@ jobs:
             echo "BUILD_ID=${branch}-${sha}-${ts}" >> $GITHUB_OUTPUT
           fi
 
+      - name: Print build ID
+        run: |
+          echo "BUILD_ID: ${{ steps.prep.outputs.BUILD_ID }}"
+
   docker:
     needs: [generate-build-id]
     uses: andreistefanciprian/gh-reusable-workflows/.github/workflows/build_and_push_docker_image_to_ghcr.yaml@main

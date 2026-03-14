@@ -87,6 +87,10 @@ jobs:
             echo "BUILD_ID=${branch}-${sha}-${ts}" >> $GITHUB_OUTPUT
           fi
 
+      - name: Print build ID
+        run: |
+          echo "BUILD_ID: ${{ steps.prep.outputs.BUILD_ID }}"
+
   # Build, scan, sign, and push Docker image to GHCR
   docker:
     needs: [generate-build-id]
