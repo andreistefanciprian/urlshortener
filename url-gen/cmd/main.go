@@ -1,3 +1,4 @@
+// Package main is the entry point for the url-gen gRPC service.
 package main
 
 import (
