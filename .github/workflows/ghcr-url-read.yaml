@@ -5,15 +5,6 @@ on:
   push:
     tags:
       - 'url-read-v*'
-    branches:
-      - 'main'
-    paths:
-      - 'url-read/go.*'
-      - 'url-read/**/*.go'
-      - 'url-read/infra/Dockerfile'
-      - '.github/workflows/ghcr-url-read.yaml'
-      - 'url-read/version.txt'
-      - 'url-read/CHANGELOG.md'
 
   pull_request:
     branches:
@@ -105,7 +96,7 @@ jobs:
       context: ./url-read
 
       # Tagging options
-      push_latest: ${{ github.ref == 'refs/heads/main' }}
+      push_latest: false
 
       # Security scanning
       trivy_scan: true

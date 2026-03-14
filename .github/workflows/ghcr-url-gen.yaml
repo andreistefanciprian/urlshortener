@@ -5,15 +5,6 @@ on:
   push:
     tags:
       - 'url-gen-v*'
-    branches:
-      - 'main'
-    paths:
-      - 'url-gen/go.*'
-      - 'url-gen/**/*.go'
-      - 'url-gen/infra/Dockerfile'
-      - '.github/workflows/ghcr-url-gen.yaml'
-      - 'url-gen/version.txt'
-      - 'url-gen/CHANGELOG.md'
 
   pull_request:
     branches:
@@ -105,7 +96,7 @@ jobs:
       context: ./url-gen
 
       # Tagging options
-      push_latest: ${{ github.ref == 'refs/heads/main' }}
+      push_latest: false
 
       # Security scanning
       trivy_scan: true

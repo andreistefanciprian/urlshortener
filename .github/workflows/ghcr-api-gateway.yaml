@@ -5,15 +5,6 @@ on:
   push:
     tags:
       - 'api-gateway-v*'
-    branches:
-      - 'main'
-    paths:
-      - 'api-gateway/go.*'
-      - 'api-gateway/**/*.go'
-      - 'api-gateway/infra/Dockerfile'
-      - '.github/workflows/ghcr-api-gateway.yaml'
-      - 'api-gateway/version.txt'
-      - 'api-gateway/CHANGELOG.md'
   
   pull_request:
     branches:
@@ -105,7 +96,7 @@ jobs:
       context: ./api-gateway
       
       # Tagging options
-      push_latest: ${{ github.ref == 'refs/heads/main' }}
+      push_latest: false
       
       # Security scanning
       trivy_scan: true
