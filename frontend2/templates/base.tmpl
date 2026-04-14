@@ -1,0 +1,665 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snip — URL Shortener</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Tokens ────────────────────────────────────────────── */
+    :root {
+      --bg:         #0d1117;
+      --bg2:        #161b22;
+      --card:       #1c2128;
+      --card-h:     #21262d;
+      --border:     #30363d;
+      --border-h:   #484f58;
+      --text:       #e6edf3;
+      --text2:      #8b949e;
+      --text3:      #6e7681;
+      --accent:     #7c3aed;
+      --accent-lt:  #a78bfa;
+      --accent-dim: rgba(124,58,237,0.15);
+      --success:    #3fb950;
+      --danger:     #f85149;
+      --radius:     14px;
+      --radius-sm:  8px;
+      --shadow:     0 4px 12px rgba(0,0,0,0.35);
+      --shadow-lg:  0 12px 40px rgba(0,0,0,0.5);
+    }
+    [data-theme="light"] {
+      --bg:         #f6f8fa;
+      --bg2:        #ffffff;
+      --card:       #ffffff;
+      --card-h:     #f6f8fa;
+      --border:     #d0d7de;
+      --border-h:   #afb8c1;
+      --text:       #1f2328;
+      --text2:      #57606a;
+      --text3:      #8c959f;
+      --shadow:     0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg:  0 12px 40px rgba(0,0,0,0.12);
+    }
+
+    /* ── Base ──────────────────────────────────────────────── */
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.25s ease, color 0.25s ease;
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Layout ────────────────────────────────────────────── */
+    .container { max-width: 820px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── Scrollbar ─────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ── Nav ───────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 58px;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 9px;
+      font-weight: 700; font-size: 1.05rem;
+    }
+    .nav-logo .logo-icon { color: var(--accent-lt); }
+    .nav-logo .logo-text {
+      background: linear-gradient(125deg, var(--accent), var(--accent-lt));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .btn-icon {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 12px;
+      cursor: pointer;
+      color: var(--text2);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 500;
+      display: flex; align-items: center; gap: 6px;
+      transition: all 0.18s;
+    }
+    .btn-icon:hover { background: var(--card-h); border-color: var(--border-h); color: var(--text); }
+
+    /* ── Hero ──────────────────────────────────────────────── */
+    .hero {
+      padding: 56px 0 44px;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(124,58,237,0.28);
+      border-radius: 100px;
+      padding: 4px 14px;
+      margin-bottom: 22px;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em;
+      color: var(--accent-lt);
+      text-transform: uppercase;
+    }
+    .hero h1 {
+      font-size: clamp(1.9rem, 5vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.18;
+      letter-spacing: -0.03em;
+      margin-bottom: 14px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(125deg, #7c3aed 20%, #a78bfa 60%, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      color: var(--text2);
+      font-size: 1rem;
+      max-width: 440px;
+      margin: 0 auto 36px;
+    }
+
+    /* ── URL Input Card ────────────────────────────────────── */
+    .input-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      box-shadow: var(--shadow);
+      text-align: left;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .input-card:focus-within {
+      border-color: rgba(124,58,237,0.5);
+      box-shadow: var(--shadow), 0 0 0 3px rgba(124,58,237,0.12);
+    }
+    .input-row {
+      display: flex; gap: 8px; margin-bottom: 14px;
+    }
+    .url-input {
+      flex: 1; min-width: 0;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 11px 15px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+    .url-input::placeholder { color: var(--text3); }
+    .url-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+    }
+    .btn-shorten {
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 11px 22px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 7px;
+      transition: opacity 0.18s, transform 0.1s, box-shadow 0.18s;
+      box-shadow: 0 2px 8px rgba(124,58,237,0.35);
+    }
+    .btn-shorten:hover { opacity: 0.9; box-shadow: 0 4px 14px rgba(124,58,237,0.45); }
+    .btn-shorten:active { transform: scale(0.97); }
+    .btn-shorten.loading { opacity: 0.65; cursor: not-allowed; pointer-events: none; }
+    .btn-shorten svg { transition: transform 0.18s; }
+    .btn-shorten:hover svg { transform: translateX(2px); }
+
+    .form-row {
+      display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+    }
+    .form-label {
+      display: flex; align-items: center; gap: 8px;
+      color: var(--text2); font-size: 0.82rem;
+    }
+    .expiry-select {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 8px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.82rem;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.18s;
+    }
+    .expiry-select:focus { border-color: var(--accent); }
+
+    .form-error {
+      display: none;
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: rgba(248,81,73,0.08);
+      border: 1px solid rgba(248,81,73,0.25);
+      border-radius: var(--radius-sm);
+      color: var(--danger);
+      font-size: 0.83rem;
+    }
+    .form-error.visible { display: block; }
+
+    /* ── Section header ────────────────────────────────────── */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 0 16px;
+      margin-top: 8px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .section-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.9rem; font-weight: 600; color: var(--text);
+    }
+    .section-title svg { color: var(--accent-lt); }
+    .count-pill {
+      background: var(--accent-dim);
+      color: var(--accent-lt);
+      border-radius: 100px;
+      padding: 1px 10px;
+      font-size: 0.73rem;
+      font-weight: 700;
+    }
+
+    /* ── URL Cards ─────────────────────────────────────────── */
+    .url-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 64px; }
+
+    .url-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px 14px;
+      align-items: center;
+      transition: background 0.15s, border-color 0.15s;
+      animation: cardIn 0.28s ease both;
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .url-card:hover { background: var(--card-h); border-color: rgba(124,58,237,0.28); }
+
+    .url-card-body { min-width: 0; }
+
+    .short-row {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 5px;
+    }
+    .short-link {
+      font-size: 0.97rem; font-weight: 600;
+      color: var(--accent-lt);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      transition: color 0.15s;
+    }
+    .short-link:hover { color: var(--accent); text-decoration: underline; }
+
+    .btn-copy {
+      flex-shrink: 0;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px 9px;
+      color: var(--text2);
+      font-family: inherit;
+      font-size: 0.72rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 4px;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .btn-copy:hover { border-color: var(--border-h); color: var(--text); }
+    .btn-copy.copied {
+      background: rgba(63,185,80,0.1);
+      border-color: rgba(63,185,80,0.4);
+      color: var(--success);
+    }
+
+    .long-url {
+      color: var(--text3);
+      font-size: 0.82rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 7px;
+    }
+    .long-url::before { content: "→ "; color: var(--border-h); }
+
+    .meta-row {
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    }
+    .meta-item {
+      display: flex; align-items: center; gap: 4px;
+      color: var(--text3);
+      font-size: 0.73rem;
+    }
+    .meta-item svg { flex-shrink: 0; opacity: 0.7; }
+
+    .url-card-actions { display: flex; align-items: center; }
+
+    .btn-delete {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      color: var(--text3);
+      cursor: pointer;
+      display: flex;
+      transition: all 0.18s;
+    }
+    .btn-delete:hover {
+      background: rgba(248,81,73,0.1);
+      border-color: rgba(248,81,73,0.28);
+      color: var(--danger);
+    }
+
+    /* ── Empty state ───────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 64px 20px 80px;
+    }
+    .empty-icon {
+      width: 64px; height: 64px;
+      background: var(--accent-dim);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      color: var(--accent-lt);
+    }
+    .empty-state h3 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+    .empty-state p { color: var(--text3); font-size: 0.87rem; }
+
+    /* ── Toast ─────────────────────────────────────────────── */
+    .toasts {
+      position: fixed; bottom: 24px; right: 24px; z-index: 900;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .toast {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.85rem;
+      box-shadow: var(--shadow-lg);
+      min-width: 220px; max-width: 320px;
+      animation: toastIn 0.28s ease;
+    }
+    .toast.success { border-left: 3px solid var(--success); }
+    .toast.error   { border-left: 3px solid var(--danger); }
+    @keyframes toastIn  { from { opacity:0; transform: translateX(12px); } to { opacity:1; transform: translateX(0); } }
+    @keyframes toastOut { to   { opacity:0; transform: translateX(12px); } }
+    .toast.out { animation: toastOut 0.28s ease forwards; }
+
+    /* ── Delete modal ──────────────────────────────────────── */
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 500;
+      align-items: center; justify-content: center;
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px 28px;
+      width: min(380px, 90vw);
+      box-shadow: var(--shadow-lg);
+      animation: modalIn 0.22s ease;
+    }
+    @keyframes modalIn { from { opacity:0; transform: scale(0.94); } to { opacity:1; transform: scale(1); } }
+    .modal-icon {
+      width: 40px; height: 40px;
+      background: rgba(248,81,73,0.1);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--danger);
+      margin-bottom: 14px;
+    }
+    .modal h3 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+    .modal p  { color: var(--text2); font-size: 0.85rem; margin-bottom: 20px; word-break: break-all; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    .btn-cancel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 18px;
+      color: var(--text);
+      font-family: inherit; font-size: 0.85rem; font-weight: 500;
+      cursor: pointer;
+      transition: background 0.18s, border-color 0.18s;
+    }
+    .btn-cancel:hover { background: var(--card-h); border-color: var(--border-h); }
+    .btn-danger {
+      background: var(--danger);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 8px 18px;
+      color: #fff;
+      font-family: inherit; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.18s;
+    }
+    .btn-danger:hover { opacity: 0.85; }
+
+    /* ── Footer ────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 18px 0;
+    }
+    .footer-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.78rem; color: var(--text3);
+    }
+
+    /* ── Responsive ────────────────────────────────────────── */
+    @media (max-width: 580px) {
+      .hero { padding: 36px 0 30px; }
+      .input-row { flex-direction: column; }
+      .url-card { grid-template-columns: 1fr; }
+      .url-card-actions { justify-content: flex-end; }
+    }
+  </style>
+</head>
+<body>
+
+{{template "nav" .}}
+<main>
+  {{template "main" .}}
+</main>
+{{template "footer" .}}
+
+<!-- Delete confirmation modal -->
+<div class="overlay" id="delOverlay">
+  <div class="modal">
+    <div class="modal-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+        <path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+      </svg>
+    </div>
+    <h3>Delete this link?</h3>
+    <p id="delModalUrl"></p>
+    <form method="POST" action="/" id="delForm">
+      <input type="hidden" name="_method" value="DELETE">
+      <input type="hidden" name="delete"  value="Delete">
+      <input type="hidden" name="ShortUrl" id="delShortUrl">
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" id="delCancel">Cancel</button>
+        <button type="submit" class="btn-danger">Delete</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toasts" id="toasts"></div>
+
+<script>
+/* ── Theme ──────────────────────────────────────────────── */
+(function () {
+  var t = localStorage.getItem('snip-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+})();
+
+function toggleTheme() {
+  var cur  = document.documentElement.getAttribute('data-theme');
+  var next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('snip-theme', next);
+  refreshThemeBtn();
+}
+
+function refreshThemeBtn() {
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.querySelectorAll('.theme-label').forEach(function(el) {
+    el.textContent = isDark ? 'Light' : 'Dark';
+  });
+  document.querySelectorAll('.theme-icon').forEach(function(el) {
+    el.innerHTML = isDark ? sunSVG() : moonSVG();
+  });
+}
+
+function sunSVG() {
+  return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+}
+function moonSVG() {
+  return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>';
+}
+
+document.addEventListener('DOMContentLoaded', refreshThemeBtn);
+
+/* ── Toast ──────────────────────────────────────────────── */
+function toast(msg, type) {
+  var container = document.getElementById('toasts');
+  var el = document.createElement('div');
+  el.className = 'toast ' + (type || 'success');
+  var dot = type === 'error'
+    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+    : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+  el.innerHTML = dot + '<span>' + msg + '</span>';
+  container.appendChild(el);
+  setTimeout(function() {
+    el.classList.add('out');
+    setTimeout(function() { el.remove(); }, 300);
+  }, 3200);
+}
+
+/* ── Copy ───────────────────────────────────────────────── */
+function copyURL(url, btn) {
+  navigator.clipboard.writeText(url).then(function() {
+    btn.classList.add('copied');
+    btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+    setTimeout(function() {
+      btn.classList.remove('copied');
+      btn.innerHTML = copyBtnInner();
+    }, 2000);
+    toast('Copied to clipboard');
+  });
+}
+
+function copyBtnInner() {
+  return '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
+}
+
+/* ── Delete modal ───────────────────────────────────────── */
+function openDelete(shortUrl) {
+  document.getElementById('delShortUrl').value = shortUrl;
+  document.getElementById('delModalUrl').textContent = shortUrl;
+  document.getElementById('delOverlay').classList.add('open');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('delCancel').addEventListener('click', function() {
+    document.getElementById('delOverlay').classList.remove('open');
+  });
+  document.getElementById('delOverlay').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+
+  /* ── Create form ──────────────────────────────────────── */
+  var form   = document.getElementById('urlForm');
+  var errEl  = document.getElementById('formError');
+  if (!form) return;
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    errEl.classList.remove('visible');
+
+    var input = form.querySelector('input[name="longURL"]');
+    var btn   = form.querySelector('.btn-shorten');
+    var url   = input.value.trim();
+
+    if (!url) {
+      showFormError('Please enter a URL.');
+      return;
+    }
+    try { new URL(url); } catch(_) {
+      showFormError('Please enter a valid URL starting with http:// or https://');
+      return;
+    }
+
+    btn.classList.add('loading');
+    btn.textContent = 'Shortening…';
+
+    var fd = new FormData(form);
+    fd.set('create', 'Create');
+
+    fetch('/', { method: 'POST', body: fd })
+      .then(function(res) {
+        if (res.redirected || res.ok) {
+          toast('Short URL created!');
+          setTimeout(function() { location.reload(); }, 500);
+          return;
+        }
+        return res.text().then(function(t) {
+          showFormError((t || '').trim() || 'Failed to create short URL.');
+          resetBtn(btn);
+        });
+      })
+      .catch(function() {
+        showFormError('Network error — please try again.');
+        resetBtn(btn);
+      });
+  });
+
+  function showFormError(msg) {
+    errEl.textContent = msg;
+    errEl.classList.add('visible');
+  }
+  function resetBtn(btn) {
+    btn.classList.remove('loading');
+    btn.innerHTML = 'Shorten <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+  }
+
+  /* ── Relative timestamps ──────────────────────────────── */
+  function timeAgo(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return '';
+    var s = Math.floor((Date.now() - d) / 1000);
+    if (s < 60)   return 'just now';
+    if (s < 3600) return Math.floor(s/60) + 'm ago';
+    if (s < 86400) return Math.floor(s/3600) + 'h ago';
+    return Math.floor(s/86400) + 'd ago';
+  }
+  function expiryLabel(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return null;
+    var ms = d - Date.now();
+    if (ms < 0) return 'Expired';
+    var days = Math.floor(ms/86400000);
+    if (days === 0) return 'Expires today';
+    return 'Expires in ' + days + 'd';
+  }
+
+  document.querySelectorAll('[data-ts="created"]').forEach(function(el) {
+    el.textContent = timeAgo(el.dataset.iso);
+  });
+  document.querySelectorAll('[data-ts="expiry"]').forEach(function(el) {
+    var label = expiryLabel(el.dataset.iso);
+    if (label) el.textContent = label;
+    else el.closest('.meta-item').style.display = 'none';
+  });
+});
+</script>
+</body>
+</html>
+{{end}}

@@ -1,0 +1,130 @@
+{{define "main"}}
+<div class="container">
+
+  <!-- ── Hero ─────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="hero-eyebrow">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Fast &amp; simple
+    </div>
+    <h1>Make your long URLs<br><em>short and sweet</em></h1>
+    <p>Paste any URL and get a clean short link instantly. Set an expiry, copy with one click, and manage everything here.</p>
+
+    <div class="input-card">
+      <form id="urlForm" method="POST" action="/">
+        <div class="input-row">
+          <input
+            type="url"
+            name="longURL"
+            class="url-input"
+            placeholder="https://example.com/your/very/long/url/that/needs/shortening"
+            autocomplete="url"
+            spellcheck="false"
+            required
+          >
+          <button type="submit" class="btn-shorten">
+            Shorten
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+        <div class="form-row">
+          <label class="form-label">
+            Expires in
+            <select name="expiresIn" class="expiry-select">
+              <option value="1">1 day</option>
+              <option value="7" selected>7 days</option>
+              <option value="14">14 days</option>
+              <option value="30">30 days</option>
+              <option value="90">90 days</option>
+              <option value="365">1 year</option>
+            </select>
+          </label>
+        </div>
+        <div class="form-error" id="formError"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ── URL List ──────────────────────────────────────────── -->
+  <section>
+    <div class="section-header">
+      <span class="section-title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </svg>
+        Your links
+        <span class="count-pill">{{len .}}</span>
+      </span>
+    </div>
+
+    {{if .}}
+    <div class="url-list">
+      {{range .}}
+      <div class="url-card">
+        <div class="url-card-body">
+          <div class="short-row">
+            <a class="short-link" href="{{.ShortUrl}}" target="_blank" rel="noopener noreferrer">{{.ShortUrl}}</a>
+            <button class="btn-copy" onclick="copyURL('{{.ShortUrl}}', this)" aria-label="Copy short URL">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2"/>
+                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+          <div class="long-url" title="{{.LongUrl}}">{{.LongUrl}}</div>
+          <div class="meta-row">
+            {{if .CreatedAt}}
+            <span class="meta-item">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+              </svg>
+              <span data-ts="created" data-iso="{{.CreatedAt.AsTime.Format "2006-01-02T15:04:05Z07:00"}}">—</span>
+            </span>
+            {{end}}
+            {{if .Expiration}}
+            <span class="meta-item">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8"  y1="2" x2="8"  y2="6"/>
+                <line x1="3"  y1="10" x2="21" y2="10"/>
+              </svg>
+              <span data-ts="expiry" data-iso="{{.Expiration.AsTime.Format "2006-01-02T15:04:05Z07:00"}}">—</span>
+            </span>
+            {{end}}
+          </div>
+        </div>
+        <div class="url-card-actions">
+          <button class="btn-delete" onclick="openDelete('{{.ShortUrl}}')" aria-label="Delete this link">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+              <path d="M10 11v6M14 11v6"/>
+              <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      {{end}}
+    </div>
+
+    {{else}}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </svg>
+      </div>
+      <h3>No links yet</h3>
+      <p>Paste a long URL in the box above to get your first short link.</p>
+    </div>
+    {{end}}
+  </section>
+
+</div>
+{{end}}

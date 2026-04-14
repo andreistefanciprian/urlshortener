@@ -1,15 +1,32 @@
 services:
 
-  frontend:
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: infra/Dockerfile
+  #   ports:
+  #     - "8090:8090"
+  #   environment:
+  #     - BACKEND_HOST=api-gateway
+  #     - BACKEND_PORT=8080
+  #     - FRONTEND_PORT=8090
+  #     - LOG_LEVEL=DEBUG
+  #   depends_on:
+  #     api-gateway:
+  #       condition: service_started
+  #   networks:
+  #     - urlshortener
+
+  frontend2:
     build:
-      context: ./frontend
+      context: ./frontend2
       dockerfile: infra/Dockerfile
     ports:
-      - "8090:8090"
+      - "8091:8091"
     environment:
       - BACKEND_HOST=api-gateway
       - BACKEND_PORT=8080
-      - FRONTEND_PORT=8090
+      - FRONTEND_PORT=8091
       - LOG_LEVEL=DEBUG
     depends_on:
       api-gateway:
