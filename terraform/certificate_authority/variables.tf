@@ -12,13 +12,13 @@ variable "gcp_project" {
 variable "domain_name" {
   type        = string
   description = "Primary domain name for certificates"
-  default     = "netl1.com"
+  default     = "home.internal"
 }
 
 variable "domain_organization" {
   type        = string
   description = "Organization name for certificate authority"
-  default     = "netl1"
+  default     = "home"
 }
 
 variable "project_name" {
