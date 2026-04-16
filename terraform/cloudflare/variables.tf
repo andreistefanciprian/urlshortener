@@ -43,14 +43,14 @@ variable "cloudflare_domain" {
   description = "Cloudflare domain name (e.g. example.com)"
 }
 
-variable "ingress_lb_ip" {
-  type        = string
-  description = "Internal Load Balancer IP of the k8s ingress controller"
-  default     = "10.100.0.8"
-}
-
 variable "tunnel_route_cidr" {
   type        = string
   description = "CIDR range to route through the Cloudflare tunnel (covers nodes, pods, services, and GKE master)"
   default     = "10.100.0.0/18"
+}
+
+variable "vpc_dns_resolver" {
+  type        = string
+  description = "GCP VPC DNS resolver IP (always subnet base address + 2)"
+  default     = "10.100.0.2"
 }
