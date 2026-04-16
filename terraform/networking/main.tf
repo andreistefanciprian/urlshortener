@@ -80,3 +80,12 @@ resource "google_dns_managed_zone" "private" {
 
   depends_on = [google_project_service.dns]
 }
+
+# DNS A record for the Gateway LB — used by cloudflared to forward tunnel traffic
+resource "google_dns_record_set" "gateway" {
+  name         = "gateway.home.internal."
+  managed_zone = google_dns_managed_zone.private.name
+  type         = "A"
+  ttl          = 300
+  rrdatas      = [google_compute_address.gateway_lb.address]
+}
