@@ -156,6 +156,23 @@ kubectl cluster-info
 
 Once infrastructure is deployed, use FluxCD to deploy Kubernetes applications from the [urlshortener-gitops](https://github.com/andreistefanciprian/urlshortener-gitops) repo.
 
+## Troubleshooting
+
+### State Lock
+
+If a Terraform operation is interrupted, it may leave a stale state lock. To release it:
+
+```bash
+# Find the lock ID in the error message, then run:
+docker compose run terraform -chdir=<module> force-unlock -force <LOCK_ID>
+```
+
+Example:
+
+```bash
+docker compose run terraform -chdir=gke force-unlock -force 1776333426025793
+```
+
 ## Cleanup
 
 ### Destroy All Resources
