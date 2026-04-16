@@ -35,7 +35,7 @@ else
 fi
 
 # Roles scoped to what each terraform layer actually provisions:
-#   networking/            → compute.networkAdmin (VPC, subnet, router, NAT, firewall)
+#   networking/            → compute.networkAdmin (VPC, subnet, router, NAT, firewall), dns.admin (private DNS zone)
 #   cloudflared_vm/        → compute.instanceAdmin.v1 (VM instance)
 #   gke/                   → container.admin
 #   secrets/               → secretmanager.admin, iam.serviceAccountAdmin
@@ -56,6 +56,7 @@ ADMIN_ROLES=(
   "roles/storage.admin"
   "roles/serviceusage.serviceUsageAdmin"
   "roles/compute.securityAdmin"  # grants compute.firewalls.create and related firewall permissions
+  "roles/dns.admin"              # networking/ — create/manage Cloud DNS managed zones
 )
 
 for role in "${ADMIN_ROLES[@]}"; do
