@@ -48,3 +48,26 @@ resource "google_compute_router_nat" "nat" {
   }
   depends_on = [google_compute_router.router]
 }
+
+# Enable Cloud DNS API
+resource "google_project_service" "dns" {
+  service            = "dns.googleapis.com"
+  disable_on_destroy = false
+}
+
+# Private DNS zone — resolvable only within this VPC
+# Used by GKE pods, nodes, and the cloudflared VM for internal service discovery
+resource "google_dns_managed_zone" "private" {
+  name        = "${var.project_name}-private"
+  dns_name    = "home.internal."
+  description = "Private DNS zone for GKE workloads and internal GCP resources"
+  visibility  = "private"
+
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.vpc.self_link
+    }
+  }
+
+  depends_on = [google_project_service.dns]
+}

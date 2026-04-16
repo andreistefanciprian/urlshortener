@@ -55,3 +55,14 @@ output "nat_name" {
   description = "The name of the Cloud NAT"
   value       = google_compute_router_nat.nat.name
 }
+
+# Private DNS Zone Outputs
+output "private_dns_zone_name" {
+  description = "The name of the private Cloud DNS managed zone"
+  value       = google_dns_managed_zone.private.name
+}
+
+output "private_dns_zone_domain" {
+  description = "The DNS domain of the private zone, without trailing dot (e.g. home.internal)"
+  value       = trimsuffix(google_dns_managed_zone.private.dns_name, ".")
+}
