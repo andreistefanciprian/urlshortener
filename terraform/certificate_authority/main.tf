@@ -73,7 +73,7 @@ resource "google_privateca_certificate_authority" "main" {
       }
     }
   }
-  lifetime = "7776000s"
+  lifetime = "94608000s" # 3 years
   key_spec {
     # algorithm = "RSA_PKCS1_4096_SHA256"
     algorithm = "EC_P384_SHA384"
