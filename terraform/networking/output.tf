@@ -56,6 +56,12 @@ output "nat_name" {
   value       = google_compute_router_nat.nat.name
 }
 
+# Gateway LB IP Output
+output "gateway_lb_ip" {
+  description = "Static internal IP reserved for the GKE Gateway (Traefik) internal load balancer"
+  value       = google_compute_address.gateway_lb.address
+}
+
 # Private DNS Zone Outputs
 output "private_dns_zone_name" {
   description = "The name of the private Cloud DNS managed zone"

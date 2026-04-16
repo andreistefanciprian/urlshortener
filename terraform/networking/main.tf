@@ -49,6 +49,15 @@ resource "google_compute_router_nat" "nat" {
   depends_on = [google_compute_router.router]
 }
 
+# Static internal IP for the GKE Gateway (Traefik) internal load balancer
+# Referenced in the Traefik Service annotation and the Cloudflare tunnel config
+resource "google_compute_address" "gateway_lb" {
+  name         = "${var.project_name}-gateway-lb"
+  region       = var.gcp_region
+  subnetwork   = google_compute_subnetwork.subnet.self_link
+  address_type = "INTERNAL"
+}
+
 # Enable Cloud DNS API
 resource "google_project_service" "dns" {
   service            = "dns.googleapis.com"
