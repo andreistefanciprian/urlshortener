@@ -122,25 +122,3 @@ resource "google_service_account_iam_member" "external_secrets_workload_identity
   role               = "roles/iam.workloadIdentityUser"
   member             = "serviceAccount:${var.gcp_project}.svc.id.goog[external-secrets/external-secrets]"
 }
-
-# Dedicated service account for external-dns
-resource "google_service_account" "external_dns" {
-  account_id   = "${var.project_name}-external-dns"
-  display_name = "Service account for external-dns (Cloud DNS private zone)"
-  project      = var.gcp_project
-  depends_on   = [google_project_service.iam]
-}
-
-# Grant external-dns SA permission to manage records in Cloud DNS
-resource "google_project_iam_member" "external_dns_admin" {
-  project = var.gcp_project
-  role    = "roles/dns.admin"
-  member  = "serviceAccount:${google_service_account.external_dns.email}"
-}
-
-# Allow the k8s external-dns service account to impersonate the GCP SA via Workload Identity
-resource "google_service_account_iam_member" "external_dns_workload_identity" {
-  service_account_id = google_service_account.external_dns.name
-  role               = "roles/iam.workloadIdentityUser"
-  member             = "serviceAccount:${var.gcp_project}.svc.id.goog[external-dns/external-dns]"
-}

@@ -22,8 +22,3 @@ output "cloudflare_api_token_secret_id" {
   description = "Short secret ID of the Cloudflare API token secret"
   value       = google_secret_manager_secret.secrets["cloudflare-api-token"].secret_id
 }
-
-output "external_dns_service_account_email" {
-  description = "Email of the external-dns GCP service account"
-  value       = google_service_account.external_dns.email
-}
