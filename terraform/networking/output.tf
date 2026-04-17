@@ -62,6 +62,21 @@ output "gateway_lb_ip" {
   value       = google_compute_address.gateway_lb.address
 }
 
+output "gateway_lb_name" {
+  description = "Resource name of the reserved internal IP (used in the GKE load-balancer-static-ip annotation)"
+  value       = google_compute_address.gateway_lb.name
+}
+
+output "ingress_lb_ip" {
+  description = "Static internal IP reserved for the standard Traefik ingress controller"
+  value       = google_compute_address.ingress_lb.address
+}
+
+output "ingress_lb_name" {
+  description = "Resource name of the reserved ingress LB IP"
+  value       = google_compute_address.ingress_lb.name
+}
+
 # Private DNS Zone Outputs
 output "private_dns_zone_name" {
   description = "The name of the private Cloud DNS managed zone"

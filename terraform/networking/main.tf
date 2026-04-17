@@ -49,10 +49,19 @@ resource "google_compute_router_nat" "nat" {
   depends_on = [google_compute_router.router]
 }
 
-# Static internal IP for the GKE Gateway (Traefik) internal load balancer
-# Referenced in the Traefik Service annotation and the Cloudflare tunnel config
+# Static internal IP for the GKE Gateway API (Traefik) internal load balancer
+# Used by HTTPRoute/Gateway resources via the traefik-gateway namespace
 resource "google_compute_address" "gateway_lb" {
   name         = "${var.project_name}-gateway-lb"
+  region       = var.gcp_region
+  subnetwork   = google_compute_subnetwork.subnet.self_link
+  address_type = "INTERNAL"
+}
+
+# Static internal IP for the standard Traefik ingress controller
+# Used by Ingress resources (e.g. flux-operator)
+resource "google_compute_address" "ingress_lb" {
+  name         = "${var.project_name}-ingress-lb"
   region       = var.gcp_region
   subnetwork   = google_compute_subnetwork.subnet.self_link
   address_type = "INTERNAL"
