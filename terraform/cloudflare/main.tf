@@ -36,7 +36,7 @@ resource "cloudflare_zero_trust_device_default_profile" "gke" {
 }
 
 # WARP local domain fallback — enrolled clients resolve home.internal via the GCP VPC DNS resolver
-# so they can reach internal services by name (api.home.internal, app.home.internal, etc.)
+# so they can reach internal services by name (api.home.internal, frontend.home.internal, etc.)
 resource "cloudflare_zero_trust_device_default_profile_local_domain_fallback" "private" {
   account_id = var.cloudflare_account_id
   domains = [
@@ -68,7 +68,9 @@ resource "cloudflare_dns_record" "frontend" {
   ttl     = 1 # Auto TTL (required when proxied)
 }
 
-# Tunnel ingress — tell cloudflared where to forward each public hostname
+# Tunnel ingress — route each public hostname to its internal service name
+# The http_host_header rewrite ensures Traefik matches the home.internal listener,
+# keeping all routing config consistently on internal hostnames
 resource "cloudflare_zero_trust_tunnel_cloudflared_config" "gke" {
   account_id = var.cloudflare_account_id
   tunnel_id  = cloudflare_zero_trust_tunnel_cloudflared.gke.id
@@ -76,18 +78,40 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "gke" {
   config = {
     ingress = [
       {
-        hostname = var.cloudflare_domain # 9tzy.xyz → api-gateway
-        service  = "http://gateway.home.internal"
+        hostname = var.cloudflare_domain # 9tzy.xyz
+        service  = "http://api.home.internal"
+        origin_request = {
+          http_host_header = "api.home.internal"
+        }
       },
       {
-        hostname = "app.${var.cloudflare_domain}" # app.9tzy.xyz → frontend
-        service  = "http://gateway.home.internal"
+        hostname = "app.${var.cloudflare_domain}" # app.9tzy.xyz
+        service  = "http://frontend.home.internal"
+        origin_request = {
+          http_host_header = "frontend.home.internal"
+        }
       },
       {
         service = "http_status:404" # catch-all (required by cloudflared)
       },
     ]
   }
+}
+
+# WAF rule — block all non-GET requests on the public API endpoint
+# POST /create and DELETE are internal-only, enforced here at the Cloudflare edge
+resource "cloudflare_ruleset" "block_non_get_api" {
+  zone_id = var.cloudflare_zone_id
+  name    = "Block non-GET on public URL shortener API"
+  kind    = "zone"
+  phase   = "http_request_firewall_custom"
+
+  rules = [{
+    action      = "block"
+    expression  = "(http.host eq \"${var.cloudflare_domain}\" and not http.request.method eq \"GET\")"
+    description = "Only GET /{shortCode} is public — POST /create and DELETE are internal only"
+    enabled     = true
+  }]
 }
 
 # Fetch tunnel token via data source (tunnel_token attribute removed in v5)
