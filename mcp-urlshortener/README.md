@@ -18,16 +18,16 @@ docker compose up --build
 
 ## MCP Client configuration
 
-Add to `~/.vscode/.mcp.json`:
-```
+A ready-to-use config is already provided at [`.vscode/mcp.json`](../.vscode/mcp.json) in the repo root. VSCode will pick it up automatically.
+
+```json
 {
-	"servers": {
-		"urlshortener": {
-			"url": "http://localhost:3000/sse",
-			"type": "http"
-		}
-	},
-	"inputs": []
+  "servers": {
+    "urlshortener": {
+      "type": "http",
+      "url": "http://localhost:3000/mcp"
+    }
+  }
 }
 ```
 

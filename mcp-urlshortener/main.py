@@ -38,4 +38,4 @@ async def delete_short_url(short_code: str) -> dict:
 
 
 if __name__ == "__main__":
-    mcp.run(transport="sse")
+    mcp.run(transport="streamable-http")
