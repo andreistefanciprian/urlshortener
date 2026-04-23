@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/andreistefanciprian/urlshortener/compare/demo-v1.0.3...demo-v1.0.4) (2026-04-23)
+
+
+### Bug Fixes
+
+* **deps:** bump Go to 1.26.2 and grpc to v1.79.3 across all services ([9059cc5](https://github.com/andreistefanciprian/urlshortener/commit/9059cc5bbd8a7d4d91b679faadeb33ec2a164286))
+
 ## [1.0.3](https://github.com/andreistefanciprian/urlshortener/compare/demo-v1.0.2...demo-v1.0.3) (2026-03-14)
 
 
