@@ -16,6 +16,13 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+type URLInfo struct {
+	ShortUrl   string `json:"shortUrl"`
+	LongUrl    string `json:"longUrl"`
+	CreatedAt  string `json:"createdAt,omitempty"`
+	Expiration string `json:"expiration,omitempty"`
+}
+
 type URLHandler interface {
 	// Define methods for handling HTTP requests
 	CreateShortURL(w http.ResponseWriter, r *http.Request)
@@ -53,22 +60,20 @@ func (h *URLGateway) GetAllURLs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	type URLInfo struct {
-		ShortUrl   string                 `json:"shortUrl"`
-		LongUrl    string                 `json:"longUrl"`
-		CreatedAt  *timestamppb.Timestamp `json:"createdAt"`
-		Expiration *timestamppb.Timestamp `json:"expiration,omitempty"`
-	}
-
 	// Map the gRPC response to our response structure
 	var urls []URLInfo
 	for _, urlRecord := range response.Urls {
-		urls = append(urls, URLInfo{
-			ShortUrl:   URLScheme + "://" + URLShortenerDomainName + "/" + urlRecord.ShortUrlCode,
-			LongUrl:    urlRecord.OriginalUrl,
-			CreatedAt:  urlRecord.CreatedAt,
-			Expiration: urlRecord.ExpireTime,
-		})
+		info := URLInfo{
+			ShortUrl: URLScheme + "://" + URLShortenerDomainName + "/" + urlRecord.ShortUrlCode,
+			LongUrl:  urlRecord.OriginalUrl,
+		}
+		if urlRecord.CreatedAt != nil {
+			info.CreatedAt = urlRecord.CreatedAt.AsTime().Format(time.RFC3339)
+		}
+		if urlRecord.ExpireTime != nil {
+			info.Expiration = urlRecord.ExpireTime.AsTime().Format(time.RFC3339)
+		}
+		urls = append(urls, info)
 	}
 
 	// Respond with the list of URLs
