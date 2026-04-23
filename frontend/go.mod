@@ -1,6 +1,6 @@
 module github.com/andreistefanciprian/urlshortener/frontend
 
-go 1.26.1
+go 1.26.2
 
 require (
 	github.com/sirupsen/logrus v1.9.4
