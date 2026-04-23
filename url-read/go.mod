@@ -3,7 +3,7 @@ module github.com/andreistefanciprian/urlshortener/url-read
 go 1.26.2
 
 require (
-	github.com/jackc/pgx/v5 v5.8.0
+	github.com/jackc/pgx/v5 v5.9.0
 	github.com/redis/go-redis/v9 v9.17.3
 	github.com/sirupsen/logrus v1.9.4
 	github.com/stretchr/testify v1.11.1
