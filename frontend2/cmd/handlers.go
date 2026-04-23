@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type FrontendApp struct {
@@ -27,10 +26,10 @@ func NewFrontendApp(logger *logrus.Logger, backendUrl string) *FrontendApp {
 }
 
 type URLInfo struct {
-	ShortUrl   string                 `json:"shortUrl"`
-	LongUrl    string                 `json:"longUrl"`
-	CreatedAt  *timestamppb.Timestamp `json:"createdAt"`
-	Expiration *timestamppb.Timestamp `json:"expiration,omitempty"`
+	ShortUrl   string `json:"shortUrl"`
+	LongUrl    string `json:"longUrl"`
+	CreatedAt  string `json:"createdAt,omitempty"`
+	Expiration string `json:"expiration,omitempty"`
 }
 
 type URLRequest struct {

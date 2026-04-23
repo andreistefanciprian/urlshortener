@@ -57,18 +57,11 @@ func (h *URLGateway) mcpListURLs(ctx context.Context, _ mcp.CallToolRequest) (*m
 		return mcp.NewToolResultErrorf("failed to list URLs: %v", err), nil
 	}
 
-	type urlInfo struct {
-		ShortURL   string `json:"shortUrl"`
-		LongURL    string `json:"longUrl"`
-		CreatedAt  string `json:"createdAt,omitempty"`
-		Expiration string `json:"expiration,omitempty"`
-	}
-
-	urls := make([]urlInfo, 0, len(resp.Urls))
+	urls := make([]URLInfo, 0, len(resp.Urls))
 	for _, u := range resp.Urls {
-		info := urlInfo{
-			ShortURL: URLScheme + "://" + URLShortenerDomainName + "/" + u.ShortUrlCode,
-			LongURL:  u.OriginalUrl,
+		info := URLInfo{
+			ShortUrl: URLScheme + "://" + URLShortenerDomainName + "/" + u.ShortUrlCode,
+			LongUrl:  u.OriginalUrl,
 		}
 		if u.CreatedAt != nil {
 			info.CreatedAt = u.CreatedAt.AsTime().Format(time.RFC3339)

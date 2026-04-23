@@ -82,7 +82,7 @@
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
               </svg>
-              <span data-ts="created" data-iso="{{.CreatedAt.AsTime.Format "2006-01-02T15:04:05Z07:00"}}">—</span>
+              <span data-ts="created" data-iso="{{.CreatedAt}}">—</span>
             </span>
             {{end}}
             {{if .Expiration}}
@@ -93,7 +93,7 @@
                 <line x1="8"  y1="2" x2="8"  y2="6"/>
                 <line x1="3"  y1="10" x2="21" y2="10"/>
               </svg>
-              <span data-ts="expiry" data-iso="{{.Expiration.AsTime.Format "2006-01-02T15:04:05Z07:00"}}">—</span>
+              <span data-ts="expiry" data-iso="{{.Expiration}}">—</span>
             </span>
             {{end}}
           </div>
