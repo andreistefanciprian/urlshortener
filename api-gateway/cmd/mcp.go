@@ -74,7 +74,7 @@ func (h *URLGateway) mcpListURLs(ctx context.Context, _ mcp.CallToolRequest) (*m
 
 	out, err := json.Marshal(urls)
 	if err != nil {
-		return mcp.NewToolResultError("failed to marshal response"), nil
+		return mcp.NewToolResultErrorf("failed to marshal response: %v", err), nil
 	}
 	return mcp.NewToolResultText(string(out)), nil
 }
@@ -107,7 +107,7 @@ func (h *URLGateway) mcpCreateShortURL(ctx context.Context, req mcp.CallToolRequ
 
 	out, err := json.Marshal(grpcResp)
 	if err != nil {
-		return mcp.NewToolResultError("failed to marshal response"), nil
+		return mcp.NewToolResultErrorf("failed to marshal response: %v", err), nil
 	}
 	return mcp.NewToolResultText(string(out)), nil
 }
@@ -134,7 +134,7 @@ func (h *URLGateway) mcpDeleteShortURL(ctx context.Context, req mcp.CallToolRequ
 
 	out, err := json.Marshal(grpcResp)
 	if err != nil {
-		return mcp.NewToolResultError("failed to marshal response"), nil
+		return mcp.NewToolResultErrorf("failed to marshal response: %v", err), nil
 	}
 	return mcp.NewToolResultText(string(out)), nil
 }
