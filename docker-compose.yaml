@@ -34,21 +34,6 @@ services:
     networks:
       - urlshortener
 
-  # MCP Server - Model Context Protocol server for VSCode integration
-  mcp-urlshortener:
-    build:
-      context: ./mcp-urlshortener
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    environment:
-      - API_GATEWAY_URL=http://api-gateway:8080
-    depends_on:
-      api-gateway:
-        condition: service_started
-    networks:
-      - urlshortener
-
   # API Gateway - HTTP Server
   api-gateway:
     build:
@@ -57,6 +42,7 @@ services:
     ports:
       - "80:8080"
       - "9090:9090"
+      - "3000:3000"
     environment:
       - URL_GEN_HOST=url-gen
       - URL_GEN_PORT=50052

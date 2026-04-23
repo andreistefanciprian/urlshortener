@@ -7,6 +7,7 @@ import (
 
 	ugen "github.com/andreistefanciprian/urlshortener/api-gateway/url-gen/proto"
 	uread "github.com/andreistefanciprian/urlshortener/api-gateway/url-read/proto"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -102,9 +103,26 @@ func main() {
 		}
 	}()
 
+	// Set up MCP server
+	mcpPort := getEnvAsIntOrDefault("MCP_PORT", 3000)
+	mcpSrv := &http.Server{
+		Addr:              fmt.Sprintf(":%d", mcpPort),
+		Handler:           server.NewStreamableHTTPServer(newMCPServer(urlGateway)),
+		ReadHeaderTimeout: 5 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
+	go func() {
+		logger.Infof("Starting MCP server on port %d", mcpPort)
+		if err := mcpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.WithError(err).Fatal("Failed to start MCP server")
+		}
+	}()
+
 	// Handle graceful shutdown
 	handleGracefulShutdown(logger, map[string]*http.Server{
 		"metrics": metricsSrv,
 		"api":     apiSrv,
+		"mcp":     mcpSrv,
 	})
 }
