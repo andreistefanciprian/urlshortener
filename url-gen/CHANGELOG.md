@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.5](https://github.com/andreistefanciprian/urlshortener/compare/url-gen-v1.1.4...url-gen-v1.1.5) (2026-04-23)
+
+
+### Bug Fixes
+
+* **deps:** bump Go to 1.26.2 and grpc to v1.79.3 across all services ([9059cc5](https://github.com/andreistefanciprian/urlshortener/commit/9059cc5bbd8a7d4d91b679faadeb33ec2a164286))
+
 ## [1.1.4](https://github.com/andreistefanciprian/urlshortener/compare/url-gen-v1.1.3...url-gen-v1.1.4) (2026-03-14)
 
 

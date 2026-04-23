@@ -2,6 +2,6 @@
   "api-gateway": "1.1.0",
   "demo": "1.0.4",
   "frontend": "1.1.2",
-  "url-gen": "1.1.4",
+  "url-gen": "1.1.5",
   "url-read": "1.2.3"
 }
