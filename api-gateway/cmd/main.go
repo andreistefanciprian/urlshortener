@@ -13,7 +13,6 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-// fake change
 func main() {
 	// Initialize Prometheus metrics
 	initMetrics()
