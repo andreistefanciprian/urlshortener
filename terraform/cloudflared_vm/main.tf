@@ -5,6 +5,14 @@ locals {
   }, var.labels)
 }
 
+# Static internal IP — keeps the DNS record stable across VM recreations
+resource "google_compute_address" "cloudflared" {
+  name         = "${var.project_name}-cloudflared"
+  region       = var.gcp_region
+  subnetwork   = data.terraform_remote_state.networking.outputs.subnet_self_link
+  address_type = "INTERNAL"
+}
+
 # cloudflared tunnel connector VM
 resource "google_compute_instance" "cloudflared" {
   name         = "${var.project_name}-cloudflared"
@@ -21,6 +29,7 @@ resource "google_compute_instance" "cloudflared" {
 
   network_interface {
     subnetwork = data.terraform_remote_state.networking.outputs.subnet_self_link
+    network_ip = google_compute_address.cloudflared.address
     # No access_config — internal only, egress via Cloud NAT
   }
 

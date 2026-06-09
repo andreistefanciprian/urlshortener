@@ -11,7 +11,7 @@ TFSTATE_BUCKET=$(TF_VAR_tfstate_bucket)
 all: plan
 
 clean-orphan-containers:
-	@docker rm -f $$(docker ps -aq --filter "name=terraform") 2>/dev/null || echo "No matching containers to remove."
+	@docker rm $$(docker ps -aq --filter "name=terraform" --filter "status=exited") 2>/dev/null || echo "No matching containers to remove."
 
 clean:
 	@rm -rf $(TF_TARGET)/.terraform

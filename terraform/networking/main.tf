@@ -48,3 +48,70 @@ resource "google_compute_router_nat" "nat" {
   }
   depends_on = [google_compute_router.router]
 }
+
+# Static internal IP for the GKE Gateway API (Traefik) internal load balancer
+# Used by HTTPRoute/Gateway resources via the traefik-gateway namespace
+resource "google_compute_address" "gateway_lb" {
+  name         = "${var.project_name}-gateway-lb"
+  region       = var.gcp_region
+  subnetwork   = google_compute_subnetwork.subnet.self_link
+  address_type = "INTERNAL"
+}
+
+# Static internal IP for the standard Traefik ingress controller
+# Used by Ingress resources (e.g. flux-operator)
+resource "google_compute_address" "ingress_lb" {
+  name         = "${var.project_name}-ingress-lb"
+  region       = var.gcp_region
+  subnetwork   = google_compute_subnetwork.subnet.self_link
+  address_type = "INTERNAL"
+}
+
+# Enable Cloud DNS API
+resource "google_project_service" "dns" {
+  service            = "dns.googleapis.com"
+  disable_on_destroy = false
+}
+
+# Private DNS zone — resolvable only within this VPC
+# Used by GKE pods, nodes, and the cloudflared VM for internal service discovery
+resource "google_dns_managed_zone" "private" {
+  name        = "${var.project_name}-private"
+  dns_name    = "home.internal."
+  description = "Private DNS zone for GKE workloads and internal GCP resources"
+  visibility  = "private"
+
+  private_visibility_config {
+    networks {
+      network_url = google_compute_network.vpc.self_link
+    }
+  }
+
+  depends_on = [google_project_service.dns]
+}
+
+# DNS A records for internal service hostnames — all resolve to the Gateway LB
+# Static records ensure cloudflared can resolve these before external-dns is running
+resource "google_dns_record_set" "gateway" {
+  name         = "gateway.home.internal."
+  managed_zone = google_dns_managed_zone.private.name
+  type         = "A"
+  ttl          = 300
+  rrdatas      = [google_compute_address.gateway_lb.address]
+}
+
+resource "google_dns_record_set" "api" {
+  name         = "api.home.internal."
+  managed_zone = google_dns_managed_zone.private.name
+  type         = "A"
+  ttl          = 300
+  rrdatas      = [google_compute_address.gateway_lb.address]
+}
+
+resource "google_dns_record_set" "frontend" {
+  name         = "frontend.home.internal."
+  managed_zone = google_dns_managed_zone.private.name
+  type         = "A"
+  ttl          = 300
+  rrdatas      = [google_compute_address.gateway_lb.address]
+}
